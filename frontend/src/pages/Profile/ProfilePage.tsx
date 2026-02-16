@@ -1,6 +1,7 @@
 import React from "react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
+import { PageTitle, SubtleText, CardTitle } from "../../components/ui/Typography";
 
 const ProfilePage: React.FC = () => {
   return (
@@ -9,8 +10,8 @@ const ProfilePage: React.FC = () => {
         <div className="flex items-center gap-4">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-100 to-pink-100 flex items-center justify-center text-indigo-700 font-semibold text-2xl shadow">U</div>
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Your Name</h1>
-            <p className="text-sm text-slate-500">Member since 2024</p>
+            <PageTitle className="text-2xl">Your Name</PageTitle>
+            <SubtleText>Member since 2024</SubtleText>
           </div>
         </div>
 
@@ -22,9 +23,9 @@ const ProfilePage: React.FC = () => {
 
       <div className="grid grid-cols-12 gap-6">
         <aside className="col-span-12 md:col-span-4 flex flex-col gap-6">
-          <Card header={<div className="text-sm font-semibold">XP Badge</div>} className="p-4">
+          <Card header={<CardTitle>XP Badge</CardTitle>} className="p-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700 font-bold">12</div>
+              <Badge variant="calm" className="w-14 h-14 inline-flex items-center justify-center text-lg">12</Badge>
               <div>
                 <div className="text-sm text-slate-500">Level</div>
                 <div className="text-lg font-semibold">12</div>
@@ -32,7 +33,7 @@ const ProfilePage: React.FC = () => {
             </div>
           </Card>
 
-          <Card header={<div className="text-sm font-semibold">Streak</div>} className="p-4">
+          <Card header={<CardTitle>Streak</CardTitle>} className="p-4">
             <div>
               <div className="text-2xl font-bold text-slate-800">5 days</div>
               <div className="text-sm text-slate-500 mt-1">Keep the momentum going</div>
