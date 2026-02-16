@@ -1,16 +1,34 @@
+
 import React, { useState } from "react";
 import { PageTitle, SubtleText, CardTitle } from "../../components/ui/Typography";
 import Button from "../../components/ui/Button";
 import PageTransition from "../../components/ui/PageTransition";
 
 import MoodSelector from "../../components/mood/MoodSelector";
+import useMoodStore from "../../store/moodStore";
 import ReflectionInput from "../../components/mood/ReflectionInput";
 import MoodTimeline from "../../components/mood/MoodTimeline";
 import mockMoodLogs from "../../data/mockMoodLogs";
 
 const MoodLogPage: React.FC = () => {
-  const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [reflection, setReflection] = useState("");
+  const storeSelectedMood = useMoodStore((s) => s.selectedMood);
+  const addMoodLog = useMoodStore((s) => s.addMoodLog);
+  const clearSelectedMood = useMoodStore((s) => s.clearSelectedMood);
+
+  const handleSave = () => {
+    const moodLabel = storeSelectedMood ?? "Neutral";
+    const newLog = {
+      id: `m-${Date.now()}`,
+      mood: moodLabel,
+      note: reflection || undefined,
+      date: new Date().toISOString(),
+    };
+
+    addMoodLog(newLog);
+    clearSelectedMood();
+    setReflection("");
+  };
 
   return (
     <PageTransition className="max-w-7xl mx-auto px-8 py-10">
@@ -31,14 +49,14 @@ const MoodLogPage: React.FC = () => {
           <div>
             <CardTitle>Mood Selector</CardTitle>
             <div className="mt-3">
-              <MoodSelector selected={selectedMood} onChange={setSelectedMood} />
+              <MoodSelector />
             </div>
           </div>
 
           <div>
             <CardTitle>Reflection</CardTitle>
             <div className="mt-3">
-              <ReflectionInput value={reflection} onChange={setReflection} onSave={() => {}} />
+              <ReflectionInput value={reflection} onChange={setReflection} onSave={handleSave} />
             </div>
           </div>
         </aside>

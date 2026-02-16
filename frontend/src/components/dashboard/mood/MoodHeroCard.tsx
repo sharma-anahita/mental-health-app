@@ -2,6 +2,7 @@ import React from "react";
 import MotionCard from "../../ui/MotionCard";
 import Badge from "../../ui/Badge";
 import { PageTitle, SubtleText } from "../../ui/Typography";
+import useMoodStore from "../../../store/moodStore";
 
 interface MoodHeroCardProps {
   moodLabel: string;
@@ -11,12 +12,17 @@ interface MoodHeroCardProps {
 }
 
 export default function MoodHeroCard({ moodLabel, moodDescription, score, className = "" }: MoodHeroCardProps) {
+  const selectedMood = useMoodStore((s) => s.selectedMood);
+
+  const displayLabel = selectedMood ?? moodLabel;
+  const displayDescription = selectedMood ? "Selected mood — a gentle prompt to reflect." : moodDescription;
+
   return (
     <MotionCard className={`min-h-[360px] p-6 ${className}`}>
       <div className="flex h-full flex-col justify-between">
         <div>
-          <PageTitle className="mb-0">{moodLabel}</PageTitle>
-          {moodDescription && <SubtleText>{moodDescription}</SubtleText>}
+          <PageTitle className="mb-0">{displayLabel}</PageTitle>
+          {displayDescription && <SubtleText>{displayDescription}</SubtleText>}
         </div>
 
         <div className="flex items-center justify-between mt-6">

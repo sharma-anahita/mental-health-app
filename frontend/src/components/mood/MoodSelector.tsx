@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import useMoodStore from "../../store/moodStore";
 
 interface MoodOption {
   id: number;
@@ -16,23 +17,27 @@ const MOODS: MoodOption[] = [
 ];
 
 interface MoodSelectorProps {
-  selected: number | null;
-  onChange: (value: number) => void;
+  onChange?: (value: string) => void;
   className?: string;
 }
 
-export default function MoodSelector({ selected, onChange, className = "" }: MoodSelectorProps) {
+export default function MoodSelector({ onChange, className = "" }: MoodSelectorProps) {
+  const selectedLabel = useMoodStore((s) => s.selectedMood);
+  const setSelectedMood = useMoodStore((s) => s.setSelectedMood);
   return (
     <div role="radiogroup" aria-label="Mood selector" className={`flex items-center gap-3 ${className}`}>
       {MOODS.map((m) => {
-        const isSelected = selected === m.id;
+        const isSelected = selectedLabel === m.label;
         return (
           <motion.button
             key={m.id}
             type="button"
             role="radio"
             aria-checked={isSelected}
-            onClick={() => onChange(m.id)}
+            onClick={() => {
+              setSelectedMood(m.label);
+              if (onChange) onChange(m.label);
+            }}
             className={`flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-2xl focus:outline-none ${
               isSelected ? "ring-2 ring-indigo-200 bg-gradient-to-br from-indigo-50 to-pink-50 shadow-sm" : "bg-white/60 hover:bg-white/80"
             }`}
