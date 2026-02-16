@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { PageTitle, SubtleText, CardTitle } from "../../components/ui/Typography";
 import Button from "../../components/ui/Button";
 import PageTransition from "../../components/ui/PageTransition";
@@ -9,6 +9,8 @@ import useMoodStore from "../../store/moodStore";
 import ReflectionInput from "../../components/mood/ReflectionInput";
 import MoodTimeline from "../../components/mood/MoodTimeline";
 import mockMoodLogs from "../../data/mockMoodLogs";
+import ContextualEmptyState from "../../components/ui/ContextualEmptyState";
+import { getMoodMessage } from "../../utils/moodHelpers";
 
 const MoodLogPage: React.FC = () => {
   const [reflection, setReflection] = useState("");
@@ -28,6 +30,34 @@ const MoodLogPage: React.FC = () => {
     addMoodLog(newLog);
     clearSelectedMood();
     setReflection("");
+    // show a gentle success message
+    setShowSuccess(true);
+    // auto-dismiss after a short delay
+    if (dismissTimer.current) clearTimeout(dismissTimer.current);
+    dismissTimer.current = window.setTimeout(() => setShowSuccess(false), 3000);
+  };
+
+  // timer ref for cleanup
+  const dismissTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (dismissTimer.current) clearTimeout(dismissTimer.current);
+    };
+  }, []);
+
+  const moodLogs = useMoodStore((s) => s.moodLogs);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const moodToEmoji = (mood: string) => {
+    const m = (mood ?? "").toString().toLowerCase();
+    if (/\p{Extended_Pictographic}/u.test(mood)) return mood; // already emoji
+    if (m.includes("very low") || m.includes("😞") || m.includes("low")) return "😞";
+    if (m.includes("😕") || m.includes("down")) return "😕";
+    if (m.includes("okay") || m.includes("fine") || m.includes("neutral")) return "🙂";
+    if (m.includes("good") || m.includes("😊") || m.includes("better")) return "😊";
+    if (m.includes("great") || m.includes("😄") || m.includes("excellent")) return "😄";
+    return "🙂";
   };
 
   return (
@@ -65,7 +95,23 @@ const MoodLogPage: React.FC = () => {
           <div>
             <CardTitle>Recent Entries</CardTitle>
             <div className="mt-3">
-              <MoodTimeline entries={mockMoodLogs.map((m) => ({ emoji: ["😞","😕","🙂","😊","😄"][m.mood] , note: m.note, date: m.date, id: m.id }))} />
+              {showSuccess && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="mb-3 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-800 px-4 py-2 text-sm"
+                >
+                  Mood saved — nice work noticing how you feel.
+                </div>
+              )}
+
+              {moodLogs.length === 0 ? (
+                <ContextualEmptyState variant="noMoodLogs" onAction={() => {}} />
+              ) : (
+                <MoodTimeline
+                  entries={moodLogs.map((m) => ({ emoji: moodToEmoji(m.mood), note: m.note, date: m.date, id: m.id }))}
+                />
+              )}
             </div>
           </div>
         </main>

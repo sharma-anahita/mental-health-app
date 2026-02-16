@@ -6,17 +6,26 @@ import Badge from "../ui/Badge";
 type Props = {
   /** Optional small subtitle under the greeting */
   subtitle?: string;
+  /** Optional custom title node (e.g. SmartGreeting) to replace the static PageTitle */
+  titleNode?: React.ReactNode;
 };
 
 /**
  * DashboardHeader (presentational)
  */
-const DashboardHeader: React.FC<Props> = ({ subtitle }) => {
+const DashboardHeader: React.FC<Props> = ({ subtitle, titleNode }) => {
   return (
     <header className="w-full flex items-center justify-between gap-6 p-4 md:p-6">
       <div className="min-w-0">
-        <PageTitle>How are you feeling today?</PageTitle>
-        {subtitle && <SubtleText>{subtitle}</SubtleText>}
+        {titleNode ? (
+          titleNode
+        ) : (
+          <>
+            <PageTitle>How are you feeling today?</PageTitle>
+            {subtitle && <SubtleText>{subtitle}</SubtleText>}
+          </>
+        )}
+        {/** If titleNode provides its own subtitle, DashboardPage may omit `subtitle` prop. */}
       </div>
 
       <div className="flex-1 max-w-lg">
