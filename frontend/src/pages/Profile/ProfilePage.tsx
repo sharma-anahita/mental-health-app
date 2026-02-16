@@ -6,10 +6,11 @@ import LevelProgressCard from "../../components/gamification/LevelProgressCard";
 import StreakMilestone from "../../components/gamification/StreakMilestone";
 import AchievementsGrid from "../../components/gamification/AchievementsGrid";
 import { levelProgress, streak, achievements } from "../../data/mockGamification";
+import PageTransition from "../../components/ui/PageTransition";
 
 const ProfilePage: React.FC = () => {
   return (
-    <div className="max-w-5xl mx-auto px-8 py-12">
+    <PageTransition className="max-w-5xl mx-auto px-8 py-12">
       <header className="mb-6">
         <div className="flex items-center justify-between">
           <div>
@@ -75,7 +76,7 @@ const ProfilePage: React.FC = () => {
           </Section>
         </main>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

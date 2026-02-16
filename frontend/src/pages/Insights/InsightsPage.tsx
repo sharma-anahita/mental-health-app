@@ -5,6 +5,7 @@ import MoodTrendChart from "../../components/insights/MoodTrendChart";
 import MoodDistributionChart from "../../components/insights/MoodDistributionChart";
 import InsightCard from "../../components/insights/InsightCard";
 import { mockInsights } from "../../data/mockInsights";
+import PageTransition from "../../components/ui/PageTransition";
 
 const InsightsPage: React.FC = () => {
   const { trendData, distributionData, insightCards } = mockInsights;
@@ -14,7 +15,7 @@ const InsightsPage: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="px-8 py-10">
+      <PageTransition className="px-8 py-10">
         <header className="mb-6">
           <PageTitle>Insights</PageTitle>
           <SubtleText>Calm analytics to help you notice patterns and gentle suggestions.</SubtleText>
@@ -53,7 +54,7 @@ const InsightsPage: React.FC = () => {
             </div>
           </aside>
         </div>
-      </div>
+      </PageTransition>
     </AppLayout>
   );
 };

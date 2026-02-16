@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 interface ProgressBarProps {
   value: number; // 0 - 100
@@ -20,10 +21,12 @@ export default function ProgressBar({ value, label, className = "" }: ProgressBa
         </div>
       )}
 
-      <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3">
-        <div
-          className="h-3 rounded-full bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 shadow-sm transition-[width] duration-500 ease-in-out"
-          style={{ width: `${pct}%` }}
+      <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden">
+        <motion.div
+          className="h-3 rounded-full bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 shadow-sm"
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.8, ease: [0.0, 0.0, 0.2, 1] }}
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}

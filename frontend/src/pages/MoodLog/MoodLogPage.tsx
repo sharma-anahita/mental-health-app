@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { PageTitle, SubtleText, CardTitle } from "../../components/ui/Typography";
 import Button from "../../components/ui/Button";
+import PageTransition from "../../components/ui/PageTransition";
 
 import MoodSelector from "../../components/mood/MoodSelector";
 import ReflectionInput from "../../components/mood/ReflectionInput";
@@ -12,7 +13,7 @@ const MoodLogPage: React.FC = () => {
   const [reflection, setReflection] = useState("");
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-10">
+    <PageTransition className="max-w-7xl mx-auto px-8 py-10">
       <header className="flex items-center justify-between mb-8">
         <div>
           <PageTitle>Track Your Mood</PageTitle>
@@ -51,7 +52,7 @@ const MoodLogPage: React.FC = () => {
           </div>
         </main>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

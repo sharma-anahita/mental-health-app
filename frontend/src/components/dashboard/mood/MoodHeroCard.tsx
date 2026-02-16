@@ -1,5 +1,5 @@
 import React from "react";
-import Card from "../../ui/Card";
+import MotionCard from "../../ui/MotionCard";
 import Badge from "../../ui/Badge";
 import { PageTitle, SubtleText } from "../../ui/Typography";
 
@@ -12,7 +12,7 @@ interface MoodHeroCardProps {
 
 export default function MoodHeroCard({ moodLabel, moodDescription, score, className = "" }: MoodHeroCardProps) {
   return (
-    <Card className={`min-h-[360px] p-6 ${className}`}>
+    <MotionCard className={`min-h-[360px] p-6 ${className}`}>
       <div className="flex h-full flex-col justify-between">
         <div>
           <PageTitle className="mb-0">{moodLabel}</PageTitle>
@@ -33,6 +33,6 @@ export default function MoodHeroCard({ moodLabel, moodDescription, score, classN
           </div>
         </div>
       </div>
-    </Card>
+    </MotionCard>
   );
 }

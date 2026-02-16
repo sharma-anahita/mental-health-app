@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 interface MoodOption {
   id: number;
@@ -26,23 +27,22 @@ export default function MoodSelector({ selected, onChange, className = "" }: Moo
       {MOODS.map((m) => {
         const isSelected = selected === m.id;
         return (
-          <button
+          <motion.button
             key={m.id}
             type="button"
             role="radio"
             aria-checked={isSelected}
             onClick={() => onChange(m.id)}
-            className={
-              `flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-2xl transition-transform duration-200 ease-in-out focus:outline-none ` +
-              `hover:scale-105 ` +
-              (isSelected
-                ? `ring-2 ring-indigo-200 bg-gradient-to-br from-indigo-50 to-pink-50 shadow-sm transform scale-105`
-                : `bg-white/60 hover:bg-white/80`)
-            }
+            className={`flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-2xl focus:outline-none ${
+              isSelected ? "ring-2 ring-indigo-200 bg-gradient-to-br from-indigo-50 to-pink-50 shadow-sm" : "bg-white/60 hover:bg-white/80"
+            }`}
+            animate={{ scale: isSelected ? 1.06 : 1 }}
+            whileHover={{ y: -6, scale: isSelected ? 1.08 : 1.03 }}
+            transition={{ duration: 0.32, ease: [0.2, 0.8, 0.2, 1] }}
           >
-            <div className={`text-2xl ${isSelected ? "scale-110" : ""}`}>{m.emoji}</div>
+            <div className="text-2xl">{m.emoji}</div>
             <span className="text-xs text-slate-600">{m.label}</span>
-          </button>
+          </motion.button>
         );
       })}
     </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import Card from "../../ui/Card";
+import MotionCard from "../../ui/MotionCard";
 import Button from "../../ui/Button";
 import { CardTitle, BodyText, SubtleText } from "../../ui/Typography";
 
@@ -24,7 +24,7 @@ export default function ReflectionPreview({ text, updatedAt, onAdd, className = 
   const preview = text && text.length > maxChars ? `${text.slice(0, maxChars).trim()}…` : text;
 
   return (
-    <Card header={<CardTitle>Daily Reflection</CardTitle>} className={`p-4 ${className}`}>
+    <MotionCard header={<CardTitle>Daily Reflection</CardTitle>} className={`p-4 ${className}`}>
       <div className="flex flex-col h-full">
         <div className="flex-1">
           {text ? (
@@ -41,6 +41,6 @@ export default function ReflectionPreview({ text, updatedAt, onAdd, className = 
           </div>
         </div>
       </div>
-    </Card>
+    </MotionCard>
   );
 }

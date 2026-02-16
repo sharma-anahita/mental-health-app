@@ -6,6 +6,7 @@ import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import Section from "../../components/ui/Section";
 import { PageTitle, CardTitle, SubtleText } from "../../components/ui/Typography";
+import PageTransition from "../../components/ui/PageTransition";
 
 import mockDashboard from "../../data/mockDashboard";
 import MoodHeroCard from "../../components/dashboard/mood/MoodHeroCard";
@@ -23,7 +24,7 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-10">
+    <PageTransition className="max-w-7xl mx-auto px-8 py-10">
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0">
           <DashboardHeader subtitle="Overview of your recent mood and progress" />
@@ -71,7 +72,7 @@ const DashboardPage: React.FC = () => {
             <ReflectionPreview text={mockDashboard.reflection.text} updatedAt={mockDashboard.reflection.updatedAt} onAdd={() => {}} />
         </aside>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

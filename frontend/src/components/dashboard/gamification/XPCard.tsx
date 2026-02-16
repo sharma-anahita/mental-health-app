@@ -1,5 +1,5 @@
 import React from "react";
-import Card from "../../ui/Card";
+import MotionCard from "../../ui/MotionCard";
 import ProgressBar from "../../ui/ProgressBar";
 import Badge from "../../ui/Badge";
 import { CardTitle, SubtleText } from "../../ui/Typography";
@@ -13,7 +13,7 @@ interface XPCardProps {
 
 export default function XPCard({ level, xpPercent, coins, className = "" }: XPCardProps) {
   return (
-    <Card header={<CardTitle>XP / Level</CardTitle>} className={`p-4 ${className}`}>
+    <MotionCard header={<CardTitle>XP / Level</CardTitle>} className={`p-4 ${className}`}>
       <div className="flex items-center justify-between gap-4">
         <div>
           <div className="text-lg font-semibold text-slate-800">Level {level}</div>
@@ -31,6 +31,6 @@ export default function XPCard({ level, xpPercent, coins, className = "" }: XPCa
           </div>
         )}
       </div>
-    </Card>
+    </MotionCard>
   );
 }

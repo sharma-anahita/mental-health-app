@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 type Variant = "primary" | "secondary" | "ghost";
 
@@ -8,10 +9,10 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 /**
- * Reusable Button primitive for dashboard UI.
+ * Reusable Button primitive for dashboard UI with subtle motion.
  * - Variants: primary, secondary, ghost
- * - Soft pastel styling, rounded 2xl, smooth hover transitions
- * - Minimal API, presentational only
+ * - Gentle hover lift and soft press animation using Framer Motion
+ * - Calm timing and minimal visual changes
  */
 const Button: React.FC<ButtonProps> = ({
   variant = "primary",
@@ -33,9 +34,16 @@ const Button: React.FC<ButtonProps> = ({
   const classes = `${base} ${variants[variant]} ${className}`.trim();
 
   return (
-    <button className={classes} {...rest}>
+    <motion.button
+      className={classes}
+      initial={{ y: 0, boxShadow: "0 6px 14px rgba(15,23,42,0.04)" }}
+      whileHover={{ y: -4, boxShadow: "0 12px 32px rgba(15,23,42,0.08)" }}
+      whileTap={{ y: 0, scale: 0.985, boxShadow: "0 6px 14px rgba(15,23,42,0.04)" }}
+      transition={{ duration: 0.28, ease: [0.2, 0.8, 0.2, 1] }}
+      {...rest}
+    >
       {children}
-    </button>
+    </motion.button>
   );
 };
 
