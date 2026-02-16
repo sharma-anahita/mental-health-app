@@ -12,6 +12,8 @@ import AppLayout from "./app/layout/AppLayout";
 import Sidebar from "./components/dashboard/Sidebar";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import MoodLogPage from "./pages/MoodLog/MoodLogPage";
+import InsightsPage from "./pages/Insights/InsightsPage";
+import ProfilePage from "./pages/Profile/ProfilePage";
 
 // Lightweight placeholders for pages you haven't added yet.
 const Placeholder: React.FC<{ title: string; note?: string }> = ({ title, note }) => (
@@ -23,8 +25,7 @@ const Placeholder: React.FC<{ title: string; note?: string }> = ({ title, note }
 );
 
 // Keep placeholder for pages not implemented yet
-const Insights: React.FC = () => <Placeholder title="Insights" note="Graphs and trends." />;
-const Profile: React.FC = () => <Placeholder title="Profile" note="User profile and settings." />;
+// (Profile now implemented; kept placeholder available for other pages)
 
 function mapPathToItem(pathname: string) {
   if (pathname.startsWith("/mood")) return "mood" as const;
@@ -68,8 +69,8 @@ const AppRoutes: React.FC = () => {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="mood" element={<MoodLogPage />} />
-          <Route path="insights" element={<Insights />} />
-          <Route path="profile" element={<Profile />} />
+          <Route path="insights" element={<InsightsPage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -1,0 +1,61 @@
+import React from "react";
+import Card from "../ui/Card";
+import Badge from "../ui/Badge";
+import { CardTitle, BodyText, SubtleText } from "../ui/Typography";
+
+interface StreakMilestoneProps {
+  currentDays: number;
+  nextMilestone: number;
+  message?: string;
+  icon?: React.ReactNode;
+  className?: string;
+}
+
+/**
+ * StreakMilestone — small card showing current streak and next milestone.
+ * Calm supportive tone, uses `Badge` and `Typography`.
+ */
+export default function StreakMilestone({
+  currentDays,
+  nextMilestone,
+  message,
+  icon,
+  className = "",
+}: StreakMilestoneProps) {
+  const defaultMessage = "Nice work — a little consistency goes a long way.";
+  const showMessage = message ?? defaultMessage;
+
+  return (
+    <Card className={`p-4 ${className}`}>
+      <div className="flex items-center gap-4">
+        <div className="flex-shrink-0">
+          <div className="w-14 h-14 rounded-lg bg-amber-50 flex items-center justify-center shadow-sm">
+            <div className="text-xl" aria-hidden>
+              {icon ?? "🔥"}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Streak</CardTitle>
+              <div className="mt-1 text-2xl font-extrabold text-slate-800">{currentDays} days</div>
+            </div>
+
+            <div className="text-right">
+              <Badge variant={nextMilestone <= currentDays ? "success" : "calm"} title="Next milestone">
+                {nextMilestone}d
+              </Badge>
+              <SubtleText className="block mt-1">next milestone</SubtleText>
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <BodyText className="text-slate-700">{showMessage}</BodyText>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
