@@ -1,10 +1,16 @@
-import React from "react";
-import Card from "../../components/ui/Card";
-import Button from "../../components/ui/Button";
+import React, { useState } from "react";
 import { PageTitle, SubtleText, CardTitle } from "../../components/ui/Typography";
+import Button from "../../components/ui/Button";
+
+import MoodSelector from "../../components/mood/MoodSelector";
+import ReflectionInput from "../../components/mood/ReflectionInput";
+import MoodTimeline from "../../components/mood/MoodTimeline";
+import mockMoodLogs from "../../data/mockMoodLogs";
 
 const MoodLogPage: React.FC = () => {
-  // Presentational placeholders only — no logic
+  const [selectedMood, setSelectedMood] = useState<number | null>(null);
+  const [reflection, setReflection] = useState("");
+
   return (
     <div className="max-w-7xl mx-auto px-8 py-10">
       <header className="flex items-center justify-between mb-8">
@@ -20,36 +26,30 @@ const MoodLogPage: React.FC = () => {
       </header>
 
       <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
-          <Card header={<CardTitle>Mood Selector</CardTitle>} className="min-h-[240px] p-4">
-            <div className="h-40 flex flex-col items-center justify-center gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center text-xl">😊</div>
-                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-xl">😐</div>
-                <div className="w-12 h-12 rounded-full bg-indigo-200 flex items-center justify-center text-xl">😔</div>
-              </div>
-              <div className="text-sm text-slate-500">Tap a mood to select — placeholder</div>
+        <aside className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+          <div>
+            <CardTitle>Mood Selector</CardTitle>
+            <div className="mt-3">
+              <MoodSelector selected={selectedMood} onChange={setSelectedMood} />
             </div>
-          </Card>
+          </div>
 
-          <Card header={<CardTitle>Quick Notes</CardTitle>} className="min-h-[160px] p-4">
-            <textarea
-              readOnly
-              value={"No notes yet. Use reflections to capture context for your mood."}
-              className="w-full h-28 resize-none rounded-lg p-3 text-sm text-slate-700 bg-white/80 ring-1 ring-slate-100"
-            />
-          </Card>
-        </div>
+          <div>
+            <CardTitle>Reflection</CardTitle>
+            <div className="mt-3">
+              <ReflectionInput value={reflection} onChange={setReflection} onSave={() => {}} />
+            </div>
+          </div>
+        </aside>
 
-        <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
-          <Card header={<div className="text-sm font-semibold">Calendar / Timeline</div>} className="min-h-[420px] p-4">
-            <div className="h-96 flex items-center justify-center text-slate-400">Calendar / timeline placeholder</div>
-          </Card>
-
-          <Card header={<div className="text-sm font-semibold">Reflection</div>} className="min-h-[160px] p-4">
-            <div className="text-sm text-slate-600">Use this space to reflect on today's mood. (placeholder)</div>
-          </Card>
-        </div>
+        <main className="col-span-12 lg:col-span-8 flex flex-col gap-6">
+          <div>
+            <CardTitle>Recent Entries</CardTitle>
+            <div className="mt-3">
+              <MoodTimeline entries={mockMoodLogs.map((m) => ({ emoji: ["😞","😕","🙂","😊","😄"][m.mood] , note: m.note, date: m.date, id: m.id }))} />
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );

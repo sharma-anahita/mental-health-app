@@ -11,6 +11,7 @@ import {
 import AppLayout from "./app/layout/AppLayout";
 import Sidebar from "./components/dashboard/Sidebar";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
+import MoodLogPage from "./pages/MoodLog/MoodLogPage";
 
 // Lightweight placeholders for pages you haven't added yet.
 const Placeholder: React.FC<{ title: string; note?: string }> = ({ title, note }) => (
@@ -21,7 +22,7 @@ const Placeholder: React.FC<{ title: string; note?: string }> = ({ title, note }
   </div>
 );
 
-const MoodLog: React.FC = () => <Placeholder title="Mood Log" note="Log or review mood entries." />;
+// Keep placeholder for pages not implemented yet
 const Insights: React.FC = () => <Placeholder title="Insights" note="Graphs and trends." />;
 const Profile: React.FC = () => <Placeholder title="Profile" note="User profile and settings." />;
 
@@ -66,7 +67,7 @@ const AppRoutes: React.FC = () => {
         <Route element={<LayoutWithSidebar />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="mood" element={<MoodLog />} />
+          <Route path="mood" element={<MoodLogPage />} />
           <Route path="insights" element={<Insights />} />
           <Route path="profile" element={<Profile />} />
         </Route>
