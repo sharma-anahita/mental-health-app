@@ -11,6 +11,7 @@ interface UIState {
 
   toggleSidebar: () => void;
   setActiveTab: (tab: string) => void;
+  reset: () => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -20,6 +21,12 @@ export const useUIStore = create<UIState>((set) => ({
   toggleSidebar: () => set((s) => ({ isSidebarCollapsed: !s.isSidebarCollapsed })),
 
   setActiveTab: (tab: string) => set(() => ({ activeDashboardTab: tab })),
+
+  // Reset store to initial state (used on logout)
+  reset: () => set(() => ({
+    isSidebarCollapsed: false,
+    activeDashboardTab: "overview",
+  })),
 }));
 
 export default useUIStore;

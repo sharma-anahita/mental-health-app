@@ -21,6 +21,7 @@ interface UserState extends UserProgress {
   setUserProgress: (p: Partial<UserProgress>) => void;
   incrementXP: (amount?: number) => void;
   incrementStreak: (by?: number) => void;
+  reset: () => void;
 
   fetchUserProgressAsync: () => Promise<void>;
 }
@@ -49,6 +50,17 @@ export const useUserStore = create<UserState>((set, get) => ({
 
   incrementStreak: (by = 1) =>
     set((s) => ({ streak: s.streak + by })),
+
+  // Reset store to initial state (used on logout)
+  reset: () => set(() => ({
+    level: 1,
+    xp: 0,
+    xpPercent: 0,
+    streak: 0,
+    coins: 0,
+    isLoading: false,
+    error: null,
+  })),
 
   fetchUserProgressAsync: async () => {
     set(() => ({ isLoading: true, error: null }));

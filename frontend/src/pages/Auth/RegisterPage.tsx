@@ -20,7 +20,7 @@ const RegisterPage: React.FC = () => {
     try {
       const token = await authService.register({ name, email, password });
       if (token) {
-        localStorage.setItem('token', token);
+        // Token is stored by authService.register()
         navigate('/dashboard');
       } else {
         setError('No token received');

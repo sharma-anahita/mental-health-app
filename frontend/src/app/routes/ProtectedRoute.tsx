@@ -1,15 +1,15 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { isAuthenticated } from '../../services/tokenStorage';
 
 type Props = {
   children?: React.ReactNode;
 };
 
 const ProtectedRoute: React.FC<Props> = ({ children }) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const location = useLocation();
 
-  if (!token) {
+  if (!isAuthenticated()) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

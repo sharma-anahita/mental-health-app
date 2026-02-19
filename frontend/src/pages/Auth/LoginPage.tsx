@@ -19,7 +19,7 @@ const LoginPage: React.FC = () => {
     try {
       const token = await authService.login({ email, password });
       if (token) {
-        localStorage.setItem('token', token);
+        // Token is stored by authService.login()
         navigate('/dashboard');
       } else {
         setError('No token received');

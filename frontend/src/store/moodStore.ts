@@ -22,6 +22,7 @@ interface MoodState {
   addMoodLog: (log: MoodLog) => void;
   setMoodLogs: (logs: MoodLog[]) => void;
   clearSelectedMood: () => void;
+  reset: () => void;
   // Async helpers (use moodService internally)
   fetchMoodLogsAsync: () => Promise<void>;
   addMoodLogAsync: (payload: Omit<MoodLog, "id">) => Promise<void>;
@@ -44,6 +45,14 @@ export const useMoodStore = create<MoodState>((set) => ({
   setMoodLogs: (logs) => set(() => ({ moodLogs: logs })),
 
   clearSelectedMood: () => set(() => ({ selectedMood: null })),
+
+  // Reset store to initial state (used on logout)
+  reset: () => set(() => ({
+    selectedMood: null,
+    moodLogs: [],
+    isLoading: false,
+    error: null,
+  })),
 
   // Async: fetch mood logs from the service (mocked for now)
   fetchMoodLogsAsync: async () => {
