@@ -14,6 +14,9 @@ import DashboardPage from "./pages/Dashboard/DashboardPage";
 import MoodLogPage from "./pages/MoodLog/MoodLogPage";
 import InsightsPage from "./pages/Insights/InsightsPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
+import LoginPage from "./pages/Auth/LoginPage";
+import RegisterPage from "./pages/Auth/RegisterPage";
+import ProtectedRoute from "./app/routes/ProtectedRoute";
 
 // Lightweight placeholders for pages you haven't added yet.
 const Placeholder: React.FC<{ title: string; note?: string }> = ({ title, note }) => (
@@ -65,7 +68,18 @@ const AppRoutes: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<LayoutWithSidebar />}>
+        {/* Public auth routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        {/* Protected application routes */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <LayoutWithSidebar />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="mood" element={<MoodLogPage />} />

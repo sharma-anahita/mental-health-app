@@ -18,10 +18,10 @@ const AppLayout: React.FC<Props> = ({ children, sidebar = null }) => {
   return (
     <div className="min-h-screen flex bg-gradient-to-b from-pink-50 via-purple-50 to-blue-50 text-slate-900">
       <aside
-        className="w-64 flex-shrink-0 p-6 border-r border-slate-100"
+        className="w-64 flex-shrink-0 p-6 border-r border-slate-100 sticky top-0 h-screen"
         aria-label="Sidebar"
       >
-        <div className="h-full flex flex-col gap-6">
+        <div className="h-full flex flex-col">
           {sidebar}
         </div>
       </aside>

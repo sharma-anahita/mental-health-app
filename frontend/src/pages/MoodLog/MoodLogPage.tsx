@@ -15,26 +15,37 @@ import { getMoodMessage } from "../../utils/moodHelpers";
 const MoodLogPage: React.FC = () => {
   const [reflection, setReflection] = useState("");
   const storeSelectedMood = useMoodStore((s) => s.selectedMood);
-  const addMoodLog = useMoodStore((s) => s.addMoodLog);
+  const addMoodLogAsync = useMoodStore((s) => s.addMoodLogAsync);
   const clearSelectedMood = useMoodStore((s) => s.clearSelectedMood);
+  const fetchMoodLogsAsync = useMoodStore((s) => s.fetchMoodLogsAsync);
 
-  const handleSave = () => {
+  // Fetch mood logs from backend on mount
+  useEffect(() => {
+    fetchMoodLogsAsync();
+  }, [fetchMoodLogsAsync]);
+
+  const handleSave = async () => {
     const moodLabel = storeSelectedMood ?? "Neutral";
-    const newLog = {
-      id: `m-${Date.now()}`,
+    const payload = {
       mood: moodLabel,
       note: reflection || undefined,
       date: new Date().toISOString(),
     };
 
-    addMoodLog(newLog);
-    clearSelectedMood();
-    setReflection("");
-    // show a gentle success message
-    setShowSuccess(true);
-    // auto-dismiss after a short delay
-    if (dismissTimer.current) clearTimeout(dismissTimer.current);
-    dismissTimer.current = window.setTimeout(() => setShowSuccess(false), 3000);
+    try {
+      await addMoodLogAsync(payload);
+      clearSelectedMood();
+      setReflection("");
+      // show a gentle success message
+      setShowSuccess(true);
+      // auto-dismiss after a short delay
+      if (dismissTimer.current) clearTimeout(dismissTimer.current);
+      dismissTimer.current = window.setTimeout(() => setShowSuccess(false), 3000);
+    } catch (err) {
+      // preserve existing behavior: surface an error in console and keep form state for retry
+      // the store will already set error state which UI could display elsewhere
+      // console.error(err);
+    }
   };
 
   // timer ref for cleanup

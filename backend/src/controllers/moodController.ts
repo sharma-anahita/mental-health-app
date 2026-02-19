@@ -16,6 +16,15 @@ export const createMood = async (req: AuthRequest, res: Response, next: NextFunc
     const { mood, note } = req.body as { mood: string; note?: string };
     if (!mood) return res.status(400).json({ message: 'mood is required' });
 
+    // Prevent duplicate for the same UTC day: check existing mood within that day
+    const now = new Date();
+    const startOfDayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+    const endOfDayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
+    const existing = await MoodLog.findOne({ userId, createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC } });
+    if (existing) {
+      return res.status(409).json({ message: 'Duplicate mood for today', mood: existing });
+    }
+
     // create mood log
     const moodLog = await MoodLog.create({ userId: new mongoose.Types.ObjectId(userId), mood, note } as Partial<IMoodLog>);
 

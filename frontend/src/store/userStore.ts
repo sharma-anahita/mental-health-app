@@ -59,7 +59,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         xp: progress.levelProgress.currentXP,
         xpPercent: progress.levelProgress.xpPercent ?? 0,
         streak: progress.streak.currentDays,
-        coins: 0,
+        coins: progress.coins ?? 0,
         isLoading: false,
       }));
     } catch (err) {
