@@ -17,4 +17,5 @@ export interface User {
   streak?: number;
 }
 
-export default User;
+// Use named export only; default-exporting a type triggers TS1284 when
+// `verbatimModuleSyntax` is enabled. Importers should use `import type { User }`.

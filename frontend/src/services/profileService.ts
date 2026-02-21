@@ -1,5 +1,5 @@
 import apiClient from './apiClient';
-import type User from '../types/user';
+import type { User } from '../types/user';
 
 /**
  * Update user profile.

@@ -10,6 +10,24 @@ const userSchema = new mongoose_1.default.Schema({
     passwordHash: { type: String, required: true },
     xp: { type: Number, default: 0 },
     streak: { type: Number, default: 0 },
+    coins: { type: Number, default: 0 },
+    level: { type: Number, default: 0 },
+    // Optional profile fields
+    username: { type: String, unique: true, sparse: true },
+    bio: { type: String, default: '' },
+    avatarUrl: { type: String, default: '' },
+    phone: { type: String, default: '' },
+    location: { type: String, default: '' },
+    profileCompletedFields: { type: [String], default: [] },
+    inventory: {
+        type: [
+            {
+                itemId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'StoreItem', required: true },
+                acquiredAt: { type: Date, default: Date.now },
+            },
+        ],
+        default: [],
+    },
 }, { timestamps: true });
 const User = mongoose_1.default.model('User', userSchema);
 exports.default = User;

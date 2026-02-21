@@ -7,6 +7,7 @@ exports.getMoods = exports.createMood = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const MoodLog_1 = __importDefault(require("../models/MoodLog"));
 const User_1 = __importDefault(require("../models/User"));
+const progressionService_1 = __importDefault(require("../services/progressionService"));
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const createMood = async (req, res, next) => {
     try {
@@ -16,34 +17,28 @@ const createMood = async (req, res, next) => {
         const { mood, note } = req.body;
         if (!mood)
             return res.status(400).json({ message: 'mood is required' });
+        // Prevent duplicate for the same UTC day: check existing mood within that day
+        const now = new Date();
+        const startOfDayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+        const endOfDayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
+        const existing = await MoodLog_1.default.findOne({ userId, createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC } });
+        if (existing) {
+            return res.status(409).json({ message: 'Duplicate mood for today', mood: existing });
+        }
         // create mood log
         const moodLog = await MoodLog_1.default.create({ userId: new mongoose_1.default.Types.ObjectId(userId), mood, note });
-        // update user streak and xp
+        // update user streak and xp using progressionService
         const user = await User_1.default.findById(userId);
         if (!user)
             return res.status(404).json({ message: 'User not found' });
-        const last = await MoodLog_1.default.findOne({ userId }).sort({ createdAt: -1 }).skip(1).limit(1);
-        // Note: skip(1) because the most recent is the mood we just created; want previous entry
-        const now = new Date();
-        let newStreak = 1;
-        if (last && last.createdAt) {
-            const lastDay = startOfDay(new Date(last.createdAt));
-            const diff = Math.round((startOfDay(now).getTime() - lastDay.getTime()) / (1000 * 60 * 60 * 24));
-            if (diff === 1) {
-                newStreak = (user.streak || 0) + 1;
-            }
-            else {
-                newStreak = 1;
-            }
+        const result = await progressionService_1.default.updateUserProgress(user, moodLog.createdAt || new Date(), !!moodLog.note);
+        if (result.duplicate) {
+            // remove the mood we just created to avoid duplicate entries
+            await MoodLog_1.default.findByIdAndDelete(moodLog._id);
+            return res.status(409).json({ message: 'Duplicate mood for today' });
         }
-        else {
-            // no previous logs -> either first log or only current
-            newStreak = 1;
-        }
-        user.streak = newStreak;
-        user.xp = (user.xp || 0) + 10;
-        await user.save();
-        res.status(201).json({ mood: moodLog, stats: { xp: user.xp, streak: user.streak } });
+        const updatedUser = result.user;
+        res.status(201).json({ mood: moodLog, stats: { xp: updatedUser.xp, streak: updatedUser.streak, coins: updatedUser.coins, level: updatedUser.level } });
     }
     catch (err) {
         next(err);

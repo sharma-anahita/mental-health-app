@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import * as userService from "../services/userService";
-import type User from "../types/user";
+import type { User } from "../types/user";
 
 /**
  * Frontend-only user progress cache (Zustand)

@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -19,17 +19,7 @@ import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
 import ProtectedRoute from "./app/routes/ProtectedRoute";
 
-// Lightweight placeholders for pages you haven't added yet.
-const Placeholder: React.FC<{ title: string; note?: string }> = ({ title, note }) => (
-  <div className="p-6">
-    <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
-    {note && <p className="mt-2 text-sm text-slate-600">{note}</p>}
-    <div className="mt-6 text-slate-500">This is a simple placeholder for the {title} page.</div>
-  </div>
-);
-
-// Keep placeholder for pages not implemented yet
-// (Profile now implemented; kept placeholder available for other pages)
+// Placeholder removed — it was declared but never used by routes.
 
 function mapPathToItem(pathname: string) {
   if (pathname.startsWith("/mood-log")) return "mood" as const;
@@ -39,7 +29,7 @@ function mapPathToItem(pathname: string) {
   return "dashboard" as const;
 }
 
-const LayoutWithSidebar: React.FC = () => {
+const LayoutWithSidebar: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const active = mapPathToItem(location.pathname);
@@ -68,7 +58,7 @@ const LayoutWithSidebar: React.FC = () => {
   );
 };
 
-const AppRoutes: React.FC = () => {
+const AppRoutes: FC = () => {
   return (
     <BrowserRouter>
       <Routes>
