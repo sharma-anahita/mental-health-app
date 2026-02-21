@@ -9,7 +9,6 @@ import { levelProgress, streak, achievements } from "../../data/mockGamification
 import PageTransition from "../../components/ui/PageTransition";
 import Card from "../../components/ui/Card";
 import Input from "../../components/ui/Input";
-import apiClient from "../../services/apiClient";
 import profileService from "../../services/profileService";
 import useUIStore from "../../store/uiStore";
 import useUserStore from "../../store/userStore";
@@ -29,9 +28,7 @@ const ProfilePage: React.FC = () => {
   const loadProfile = async () => {
     setLoading(true);
     try {
-      // The backend returns current user when PATCH /user/profile is called even with no changes.
-      const res = await apiClient.patch('/user/profile', {});
-      const u = res.user;
+      const u = await profileService.getProfile();
       setName(u.name ?? '');
       setEmail(u.email ?? '');
       setUsername(u.username ?? '');

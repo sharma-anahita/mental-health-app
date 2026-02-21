@@ -94,7 +94,7 @@ export const rewardProfileCompletion = async (
 
   const newlyCompleted = updatedFields.filter((f) => {
     // skip if already recorded as completed
-    if (user.profileCompletedFields.includes(f)) return false;
+    if ((user.profileCompletedFields || []).includes(f)) return false;
     // ensure the user actually has a non-empty value for the field
     const val = (user as any)[f];
     return val !== undefined && val !== null && !(typeof val === 'string' && val.trim() === '');
@@ -133,4 +133,19 @@ export default {
   calculateLevelFromXP,
   updateUserProgress,
   rewardProfileCompletion,
+  // Award XP for goal completion or other small events
+  rewardGoalCompletion: async (user: mongoose.Document & IUser, xpAmount: number, reason = 'goal_completion') => {
+    const xpGain = Number(xpAmount) || 0;
+    if (xpGain === 0) return { user, xpGained: 0 };
+
+    user.xp = (user.xp || 0) + xpGain;
+    try {
+      await XPHistory.create({ userId: user._id, amount: xpGain, reason });
+    } catch (err) {
+      console.error('Failed to record goal completion XP history:', err);
+    }
+    user.level = calculateLevelFromXP(user.xp);
+    await user.save();
+    return { user, xpGained: xpGain };
+  },
 };

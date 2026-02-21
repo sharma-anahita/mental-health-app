@@ -16,4 +16,14 @@ export async function updateProfile(data: Partial<User>): Promise<{ user: User; 
   }
 }
 
-export default { updateProfile };
+export async function getProfile(): Promise<User> {
+  try {
+    const res = await apiClient.get<{ user: User }>('/user/profile');
+    return res.user;
+  } catch (err: any) {
+    const message = err instanceof Error ? err.message : 'Failed to load profile';
+    throw new Error(`Profile load failed: ${message}`);
+  }
+}
+
+export default { updateProfile, getProfile };

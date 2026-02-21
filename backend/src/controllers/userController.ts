@@ -66,4 +66,34 @@ export const updateProfile = async (req: AuthRequest, res: Response, next: NextF
   }
 };
 
-export default { updateProfile };
+export const getProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.userId;
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        bio: user.bio,
+        avatarUrl: user.avatarUrl,
+        phone: user.phone,
+        location: user.location,
+        xp: user.xp,
+        profileCompletedFields: user.profileCompletedFields,
+        streak: user.streak,
+        coins: user.coins,
+        level: user.level,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export default { updateProfile, getProfile };
