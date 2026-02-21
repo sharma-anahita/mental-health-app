@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 // Page should render content only; AppLayout + Sidebar are provided by the router layout
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
 import SmartGreeting from "../../components/dashboard/SmartGreeting";
 import DailyPromptCard from "../../components/dashboard/DailyPromptCard";
 import ContextualEmptyState from "../../components/ui/ContextualEmptyState";
+import StreakMilestone from "../../components/gamification/StreakMilestone";
 import useMoodStore from "../../store/moodStore";
 import useUserStore from "../../store/userStore";
 import Button from "../../components/ui/Button";
@@ -52,20 +52,7 @@ const DashboardPage: React.FC = () => {
   }, [fetchUserProgressAsync, fetchMoodLogsAsync]);
 
   return (
-    <PageTransition className="max-w-7xl mx-auto px-8 py-10">
-      <div className="flex items-center justify-between gap-6">
-        <div className="min-w-0">
-          <DashboardHeader
-            titleNode={<SmartGreeting />}
-            subtitle="Overview of your recent mood and progress"
-          />
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button variant="ghost">Import</Button>
-          <Button variant="primary">New Reflection</Button>
-        </div>
-      </div>
+    <PageTransition className="max-w-5xl mx-auto px-4 py-6">
 
       {errorMessage && (
         <div role="alert" aria-live="polite" className="mt-4 rounded-md bg-rose-50 border border-rose-100 text-rose-800 px-4 py-3">
@@ -78,57 +65,60 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      <div className="mt-10 grid grid-cols-12 gap-8">
-        {/* Prominent Mood Summary (primary focus) */}
-        <Section className="col-span-12 lg:col-span-7">
-          <MoodHeroCard
-            moodLabel={mockDashboard.moodSummary.moodLabel}
-            moodDescription={mockDashboard.moodSummary.moodDescription}
-            score={mockDashboard.moodSummary.score}
-          />
-        </Section>
-
-        {/* Secondary stats + chart + reflection */}
-        <aside className="col-span-12 lg:col-span-5 flex flex-col gap-6">
-          <div className="flex gap-6">
-            <div className="flex-1">
-              {userLoading ? (
-                <Card className="p-4">
-                  <div className="text-sm text-slate-600">Loading progress…</div>
-                </Card>
-                ) : (
-                <XPCard level={userLevel} xpPercent={userXpPercent} coins={userCoins} currentXP={userXp} />
-              )}
-            </div>
-
-            <Card header={<CardTitle>Streak</CardTitle>} className="flex-1 p-4">
-              {userLoading ? (
-                <div className="text-sm text-slate-600">Loading streak…</div>
-              ) : (
-                <div className="flex flex-col items-start">
-                  <div className="text-2xl font-bold text-slate-800">{userStreak} days</div>
-                  <div className="text-sm text-slate-500 mt-1">Last entry: {mockDashboard.streak.lastEntry}</div>
-                </div>
-              )}
-            </Card>
+      <div className="mt-4 grid grid-cols-12 gap-4">
+        {/* Left column: Greeting, Mood Summary, Streak */}
+        <div className="col-span-12 lg:col-span-7 flex flex-col gap-4">
+          <div>
+            <SmartGreeting />
+            <SubtleText className="block mt-1">Overview of your recent mood and progress</SubtleText>
           </div>
 
-            <Card header={<CardTitle>Weekly Mood Chart</CardTitle>} className="min-h-[200px] p-4">
-              {moodLoading ? (
-                <div className="text-sm text-slate-600">Loading chart…</div>
-              ) : (
-                <WeeklyMoodChart data={mockDashboard.weeklyMoodData} height={160} />
-              )}
-            </Card>
+          <Section>
+            <MoodHeroCard
+              moodLabel={mockDashboard.moodSummary.moodLabel}
+              moodDescription={mockDashboard.moodSummary.moodDescription}
+              score={mockDashboard.moodSummary.score}
+            />
+          </Section>
 
-            {/* Add daily prompt and show contextual empty state when there are no mood logs */}
-            <DailyPromptCard onReflect={() => {}} />
+          <div>
+            {userLoading ? (
+              <Card className="p-3">
+                <div className="text-sm text-slate-600">Loading streak…</div>
+              </Card>
+            ) : (
+              <StreakMilestone currentDays={userStreak} nextMilestone={7} />
+            )}
+          </div>
+        </div>
+
+        {/* Right column: XP Hero, Weekly Chart, Prompt/Reflection */}
+        <aside className="col-span-12 lg:col-span-5 flex flex-col gap-4">
+          {userLoading ? (
+            <Card className="p-3">
+              <div className="text-sm text-slate-600">Loading progress…</div>
+            </Card>
+          ) : (
+            <XPCard level={userLevel} xpPercent={userXpPercent} coins={userCoins} currentXP={userXp} />
+          )}
+
+          <Card header={<CardTitle>Weekly Mood</CardTitle>} className="min-h-[160px] p-3">
+            {moodLoading ? (
+              <div className="text-sm text-slate-600">Loading chart…</div>
+            ) : (
+              <WeeklyMoodChart data={mockDashboard.weeklyMoodData} height={130} />
+            )}
+          </Card>
+
+          <div className="flex flex-col gap-2">
+            <DailyPromptCard className="p-3" onReflect={() => {}} />
 
             {moodLogs.length === 0 ? (
-              <ContextualEmptyState variant="noMoodLogs" onAction={() => {}} />
+              <ContextualEmptyState variant="noMoodLogs" className="p-3" onAction={() => {}} />
             ) : (
-              <ReflectionPreview text={mockDashboard.reflection.text} updatedAt={mockDashboard.reflection.updatedAt} onAdd={() => {}} />
+              <ReflectionPreview className="p-3" text={mockDashboard.reflection.text} updatedAt={mockDashboard.reflection.updatedAt} onAdd={() => {}} />
             )}
+          </div>
         </aside>
       </div>
     </PageTransition>

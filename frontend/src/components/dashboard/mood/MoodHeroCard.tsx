@@ -18,19 +18,19 @@ export default function MoodHeroCard({ moodLabel, moodDescription, score, classN
   const displayDescription = selectedMood ? "Selected mood — a gentle prompt to reflect." : moodDescription;
 
   return (
-    <MotionCard className={`min-h-[360px] p-6 ${className}`}>
+    <MotionCard className={`min-h-[320px] p-5 ${className}`}>
       <div className="flex h-full flex-col justify-between">
         <div>
-          <PageTitle className="mb-0">{displayLabel}</PageTitle>
-          {displayDescription && <SubtleText>{displayDescription}</SubtleText>}
+          <PageTitle className="mb-0 text-xl">{displayLabel}</PageTitle>
+          {displayDescription && <SubtleText className="text-sm">{displayDescription}</SubtleText>}
         </div>
 
-        <div className="flex items-center justify-between mt-6">
-          <div className="flex items-center gap-4">
-            <Badge variant="calm" className="w-20 h-20 inline-flex items-center justify-center rounded-full text-2xl">{score}</Badge>
+        <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-3">
+            <Badge variant="calm" className="w-14 h-14 inline-flex items-center justify-center rounded-full text-lg">{score}</Badge>
             <div>
-              <div className="text-sm text-slate-500">Mood score</div>
-              <div className="text-xl font-medium text-slate-800">{score}</div>
+              <div className="text-xs text-slate-500">Mood score</div>
+              <div className="text-lg font-medium text-slate-800">{score}</div>
             </div>
           </div>
 

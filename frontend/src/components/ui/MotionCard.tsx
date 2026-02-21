@@ -15,13 +15,14 @@ type MotionCardProps = React.PropsWithChildren<{
  * - Accepts `header` and `footer` to preserve existing Card API
  */
 export default function MotionCard({ children, className = "", header, footer }: MotionCardProps) {
-  const initialShadow = "0 8px 20px rgba(15,23,42,0.04)";
-  const hoverShadow = "0 18px 40px rgba(15,23,42,0.08)";
+  // Softer, subtler shadows to keep cards calm and supportive
+  const initialShadow = "0 6px 14px rgba(15,23,42,0.02)";
+  const hoverShadow = "0 10px 22px rgba(15,23,42,0.04)";
 
   return (
     <motion.div
       initial={{ y: 0, boxShadow: initialShadow }}
-      whileHover={{ y: -6, boxShadow: hoverShadow }}
+      whileHover={{ y: -4, boxShadow: hoverShadow }}
       transition={{ duration: 0.34, ease: [0.2, 0.8, 0.2, 1] }}
       className={`rounded-2xl inline-block ${className}`}
     >
