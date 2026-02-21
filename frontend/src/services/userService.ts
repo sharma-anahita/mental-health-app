@@ -55,7 +55,8 @@ function transformGamificationResponse(raw: BackendGamificationResponse): UserPr
       level: raw.levelProgress.level,
       currentXP: raw.levelProgress.currentXP,
       nextLevelXP: 0, // Backend doesn't provide this; UI can calculate or ignore
-      xpPercent: raw.levelProgress.xpPercent ?? 0,
+      // backend provides xpPercent as fraction (0-1) — convert to percentage (0-100)
+      xpPercent: Math.round((raw.levelProgress.xpPercent ?? 0) * 100),
     },
     streak: {
       currentDays: raw.streak.currentDays,

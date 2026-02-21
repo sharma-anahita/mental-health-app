@@ -133,6 +133,9 @@ const apiClient = {
   post<T = any>(endpoint: string, body?: any) {
     return request<T>('POST', endpoint, body);
   },
+  patch<T = any>(endpoint: string, body?: any) {
+    return request<T>('PATCH', endpoint, body);
+  },
 };
 
 export default apiClient;

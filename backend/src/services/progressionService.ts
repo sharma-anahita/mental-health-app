@@ -23,13 +23,8 @@ export const updateUserProgress = async (
   moodDate: Date,
   hasNote = false
 ): Promise<{ user: typeof user; duplicate: boolean; xpGain?: number; coinGain?: number }> => {
-  // Prevent duplicate rewards based on last updated time
-  if (user.updatedAt && new Date(user.updatedAt).getTime() >= new Date(moodDate).getTime()) {
-    return { user, duplicate: true };
-  }
-
-  // Find the previous mood entry (the one before the newly created one)
-  const prev = await MoodLog.findOne({ userId: user._id }).sort({ createdAt: -1 }).skip(1).limit(1);
+  // Find the previous mood entry strictly before this moodDate
+  const prev = await MoodLog.findOne({ userId: user._id, createdAt: { $lt: moodDate } }).sort({ createdAt: -1 });
 
   // Helper: start of day in UTC to avoid timezone issues
   const startOfDayUTC = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
@@ -87,10 +82,55 @@ export const updateUserProgress = async (
   return { user, duplicate: false, xpGain, coinGain };
 };
 
+export const rewardProfileCompletion = async (
+  user: mongoose.Document & IUser,
+  updatedFields: string[]
+): Promise<{ user: typeof user; xpGained: number }> => {
+  if (!Array.isArray(updatedFields) || updatedFields.length === 0) {
+    return { user, xpGained: 0 };
+  }
+
+  user.profileCompletedFields = user.profileCompletedFields || [];
+
+  const newlyCompleted = updatedFields.filter((f) => {
+    // skip if already recorded as completed
+    if (user.profileCompletedFields.includes(f)) return false;
+    // ensure the user actually has a non-empty value for the field
+    const val = (user as any)[f];
+    return val !== undefined && val !== null && !(typeof val === 'string' && val.trim() === '');
+  });
+
+  if (newlyCompleted.length === 0) return { user, xpGained: 0 };
+
+  const xpPerField = 2;
+  const xpGain = xpPerField * newlyCompleted.length;
+
+  user.xp = (user.xp || 0) + xpGain;
+
+  // record an XPHistory entry per field (so each completion is auditable)
+  try {
+    const historyDocs = newlyCompleted.map((f) => ({ userId: user._id, amount: xpPerField, reason: `profile_completion:${f}` }));
+    await XPHistory.insertMany(historyDocs);
+  } catch (err) {
+    console.error('Failed to record profile completion XP history:', err);
+  }
+
+  // add to profileCompletedFields
+  user.profileCompletedFields = Array.from(new Set([...user.profileCompletedFields, ...newlyCompleted]));
+
+  // update level
+  user.level = calculateLevelFromXP(user.xp);
+
+  await user.save();
+
+  return { user, xpGained: xpGain };
+};
+
 export default {
   calculateBaseXP,
   calculateStreakBonus,
   calculateTotalXP,
   calculateLevelFromXP,
   updateUserProgress,
+  rewardProfileCompletion,
 };

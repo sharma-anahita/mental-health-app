@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import { PageTitle, BodyText } from '../../components/ui/Typography';
@@ -84,6 +84,14 @@ const RegisterPage: React.FC = () => {
             </div>
           </div>
         </form>
+        <div className="mt-4">
+          <BodyText className="text-center text-sm text-slate-600">
+            Already have an account?{' '}
+            <Link to="/login" className="text-indigo-600 font-medium hover:underline">
+              Login
+            </Link>
+          </BodyText>
+        </div>
       </Card>
     </div>
   );

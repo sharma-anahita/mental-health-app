@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import * as userService from "../services/userService";
+import type User from "../types/user";
 
 /**
  * Frontend-only user progress cache (Zustand)
@@ -21,13 +22,14 @@ interface UserState extends UserProgress {
   setUserProgress: (p: Partial<UserProgress>) => void;
   incrementXP: (amount?: number) => void;
   incrementStreak: (by?: number) => void;
+  applyProfileUpdate: (u: Partial<User>) => void;
   reset: () => void;
 
   fetchUserProgressAsync: () => Promise<void>;
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
-  level: 1,
+  level: 0,
   xp: 0,
   xpPercent: 0,
   streak: 0,
@@ -53,7 +55,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
   // Reset store to initial state (used on logout)
   reset: () => set(() => ({
-    level: 1,
+    level: 0,
     xp: 0,
     xpPercent: 0,
     streak: 0,
@@ -79,6 +81,30 @@ export const useUserStore = create<UserState>((set, get) => ({
       set(() => ({ error: message, isLoading: false }));
     }
   },
+  applyProfileUpdate: (u: Partial<User>) =>
+    set((s) => {
+      const newLevel = u.level ?? s.level;
+      const newXp = u.xp ?? s.xp;
+
+      // calculate xpPercent toward next level if we have xp/level
+      let newXpPercent = s.xpPercent;
+      if (newXp !== undefined && newLevel !== undefined) {
+        const minXpForLevel = 100 * Math.pow(newLevel, 2);
+        const nextLevel = newLevel + 1;
+        const nextLevelXp = 100 * Math.pow(nextLevel, 2);
+        const denom = nextLevelXp - minXpForLevel;
+        const frac = denom > 0 ? (newXp - minXpForLevel) / denom : 0;
+        newXpPercent = Math.max(0, Math.min(100, Math.round(frac * 100)));
+      }
+
+      return {
+        level: newLevel,
+        xp: newXp,
+        xpPercent: newXpPercent,
+        streak: u.streak ?? s.streak,
+        coins: u.coins ?? s.coins,
+      };
+    }),
 }));
 
 export default useUserStore;

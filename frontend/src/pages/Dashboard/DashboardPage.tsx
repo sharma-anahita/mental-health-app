@@ -39,6 +39,7 @@ const DashboardPage: React.FC = () => {
   const userLevel = useUserStore((s) => s.level);
   const userXpPercent = useUserStore((s) => s.xpPercent ?? mockDashboard.xp.xpPercent);
   const userCoins = useUserStore((s) => s.coins ?? mockDashboard.xp.coins);
+  const userXp = useUserStore((s) => s.xp ?? 0);
   const userStreak = useUserStore((s) => s.streak ?? mockDashboard.streak.days);
 
   const loading = userLoading || moodLoading;
@@ -95,8 +96,8 @@ const DashboardPage: React.FC = () => {
                 <Card className="p-4">
                   <div className="text-sm text-slate-600">Loading progress…</div>
                 </Card>
-              ) : (
-                <XPCard level={userLevel} xpPercent={userXpPercent} coins={userCoins} />
+                ) : (
+                <XPCard level={userLevel} xpPercent={userXpPercent} coins={userCoins} currentXP={userXp} />
               )}
             </div>
 

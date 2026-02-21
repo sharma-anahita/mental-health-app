@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes';
 import moodRoutes from './routes/moodRoutes';
 import gamificationRoutes from './routes/gamificationRoutes';
+import userRoutes from './routes/userRoutes';
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(
 app.use('/api/auth', authRoutes);
 app.use('/api/moods', moodRoutes);
 app.use('/api/gamification', gamificationRoutes);
+app.use('/api/user', userRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok' });

@@ -8,10 +8,11 @@ interface XPCardProps {
   level: number;
   xpPercent: number; // 0-100
   coins?: number;
+  currentXP?: number;
   className?: string;
 }
 
-export default function XPCard({ level, xpPercent, coins, className = "" }: XPCardProps) {
+export default function XPCard({ level, xpPercent, coins, currentXP = 0, className = "" }: XPCardProps) {
   return (
     <MotionCard header={<CardTitle>XP / Level</CardTitle>} className={`p-4 ${className}`}>
       <div className="flex items-center justify-between gap-4">
@@ -21,7 +22,7 @@ export default function XPCard({ level, xpPercent, coins, className = "" }: XPCa
         </div>
 
         <div className="flex-1 mx-4">
-          <ProgressBar value={xpPercent} />
+          <ProgressBar value={xpPercent} label={`XP ${currentXP ?? 0} / ${100 * Math.pow((level + 1), 2)}`} />
         </div>
 
         {coins !== undefined && (

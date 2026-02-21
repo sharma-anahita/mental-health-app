@@ -8,6 +8,12 @@ export interface IUser {
   streak: number;
   coins?: number;
   level?: number;
+  username?: string;
+  bio?: string;
+  avatarUrl?: string;
+  phone?: string;
+  location?: string;
+  profileCompletedFields?: string[];
   inventory?: Array<{
     itemId: import('mongoose').Types.ObjectId;
     acquiredAt?: Date;
@@ -24,7 +30,14 @@ const userSchema = new mongoose.Schema<IUser>(
     xp: { type: Number, default: 0 },
     streak: { type: Number, default: 0 },
     coins: { type: Number, default: 0 },
-    level: { type: Number, default: 1 },
+    level: { type: Number, default: 0 },
+    // Optional profile fields
+    username: { type: String, unique: true, sparse: true },
+    bio: { type: String, default: '' },
+    avatarUrl: { type: String, default: '' },
+    phone: { type: String, default: '' },
+    location: { type: String, default: '' },
+    profileCompletedFields: { type: [String], default: [] },
     inventory: {
       type: [
         {

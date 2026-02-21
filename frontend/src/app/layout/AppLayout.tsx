@@ -1,4 +1,5 @@
 import React from "react";
+import Toasts from "../../components/ui/Toast";
 
 type Props = {
   children: React.ReactNode;
@@ -28,6 +29,7 @@ const AppLayout: React.FC<Props> = ({ children, sidebar = null }) => {
 
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-7xl mx-auto w-full">{children}</div>
+        <Toasts />
       </main>
     </div>
   );
