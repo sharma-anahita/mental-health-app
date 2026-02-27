@@ -5,6 +5,7 @@ import moodRoutes from './routes/moodRoutes';
 import gamificationRoutes from './routes/gamificationRoutes';
 import userRoutes from './routes/userRoutes';
 import goalRoutes from './routes/goalRoutes';
+import insightsRoutes from './routes/insightsRoutes';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/api/moods', moodRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/goals', goalRoutes);
+app.use('/api/insights', insightsRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok' });
