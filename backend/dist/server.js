@@ -6,6 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv/config");
 const app_1 = __importDefault(require("./app"));
 const db_1 = __importDefault(require("./config/db"));
+const cors_1 = __importDefault(require("cors"));
+app_1.default.use((0, cors_1.default)({
+    origin: "https://mental-health-app-ebon.vercel.app",
+    credentials: true
+}));
 const PORT = process.env.PORT || 5000;
 const startServer = async () => {
     try {

@@ -2,6 +2,13 @@ import 'dotenv/config';
 import app from './app';
 import connectDB from './config/db';
 
+import cors from "cors";
+
+app.use(cors({
+  origin: "https://mental-health-app-ebon.vercel.app",
+  credentials: true
+}));
+
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {

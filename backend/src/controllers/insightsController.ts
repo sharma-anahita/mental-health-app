@@ -123,7 +123,7 @@ export const getInsights = async (req: AuthRequest, res: Response, next: NextFun
     const distributionData = Object.keys(buckets).map((k) => ({ moodLabel: k, count: buckets[k] }));
 
     // Build insightCards from ml results and simple heuristics
-    const insightCards: Array<{ id: string; title: string; description: string; type: 'positive' | 'neutral' | 'warning' }> = [];
+    const insightCards: Array<{ _id?: string; id: string; title: string; description: string; type: 'positive' | 'neutral' | 'warning' }> = [];
 
     // ML trend insight
     if (trendResult) {
