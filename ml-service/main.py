@@ -88,7 +88,7 @@ def analyze_trend(payload: TrendIn):
     return TrendOut(trend=trend, volatility=volatility, risk_score=round(risk_score, 3))
 
 
-if __name__ == "__main__":
-    import uvicorn
+# if __name__ == "__main__":
+#     import uvicorn
 
-    uvicorn.run("ml-service.main:app", host="0.0.0.0", port=8000, reload=True)
+#     uvicorn.run("ml-service.main:app", host="0.0.0.0", port=8000, reload=True)
