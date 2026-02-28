@@ -10,13 +10,22 @@ import insightsRoutes from './routes/insightsRoutes';
 const app = express();
 
 app.use(express.json());
-// Allow the deployed frontend to access the API. Set `FRONTEND_URL` in your
-// backend environment (e.g. https://mental-health-app-ebon.vercel.app).
-// Falls back to localhost during development.
-const allowedOrigin = process.env.FRONTEND_URL ?? 'http://localhost:5173';
+// Configure CORS to allow the deployed frontend and local dev origins.
+// Read `FRONTEND_URL` from environment (set on Render) and include common
+// localhost dev origins. Use a whitelist function so the response header
+// mirrors the requesting origin when allowed.
+const envFrontend = (process.env.FRONTEND_URL || '').trim();
+const allowedOrigins = [envFrontend, 'http://localhost:5173', 'http://localhost:3000'].filter(Boolean);
+console.log('[CORS] allowed origins:', allowedOrigins);
+
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Allow non-browser requests (curl, server-side) that have no origin
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
