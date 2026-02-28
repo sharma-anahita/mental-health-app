@@ -20,12 +20,21 @@ console.log('[CORS] allowed origins:', allowedOrigins);
 
 app.use(
   cors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // Allow non-browser requests (curl, server-side) that have no origin
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error('Not allowed by CORS'));
-    },
+      origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+        // Allow non-browser requests (curl, server-side) that have no origin
+        if (!origin) return callback(null, true);
+        // Exact match whitelist
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        // Allow any Vercel preview/domain under `*.vercel.app` to avoid
+        // breaking when Vercel assigns a new auto-generated subdomain.
+        try {
+          const lc = origin.toLowerCase();
+          if (lc.endsWith('.vercel.app')) return callback(null, true);
+        } catch (e) {
+          // ignore
+        }
+        return callback(new Error('Not allowed by CORS'));
+      },
     credentials: true,
   })
 );
