@@ -1,14 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AppLayout from "../../app/layout/AppLayout";
 import { PageTitle, SubtleText, CardTitle, SectionTitle } from "../../components/ui/Typography";
 import MoodTrendChart from "../../components/insights/MoodTrendChart";
 import MoodDistributionChart from "../../components/insights/MoodDistributionChart";
 import InsightCard from "../../components/insights/InsightCard";
+import type { InsightsMockData } from "../../data/mockInsights";
 import { mockInsights } from "../../data/mockInsights";
+import { fetchInsightsData } from "../../services/insightsService";
 import PageTransition from "../../components/ui/PageTransition";
 
 const InsightsPage: React.FC = () => {
-  const { trendData, distributionData, insightCards } = mockInsights;
+  const [insights, setInsights] = useState<InsightsMockData>({ trendData: [], distributionData: [], insightCards: [] });
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    fetchInsightsData()
+      .then((d) => {
+        if (mounted) {
+          setInsights(d);
+          // TEMP LOG: remove after verification
+          // Logs trendData and insightCards so reviewer can confirm live ML data
+          // eslint-disable-next-line no-console
+          console.log('[TEMP] Insights fetched', { trendData: d.trendData, insightCards: d.insightCards });
+        }
+      })
+      .catch((err) => {
+        console.warn('fetchInsightsData failed, falling back to mockInsights', err);
+        if (mounted) {
+          setInsights(mockInsights);
+          // TEMP LOG: remove after verification
+          // eslint-disable-next-line no-console
+          console.log('[TEMP] Using mockInsights as fallback', { trendData: mockInsights.trendData, insightCards: mockInsights.insightCards });
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const { trendData, distributionData, insightCards } = insights;
 
   // Map distribution shape to chart props
   const dist = distributionData.map((d) => ({ name: d.moodLabel, value: d.count }));
