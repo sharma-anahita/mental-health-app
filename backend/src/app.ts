@@ -10,9 +10,13 @@ import insightsRoutes from './routes/insightsRoutes';
 const app = express();
 
 app.use(express.json());
+// Allow the deployed frontend to access the API. Set `FRONTEND_URL` in your
+// backend environment (e.g. https://mental-health-app-ebon.vercel.app).
+// Falls back to localhost during development.
+const allowedOrigin = process.env.FRONTEND_URL ?? 'http://localhost:5173';
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: allowedOrigin,
     credentials: true,
   })
 );

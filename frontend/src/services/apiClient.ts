@@ -9,7 +9,10 @@ import { getToken } from './tokenStorage';
  * - ApiError: All other non-ok responses (4xx except 401)
  */
 
-const BASE_URL = 'http://localhost:5000/api';
+// Read base API URL from Vite environment variable `VITE_API_BASE`.
+// Configure this in Vercel to point to your backend, e.g.
+// VITE_API_BASE=https://mental-health-app-backend-uh1q.onrender.com/api
+const BASE_URL = (import.meta.env.VITE_API_BASE as string) ?? 'http://localhost:5000/api';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPED ERROR CLASSES
