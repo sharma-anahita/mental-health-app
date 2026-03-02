@@ -15,20 +15,20 @@ type Props = {
  */
 const DashboardHeader: React.FC<Props> = ({ subtitle, titleNode }) => {
   return (
-    <header className="w-full flex items-center justify-between gap-6 p-4 md:p-6">
-      <div className="min-w-0">
+    <header className="w-full flex items-center justify-between gap-2 sm:gap-6 p-2 sm:p-4 md:p-6">
+      <div className="min-w-0 flex-1 sm:flex-none">
         {titleNode ? (
           titleNode
         ) : (
           <>
-            <PageTitle>How are you feeling today?</PageTitle>
-            {subtitle && <SubtleText>{subtitle}</SubtleText>}
+            <PageTitle className="text-lg sm:text-2xl">How are you feeling today?</PageTitle>
+            {subtitle && <SubtleText className="text-xs sm:text-base">{subtitle}</SubtleText>}
           </>
         )}
         {/** If titleNode provides its own subtitle, DashboardPage may omit `subtitle` prop. */}
       </div>
 
-      <div className="flex-1 max-w-lg">
+      <div className="flex-1 max-w-lg hidden md:block">
         <div className="w-full bg-white/70 backdrop-blur-sm rounded-full px-3 py-2 shadow-sm ring-1 ring-slate-100 flex items-center gap-3">
           <Search className="w-4 h-4 text-slate-400" />
           <input

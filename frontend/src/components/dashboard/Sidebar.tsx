@@ -36,7 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({ active, onNavigate, className = "" })
 
   return (
     <nav
-      className={`w-64 bg-transparent p-2 flex flex-col h-full ${className}`}
+      className={`w-full bg-transparent p-2 flex flex-col h-full ${className}`}
       aria-label="Primary"
     >
       <ul className="space-y-2 flex-1">

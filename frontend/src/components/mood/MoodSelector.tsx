@@ -25,7 +25,7 @@ export default function MoodSelector({ onChange, className = "" }: MoodSelectorP
   const selectedLabel = useMoodStore((s) => s.selectedMood);
   const setSelectedMood = useMoodStore((s) => s.setSelectedMood);
   return (
-    <div role="radiogroup" aria-label="Mood selector" className={`flex items-center gap-3 ${className}`}>
+    <div role="radiogroup" aria-label="Mood selector" className={`flex flex-wrap items-center gap-2 sm:gap-3 ${className}`}>
       {MOODS.map((m) => {
         const isSelected = selectedLabel === m.label;
         return (
@@ -38,15 +38,15 @@ export default function MoodSelector({ onChange, className = "" }: MoodSelectorP
               setSelectedMood(m.label);
               if (onChange) onChange(m.label);
             }}
-            className={`flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-2xl focus:outline-none ${
+            className={`flex flex-col items-center justify-center gap-1 px-2 sm:px-4 py-2 sm:py-3 rounded-2xl focus:outline-none text-xs sm:text-sm ${
               isSelected ? "ring-2 ring-indigo-200 bg-gradient-to-br from-indigo-50 to-pink-50 shadow-sm" : "bg-white/60 hover:bg-white/80"
             }`}
             animate={{ scale: isSelected ? 1.06 : 1 }}
             whileHover={{ y: -6, scale: isSelected ? 1.08 : 1.03 }}
             transition={{ duration: 0.32, ease: [0.2, 0.8, 0.2, 1] }}
           >
-            <div className="text-2xl">{m.emoji}</div>
-            <span className="text-xs text-slate-600">{m.label}</span>
+            <div className="text-lg sm:text-2xl">{m.emoji}</div>
+            <span className="text-xs text-slate-600 hidden sm:inline">{m.label}</span>
           </motion.button>
         );
       })}

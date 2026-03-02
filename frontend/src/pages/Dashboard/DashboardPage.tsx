@@ -85,7 +85,7 @@ const DashboardPage: React.FC = () => {
   }, [fetchUserProgressAsync, fetchMoodLogsAsync]);
 
   return (
-    <PageTransition className="max-w-5xl mx-auto px-4 py-6">
+    <PageTransition className="max-w-5xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
 
       {errorMessage && (
         <div role="alert" aria-live="polite" className="mt-4 rounded-md bg-rose-50 border border-rose-100 text-rose-800 px-4 py-3">

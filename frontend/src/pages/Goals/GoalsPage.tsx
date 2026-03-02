@@ -53,13 +53,13 @@ const GoalsPage: React.FC = () => {
   };
 
   return (
-    <PageTransition className="max-w-7xl mx-auto px-8 py-10">
+    <PageTransition className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 sm:py-10">
       <header className="mb-6">
         <PageTitle>Goals</PageTitle>
         <SubtleText>Small, achievable goals to support your wellbeing</SubtleText>
       </header>
 
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-12 gap-4 sm:gap-6">
         <div className="col-span-12 lg:col-span-6">
           <Card className="p-4 mb-4">
             <div className="flex items-center gap-3">

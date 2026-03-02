@@ -48,26 +48,31 @@ const InsightsPage: React.FC = () => {
   // Map distribution shape to chart props
   const dist = distributionData.map((d) => ({ name: d.moodLabel, value: d.count }));
 
+  // Responsive chart heights based on viewport
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const trendChartHeight = isMobile ? 200 : 320;
+  const distChartHeight = isMobile ? 180 : 220;
+
   return (
     <AppLayout>
-      <PageTransition className="px-8 py-10">
+      <PageTransition className="px-2 sm:px-4 lg:px-8 py-6 sm:py-10">
         <header className="mb-6">
           <PageTitle>Insights</PageTitle>
           <SubtleText>Calm analytics to help you notice patterns and gentle suggestions.</SubtleText>
         </header>
 
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-12 gap-4 sm:gap-6">
           <section className="col-span-12 lg:col-span-8">
             <div className="mb-6">
               <CardTitle>
                 <SectionTitle className="!mb-0">Mood Trend</SectionTitle>
               </CardTitle>
-              <MoodTrendChart data={trendData} height={320} />
+              <MoodTrendChart data={trendData} height={trendChartHeight} />
             </div>
 
             <div className="mt-6">
               <SectionTitle>Insights</SectionTitle>
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
                 {insightCards.map((c) => (
                   <InsightCard key={c.id} title={c.title} description={c.description} type={c.type} />
                 ))}
@@ -78,7 +83,7 @@ const InsightsPage: React.FC = () => {
           <aside className="col-span-12 lg:col-span-4">
             <div className="mb-6">
               <SectionTitle>Distribution</SectionTitle>
-              <MoodDistributionChart data={dist} height={220} />
+              <MoodDistributionChart data={dist} height={distChartHeight} />
             </div>
 
             <div className="mt-6">

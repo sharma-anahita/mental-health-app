@@ -72,21 +72,23 @@ const MoodLogPage: React.FC = () => {
   };
 
   return (
-    <PageTransition className="max-w-7xl mx-auto px-8 py-10">
-      <header className="flex items-center justify-between mb-8">
-        <div>
-          <PageTitle>Track Your Mood</PageTitle>
-          <SubtleText>Log your feelings and spot patterns over time.</SubtleText>
-        </div>
+    <PageTransition className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 sm:py-10">
+      <header className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <PageTitle>Track Your Mood</PageTitle>
+            <SubtleText>Log your feelings and spot patterns over time.</SubtleText>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <Button variant="ghost">Import</Button>
-          <Button variant="primary">New Entry</Button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button variant="ghost" className="flex-1 sm:flex-none">Import</Button>
+            <Button variant="primary" className="flex-1 sm:flex-none">New Entry</Button>
+          </div>
         </div>
       </header>
 
-      <div className="grid grid-cols-12 gap-6">
-        <aside className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+      <div className="grid grid-cols-12 gap-4 sm:gap-6">
+        <aside className="col-span-12 lg:col-span-4 flex flex-col gap-4 sm:gap-6">
           <div>
             <CardTitle>Mood Selector</CardTitle>
             <div className="mt-3">
@@ -102,7 +104,7 @@ const MoodLogPage: React.FC = () => {
           </div>
         </aside>
 
-        <main className="col-span-12 lg:col-span-8 flex flex-col gap-6">
+        <main className="col-span-12 lg:col-span-8 flex flex-col gap-4 sm:gap-6">
           <div>
             <CardTitle>Recent Entries</CardTitle>
             <div className="mt-3">

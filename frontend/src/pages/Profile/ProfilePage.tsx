@@ -77,26 +77,26 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <PageTransition className="max-w-5xl mx-auto px-8 py-12">
+    <PageTransition className="max-w-5xl mx-auto px-2 sm:px-4 lg:px-8 py-6 sm:py-12">
       <header className="mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <PageTitle className="text-2xl">Your Profile</PageTitle>
             <SubtleText>Account, preferences, and your progress</SubtleText>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             {!editMode && (
-              <Button variant="ghost" onClick={() => setEditMode(true)} disabled={loading}>
+              <Button variant="ghost" onClick={() => setEditMode(true)} disabled={loading} className="w-full sm:w-auto">
                 Edit
               </Button>
             )}
             {editMode && (
               <>
-                <Button variant="ghost" onClick={() => { setEditMode(false); loadProfile(); }} disabled={saving}>
+                <Button variant="ghost" onClick={() => { setEditMode(false); loadProfile(); }} disabled={saving} className="flex-1 sm:flex-none">
                   Cancel
                 </Button>
-                <Button variant="primary" onClick={save} disabled={saving}>
+                <Button variant="primary" onClick={save} disabled={saving} className="flex-1 sm:flex-none">
                   {saving ? 'Saving…' : 'Save'}
                 </Button>
               </>
@@ -105,7 +105,7 @@ const ProfilePage: React.FC = () => {
         </div>
       </header>
 
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-12 gap-4 sm:gap-6">
         <aside className="col-span-12 lg:col-span-4">
           <Section title="Summary">
             <Card>
