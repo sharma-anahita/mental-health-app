@@ -3,6 +3,20 @@
 
 export type MoodLabel = string | null | undefined;
 
+/**
+ * Map a mood score (0-10) to a mood label.
+ * Used to derive mood from average score on the dashboard.
+ */
+export function scoreToMoodLabel(score: number | null | undefined): string {
+  if (score === null || score === undefined) return "Unknown";
+  
+  if (score < 2) return "Very low";
+  if (score < 4) return "Low";
+  if (score < 6) return "Okay";
+  if (score < 8) return "Good";
+  return "Great";
+}
+
 export function getMoodMessage(mood: MoodLabel): string {
   const m = (mood ?? "").toString().toLowerCase();
 

@@ -12,6 +12,7 @@ import Badge from "../../components/ui/Badge";
 import Section from "../../components/ui/Section";
 import { PageTitle, CardTitle, SubtleText } from "../../components/ui/Typography";
 import PageTransition from "../../components/ui/PageTransition";
+import { scoreToMoodLabel } from "../../utils/moodHelpers";
 
 import mockDashboard from "../../data/mockDashboard";
 import MoodHeroCard from "../../components/dashboard/mood/MoodHeroCard";
@@ -20,14 +21,6 @@ import WeeklyMoodChart from "../../components/charts/WeeklyMoodChart";
 import ReflectionPreview from "../../components/dashboard/mood/ReflectionPreview";
 
 const DashboardPage: React.FC = () => {
-  // Mock placeholder data for presentational UI
-  const mock = {
-    moodSummary: { average: "Calm", score: 7.8, note: "Mostly peaceful day" },
-    xp: { level: 12, progress: 0.64 },
-    streak: { days: 5, last: "3 days ago" },
-    weeklyMood: [6, 7, 8, 7, 6, 8, 7],
-  };
-
   const moodLogs = useMoodStore((s) => s.moodLogs);
   const moodLoading = useMoodStore((s) => s.isLoading);
   const moodError = useMoodStore((s) => s.error);
@@ -44,6 +37,46 @@ const DashboardPage: React.FC = () => {
 
   const loading = userLoading || moodLoading;
   const errorMessage = userError ?? moodError ?? null;
+
+  // Calculate average mood score from recent logs (last 7 days)
+  const calculateAverageScore = () => {
+    if (!moodLogs || moodLogs.length === 0) return null;
+    
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const recentLogs = moodLogs.filter(log => {
+      const logDate = new Date(log.date);
+      return logDate >= sevenDaysAgo;
+    });
+    
+    if (recentLogs.length === 0) return null;
+    
+    // Extract numeric scores from mood logs (assuming mood might contain score or emoji)
+    const scores = recentLogs
+      .map(log => {
+        // Try to parse if stored as number or if it's one of our mood labels
+        const num = parseFloat(log.mood);
+        if (!isNaN(num)) return num;
+        
+        // Map mood labels to scores
+        const moodMap: Record<string, number> = {
+          "Very low": 1,
+          "Low": 3,
+          "Okay": 5,
+          "Good": 7,
+          "Great": 9,
+        };
+        return moodMap[log.mood] ?? 5;
+      })
+      .filter(score => !isNaN(score));
+    
+    if (scores.length === 0) return null;
+    return scores.reduce((a, b) => a + b, 0) / scores.length;
+  };
+
+  const averageScore = calculateAverageScore();
+  const moodLabel = scoreToMoodLabel(averageScore);
 
   useEffect(() => {
     // Fetch initial data for dashboard (mocked)
@@ -75,9 +108,9 @@ const DashboardPage: React.FC = () => {
 
           <Section>
             <MoodHeroCard
-              moodLabel={mockDashboard.moodSummary.moodLabel}
-              moodDescription={mockDashboard.moodSummary.moodDescription}
-              score={mockDashboard.moodSummary.score}
+              moodLabel={moodLabel}
+              moodDescription={averageScore ? `Average from your last 7 days` : "No recent mood logs"}
+              score={averageScore ?? 0}
             />
           </Section>
 
