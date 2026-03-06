@@ -6,7 +6,8 @@ import gamificationRoutes from './routes/gamificationRoutes';
 import userRoutes from './routes/userRoutes';
 import goalRoutes from './routes/goalRoutes';
 import insightsRoutes from './routes/insightsRoutes';
-
+import preferencesRoutes from './routes/preferencesRoutes';
+// ...
 const app = express();
 
 app.use(express.json());
@@ -18,6 +19,7 @@ const envFrontend = (process.env.FRONTEND_URL || '').trim();
 const allowedOrigins = [envFrontend, 'http://localhost:5173', 'http://localhost:3000'].filter(Boolean);
 console.log('[CORS] allowed origins:', allowedOrigins);
 
+app.use('/api/user/preferences', preferencesRoutes);
 app.use(
   cors({
       origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {

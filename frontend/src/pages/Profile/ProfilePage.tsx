@@ -12,6 +12,8 @@ import Input from "../../components/ui/Input";
 import profileService from "../../services/profileService";
 import useUIStore from "../../store/uiStore";
 import useUserStore from "../../store/userStore";
+// ── Theme ──────────────────────────────────────────────────────────────────
+import ThemeSwitcher from "../../components/ui/ThemeSwitcher";
 
 const ProfilePage: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
@@ -69,7 +71,6 @@ const ProfilePage: React.FC = () => {
       setLocation(u.location ?? '');
       setEditMode(false);
     } catch (err: any) {
-      // TODO: show error toast
       console.error(err);
     } finally {
       setSaving(false);
@@ -77,26 +78,26 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <PageTransition className="max-w-5xl mx-auto px-2 sm:px-4 lg:px-8 py-6 sm:py-12">
+    <PageTransition className="max-w-5xl mx-auto px-8 py-12">
       <header className="mb-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center justify-between">
           <div>
             <PageTitle className="text-2xl">Your Profile</PageTitle>
             <SubtleText>Account, preferences, and your progress</SubtleText>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-3">
             {!editMode && (
-              <Button variant="ghost" onClick={() => setEditMode(true)} disabled={loading} className="w-full sm:w-auto">
+              <Button variant="ghost" onClick={() => setEditMode(true)} disabled={loading}>
                 Edit
               </Button>
             )}
             {editMode && (
               <>
-                <Button variant="ghost" onClick={() => { setEditMode(false); loadProfile(); }} disabled={saving} className="flex-1 sm:flex-none">
+                <Button variant="ghost" onClick={() => { setEditMode(false); loadProfile(); }} disabled={saving}>
                   Cancel
                 </Button>
-                <Button variant="primary" onClick={save} disabled={saving} className="flex-1 sm:flex-none">
+                <Button variant="primary" onClick={save} disabled={saving}>
                   {saving ? 'Saving…' : 'Save'}
                 </Button>
               </>
@@ -105,8 +106,8 @@ const ProfilePage: React.FC = () => {
         </div>
       </header>
 
-      <div className="grid grid-cols-12 gap-4 sm:gap-6">
-        <aside className="col-span-12 lg:col-span-4">
+      <div className="grid grid-cols-12 gap-6">
+        <aside className="col-span-12 lg:col-span-4 flex flex-col gap-6">
           <Section title="Summary">
             <Card>
               <div className="space-y-3">
@@ -119,6 +120,13 @@ const ProfilePage: React.FC = () => {
                   <div className="text-slate-600 text-sm">{email || '—'}</div>
                 </div>
               </div>
+            </Card>
+          </Section>
+
+          {/* ── Theme Switcher ────────────────────────────────────────────── */}
+          <Section title="Appearance">
+            <Card>
+              <ThemeSwitcher />
             </Card>
           </Section>
         </aside>

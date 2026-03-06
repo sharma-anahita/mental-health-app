@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+export interface IUserPreferences {
+  theme?: 'calm' | 'focus' | 'sunset' | 'midnight';
+}
+
 export interface IUser {
   name: string;
   email: string;
@@ -18,6 +22,8 @@ export interface IUser {
     itemId: import('mongoose').Types.ObjectId;
     acquiredAt?: Date;
   }>;
+  // ── User preferences (theme, future settings) ──
+  preferences?: IUserPreferences;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -46,6 +52,17 @@ const userSchema = new mongoose.Schema<IUser>(
         },
       ],
       default: [],
+    },
+    // ── Preferences sub-document ──
+    preferences: {
+      type: {
+        theme: {
+          type: String,
+          enum: ['calm', 'focus', 'sunset', 'midnight'],
+          default: 'calm',
+        },
+      },
+      default: () => ({ theme: 'calm' }),
     },
   },
   { timestamps: true }

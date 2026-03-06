@@ -1,0 +1,133 @@
+/* ─── Theme CSS Variables ──────────────────────────────────────────────────── */
+/* Applied via class on <html>. Tailwind utilities reference these via config.   */
+
+:root,
+.theme-calm {
+  --theme-bg-from:       #f0fdf4;
+  --theme-bg-via:        #eff6ff;
+  --theme-bg-to:         #f0f9ff;
+
+  --theme-card-bg:       rgba(255, 255, 255, 0.72);
+  --theme-card-ring:     rgba(203, 213, 225, 0.6);
+
+  --theme-accent:        #059669;
+  --theme-accent-hover:  #047857;
+  --theme-accent-ring:   rgba(5, 150, 105, 0.25);
+  --theme-accent-subtle: #d1fae5;
+  --theme-accent-text:   #065f46;
+
+  --theme-text-primary:  #0f172a;
+  --theme-text-secondary:#334155;
+  --theme-text-subtle:   #64748b;
+
+  --theme-sidebar-bg:    rgba(240, 253, 244, 0.85);
+  --theme-sidebar-ring:  #bbf7d0;
+
+  --theme-progress-from: #6ee7b7;
+  --theme-progress-via:  #34d399;
+  --theme-progress-to:   #60a5fa;
+}
+
+.theme-focus {
+  --theme-bg-from:       #ffffff;
+  --theme-bg-via:        #f8fafc;
+  --theme-bg-to:         #eff6ff;
+
+  --theme-card-bg:       rgba(255, 255, 255, 0.92);
+  --theme-card-ring:     rgba(147, 197, 253, 0.5);
+
+  --theme-accent:        #2563eb;
+  --theme-accent-hover:  #1d4ed8;
+  --theme-accent-ring:   rgba(37, 99, 235, 0.25);
+  --theme-accent-subtle: #dbeafe;
+  --theme-accent-text:   #1e3a8a;
+
+  --theme-text-primary:  #0f172a;
+  --theme-text-secondary:#1e293b;
+  --theme-text-subtle:   #475569;
+
+  --theme-sidebar-bg:    rgba(248, 250, 252, 0.95);
+  --theme-sidebar-ring:  #bfdbfe;
+
+  --theme-progress-from: #93c5fd;
+  --theme-progress-via:  #3b82f6;
+  --theme-progress-to:   #6366f1;
+}
+
+.theme-sunset {
+  --theme-bg-from:       #fff7ed;
+  --theme-bg-via:        #fef3c7;
+  --theme-bg-to:         #ffe4e6;
+
+  --theme-card-bg:       rgba(255, 251, 245, 0.78);
+  --theme-card-ring:     rgba(251, 191, 36, 0.35);
+
+  --theme-accent:        #ea580c;
+  --theme-accent-hover:  #c2410c;
+  --theme-accent-ring:   rgba(234, 88, 12, 0.25);
+  --theme-accent-subtle: #ffedd5;
+  --theme-accent-text:   #7c2d12;
+
+  --theme-text-primary:  #1c1917;
+  --theme-text-secondary:#44403c;
+  --theme-text-subtle:   #78716c;
+
+  --theme-sidebar-bg:    rgba(255, 247, 237, 0.9);
+  --theme-sidebar-ring:  #fed7aa;
+
+  --theme-progress-from: #fbbf24;
+  --theme-progress-via:  #f97316;
+  --theme-progress-to:   #f43f5e;
+}
+
+.theme-midnight {
+  --theme-bg-from:       #0f172a;
+  --theme-bg-via:        #1e1b4b;
+  --theme-bg-to:         #0f172a;
+
+  --theme-card-bg:       rgba(30, 27, 75, 0.65);
+  --theme-card-ring:     rgba(99, 102, 241, 0.3);
+
+  --theme-accent:        #818cf8;
+  --theme-accent-hover:  #a5b4fc;
+  --theme-accent-ring:   rgba(129, 140, 248, 0.3);
+  --theme-accent-subtle: rgba(129, 140, 248, 0.15);
+  --theme-accent-text:   #c7d2fe;
+
+  --theme-text-primary:  #f1f5f9;
+  --theme-text-secondary:#cbd5e1;
+  --theme-text-subtle:   #94a3b8;
+
+  --theme-sidebar-bg:    rgba(15, 23, 42, 0.9);
+  --theme-sidebar-ring:  #312e81;
+
+  --theme-progress-from: #818cf8;
+  --theme-progress-via:  #a78bfa;
+  --theme-progress-to:   #e879f9;
+}
+
+/* ─── Smooth theme transition ─────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  transition:
+    background-color 300ms ease,
+    border-color     300ms ease,
+    color            300ms ease,
+    box-shadow       300ms ease;
+}
+
+/* Exclude interactive element transitions from the blanket rule              */
+button,
+a,
+input,
+textarea,
+select {
+  transition:
+    background-color 300ms ease,
+    border-color     300ms ease,
+    color            300ms ease,
+    box-shadow       300ms ease,
+    transform        200ms ease,
+    opacity          200ms ease;
+}
