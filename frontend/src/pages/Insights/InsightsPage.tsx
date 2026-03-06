@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AppLayout from "../../app/layout/AppLayout";
 import { PageTitle, SubtleText, CardTitle, SectionTitle } from "../../components/ui/Typography";
 import MoodTrendChart from "../../components/insights/MoodTrendChart";
 import MoodDistributionChart from "../../components/insights/MoodDistributionChart";
@@ -54,14 +53,13 @@ const InsightsPage: React.FC = () => {
   const distChartHeight = isMobile ? 180 : 220;
 
   return (
-    <AppLayout>
-      <PageTransition className="px-2 sm:px-4 lg:px-8 py-6 sm:py-10">
-        <header className="mb-8 sm:mb-10">
+    <PageTransition className="px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <header className="mb-8 sm:mb-10">
           <PageTitle>Insights</PageTitle>
           <SubtleText>Calm analytics to help you notice patterns and gentle suggestions.</SubtleText>
         </header>
 
-        <div className="grid grid-cols-12 gap-4 sm:gap-6">
+      <div className="grid grid-cols-12 gap-4 sm:gap-6">
           <section className="col-span-12 lg:col-span-8 space-y-8">
             <div>
               <CardTitle>
@@ -95,7 +93,6 @@ const InsightsPage: React.FC = () => {
           </aside>
         </div>
       </PageTransition>
-    </AppLayout>
   );
 };
 
