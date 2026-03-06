@@ -86,7 +86,7 @@ export default function MoodDistributionChart({
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-3 text-sm text-slate-500 text-center">
+        <div className="mt-3 text-sm text-[var(--theme-text-subtle)] text-center">
           {total > 0 ? `Total entries: ${total}` : "No data available"}
         </div>
       </div>

@@ -33,7 +33,7 @@ export default function ReflectionInput({
           value={value}
           onChange={handleChange}
           placeholder={placeholder}
-          className="w-full min-h-[120px] resize-vertical rounded-xl p-3 text-sm text-slate-700 bg-white/90 ring-1 ring-slate-100 shadow-inner focus:outline-none focus:ring-2 focus:ring-indigo-100"
+          className="w-full min-h-[120px] resize-vertical rounded-xl p-3 text-sm text-[var(--theme-text-secondary)] bg-[var(--theme-card-bg)] placeholder:text-[var(--theme-text-subtle)] ring-1 ring-[var(--theme-card-ring)] shadow-inner focus:outline-none focus:ring-2 focus:ring-[var(--theme-accent-ring)]"
           aria-label="Reflection input"
         />
 
@@ -47,7 +47,7 @@ export default function ReflectionInput({
         </div>
 
         <div className="mt-2">
-          <BodyText className="text-slate-600">If it helps, write one or two sentences about what went well today.</BodyText>
+          <BodyText>If it helps, write one or two sentences about what went well today.</BodyText>
         </div>
       </div>
     </Card>

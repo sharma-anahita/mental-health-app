@@ -27,10 +27,10 @@ export default function MoodHeroCard({ moodLabel, moodDescription, score, classN
 
         <div className="flex items-center justify-between mt-4">
             <div className="flex items-center gap-3">
-            <Badge variant="calm" className="w-14 h-14 inline-flex items-center justify-center rounded-full text-lg">{score}</Badge>
+            <Badge variant="calm" className="w-14 h-14 inline-flex items-center justify-center rounded-full text-lg">{score.toFixed(2)}</Badge>
             <div>
-              <div className="text-xs text-slate-500">Mood score</div>
-              <div className="text-lg font-medium text-slate-800">{score}</div>
+              <div className="text-xs text-[var(--theme-text-subtle)]">Mood score</div>
+              <div className="text-lg font-medium text-[var(--theme-text-primary)]">{score.toFixed(2)}</div>
             </div>
           </div>
 

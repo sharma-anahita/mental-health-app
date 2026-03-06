@@ -9,10 +9,10 @@ type BadgeProps = React.PropsWithChildren<{
 }>;
 
 const variantClasses: Record<BadgeVariant, string> = {
-  default: "bg-white/80 text-slate-800 ring-1 ring-slate-100",
-  success: "bg-green-100 text-green-800",
-  warning: "bg-amber-100 text-amber-800",
-  calm: "bg-indigo-50 text-indigo-700",
+  default: "bg-[var(--theme-card-bg)] text-[var(--theme-text-primary)] ring-1 ring-[var(--theme-card-ring)]",
+  success: "bg-emerald-100/50 text-emerald-800 ring-1 ring-emerald-200/50",
+  warning: "bg-amber-100/50 text-amber-800 ring-1 ring-amber-200/50",
+  calm: "bg-[var(--theme-accent-subtle)] text-[var(--theme-accent-text)]",
 };
 
 /**

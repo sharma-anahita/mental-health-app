@@ -112,7 +112,7 @@ const MoodLogPage: React.FC = () => {
                 <div
                   role="status"
                   aria-live="polite"
-                  className="mb-3 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-800 px-4 py-2 text-sm"
+                  className="mb-3 rounded-md bg-emerald-100/30 border border-emerald-200/50 text-emerald-900 px-4 py-2 text-sm"
                 >
                   Mood saved — nice work noticing how you feel.
                 </div>

@@ -117,7 +117,7 @@ const DashboardPage: React.FC = () => {
           <div>
             {userLoading ? (
               <Card className="p-3">
-                <div className="text-sm text-slate-600">Loading streak…</div>
+                <div className="text-sm text-[var(--theme-text-secondary)]">Loading streak…</div>
               </Card>
             ) : (
               <StreakMilestone currentDays={userStreak} nextMilestone={7} />
@@ -129,7 +129,7 @@ const DashboardPage: React.FC = () => {
         <aside className="col-span-12 lg:col-span-5 flex flex-col gap-4">
           {userLoading ? (
             <Card className="p-3">
-              <div className="text-sm text-slate-600">Loading progress…</div>
+              <div className="text-sm text-[var(--theme-text-secondary)]">Loading progress…</div>
             </Card>
           ) : (
             <XPCard level={userLevel} xpPercent={userXpPercent} coins={userCoins} currentXP={userXp} />
@@ -137,7 +137,7 @@ const DashboardPage: React.FC = () => {
 
           <Card header={<CardTitle>Weekly Mood</CardTitle>} className="min-h-[160px] p-3">
             {moodLoading ? (
-              <div className="text-sm text-slate-600">Loading chart…</div>
+              <div className="text-sm text-[var(--theme-text-secondary)]">Loading chart…</div>
             ) : (
               <WeeklyMoodChart data={mockDashboard.weeklyMoodData} height={130} />
             )}

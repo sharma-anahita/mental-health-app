@@ -19,10 +19,10 @@ type CardProps = {
 const Card: React.FC<CardProps> = ({ header, children, footer, className = "" }) => {
   return (
     <div
-      className={`bg-white/70 rounded-2xl shadow-sm ring-1 ring-slate-100 overflow-hidden ${className}`}
+      className={`bg-[var(--theme-card-bg)] rounded-2xl shadow-sm ring-1 ring-[var(--theme-card-ring)] overflow-hidden ${className}`}
     >
       {header && (
-        <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-transparent">
+        <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-[var(--theme-card-ring)] bg-transparent">
           {header}
         </div>
       )}
@@ -32,7 +32,7 @@ const Card: React.FC<CardProps> = ({ header, children, footer, className = "" })
       </div>
 
       {footer && (
-        <div className="px-3 sm:px-6 py-3 sm:py-4 border-t border-slate-100 bg-transparent">
+        <div className="px-3 sm:px-6 py-3 sm:py-4 border-t border-[var(--theme-card-ring)] bg-transparent">
           {footer}
         </div>
       )}

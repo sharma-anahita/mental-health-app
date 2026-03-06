@@ -27,20 +27,18 @@ export default function InsightCard({ title, description, type = "neutral", clas
   const badge = typeMap[type] ?? typeMap.neutral;
 
   return (
-    <Card className={`p-4 ${className}`}>
-      <div className="flex items-start gap-3">
-        <div className="flex-shrink-0">
+    <Card className={`p-5 ${className}`}>
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0 pt-1">
           <Badge variant={badge.variant} title={badge.label}>
             {badge.label}
           </Badge>
         </div>
 
-        <div className="flex-1">
-          <CardTitle>{title}</CardTitle>
-          <BodyText className="mt-1">{description}</BodyText>
-          <div className="mt-2">
-            <SubtleText>Shown as a calm suggestion — use what feels right for you.</SubtleText>
-          </div>
+        <div className="flex-1 min-w-0">
+          <CardTitle className="mb-2">{title}</CardTitle>
+          <BodyText className="mb-3">{description}</BodyText>
+          <SubtleText>Shown as a calm suggestion — use what feels right for you.</SubtleText>
         </div>
       </div>
     </Card>

@@ -33,7 +33,7 @@ export default function MoodTimeline({ entries, className = "", maxPreviewChars 
 
             <div className="flex-1">
               <div className="flex items-center justify-between gap-4">
-                <BodyText className="text-slate-800">{preview(e.note)}</BodyText>
+                <BodyText>{preview(e.note)}</BodyText>
                 <SubtleText className="whitespace-nowrap">{new Date(e.date).toLocaleDateString()}</SubtleText>
               </div>
             </div>

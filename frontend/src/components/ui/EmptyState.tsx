@@ -20,9 +20,9 @@ export default function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`flex flex-col items-center text-center px-6 py-8 rounded-2xl bg-gradient-to-b from-slate-50 to-white shadow-sm ${className}`}
+      className={`flex flex-col items-center text-center px-6 py-8 rounded-2xl bg-[var(--theme-card-bg)] shadow-sm ${className}`}
     >
-      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-indigo-50 mb-4">
+      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-[var(--theme-accent-subtle)] mb-4">
         {icon ?? (
           <svg
             width="40"
@@ -40,9 +40,9 @@ export default function EmptyState({
         )}
       </div>
 
-      <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
+      <h3 className="text-lg font-semibold text-[var(--theme-text-primary)]">{title}</h3>
 
-      {description && <p className="mt-2 text-sm text-slate-600 max-w-prose">{description}</p>}
+      {description && <p className="mt-2 text-sm text-[var(--theme-text-secondary)] max-w-prose">{description}</p>}
 
       {actionLabel && onAction && (
         <div className="mt-4">

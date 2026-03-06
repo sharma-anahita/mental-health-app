@@ -56,23 +56,23 @@ const InsightsPage: React.FC = () => {
   return (
     <AppLayout>
       <PageTransition className="px-2 sm:px-4 lg:px-8 py-6 sm:py-10">
-        <header className="mb-6">
+        <header className="mb-8 sm:mb-10">
           <PageTitle>Insights</PageTitle>
           <SubtleText>Calm analytics to help you notice patterns and gentle suggestions.</SubtleText>
         </header>
 
         <div className="grid grid-cols-12 gap-4 sm:gap-6">
-          <section className="col-span-12 lg:col-span-8">
-            <div className="mb-6">
+          <section className="col-span-12 lg:col-span-8 space-y-8">
+            <div>
               <CardTitle>
                 <SectionTitle className="!mb-0">Mood Trend</SectionTitle>
               </CardTitle>
               <MoodTrendChart data={trendData} height={trendChartHeight} />
             </div>
 
-            <div className="mt-6">
-              <SectionTitle>Insights</SectionTitle>
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
+            <div>
+              <SectionTitle className="mb-4">Insights</SectionTitle>
+              <div className="grid grid-cols-1 gap-4 sm:gap-6">
                 {insightCards.map((c) => (
                   <InsightCard key={c.id} title={c.title} description={c.description} type={c.type} />
                 ))}
@@ -80,15 +80,15 @@ const InsightsPage: React.FC = () => {
             </div>
           </section>
 
-          <aside className="col-span-12 lg:col-span-4">
-            <div className="mb-6">
-              <SectionTitle>Distribution</SectionTitle>
+          <aside className="col-span-12 lg:col-span-4 space-y-8">
+            <div>
+              <SectionTitle className="mb-4">Distribution</SectionTitle>
               <MoodDistributionChart data={dist} height={distChartHeight} />
             </div>
 
-            <div className="mt-6">
-              <CardTitle>Notes</CardTitle>
-              <div className="mt-3 text-sm text-slate-600">
+            <div>
+              <CardTitle className="mb-3">Notes</CardTitle>
+              <div className="text-sm text-[var(--theme-text-secondary)]">
                 <p>Patterns are based on recent entries and are here to support reflection, not define you.</p>
               </div>
             </div>

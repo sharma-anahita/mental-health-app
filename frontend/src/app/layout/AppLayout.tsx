@@ -15,7 +15,7 @@ const AppLayout: React.FC<Props> = ({ children, sidebar = null }) => {
     <div className="min-h-screen flex bg-gradient-to-b from-[var(--theme-bg-from)] via-[var(--theme-bg-via)] to-[var(--theme-bg-to)] text-[var(--theme-text-primary)]">
       {/* Desktop Sidebar (hidden on mobile) */}
       <aside
-        className="hidden lg:flex w-64 flex-shrink-0 p-6 border-r border-slate-100 sticky top-0 h-screen flex-col"
+        className="hidden lg:flex w-64 flex-shrink-0 p-6 border-r border-[var(--theme-card-ring)] sticky top-0 h-screen flex-col"
         style={{ background: "var(--theme-sidebar-bg)" }}
         aria-label="Sidebar"
       >
@@ -33,7 +33,7 @@ const AppLayout: React.FC<Props> = ({ children, sidebar = null }) => {
 
       {/* Mobile Sidebar (slide-out) */}
       <aside
-        className={`fixed lg:hidden left-0 top-0 z-50 w-64 h-screen border-r border-slate-100 p-6 transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`fixed lg:hidden left-0 top-0 z-50 w-64 h-screen border-r border-[var(--theme-card-ring)] p-6 transform transition-transform duration-300 ease-in-out flex flex-col ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ background: "var(--theme-sidebar-bg)" }}
@@ -41,10 +41,10 @@ const AppLayout: React.FC<Props> = ({ children, sidebar = null }) => {
       >
         <button
           onClick={() => setSidebarOpen(false)}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/40 lg:hidden focus:outline-none"
+          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-[var(--theme-card-bg)] lg:hidden focus:outline-none"
           aria-label="Close sidebar"
         >
-          <X className="w-5 h-5 text-slate-600" />
+          <X className="w-5 h-5 text-[var(--theme-text-secondary)]" />
         </button>
         <div className="mt-8 flex flex-col h-full">
           {sidebar}
@@ -54,21 +54,21 @@ const AppLayout: React.FC<Props> = ({ children, sidebar = null }) => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col w-full overflow-auto">
         {/* Mobile Header with Hamburger */}
-        <div className="lg:hidden p-4 border-b border-slate-100 bg-white/50 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between">
+        <div className="lg:hidden p-4 border-b border-[var(--theme-card-ring)] bg-[var(--theme-card-bg)] backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-white/40 focus:outline-none"
+            className="p-2 rounded-lg hover:bg-[var(--theme-accent-subtle)] focus:outline-none"
             aria-label="Open sidebar"
           >
-            <Menu className="w-6 h-6 text-slate-600" />
+            <Menu className="w-6 h-6 text-[var(--theme-text-secondary)]" />
           </button>
-          <div className="text-sm font-medium text-slate-700">Mental Health App</div>
+          <div className="text-sm font-medium text-[var(--theme-text-primary)]">Mental Health App</div>
           <div className="w-10" />
         </div>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto w-full">{children}</div>
+        <div className="flex-1 overflow-auto">
+          <div className="w-full">{children}</div>
           <Toasts />
         </div>
       </main>

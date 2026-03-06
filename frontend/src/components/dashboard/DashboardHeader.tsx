@@ -29,12 +29,12 @@ const DashboardHeader: React.FC<Props> = ({ subtitle, titleNode }) => {
       </div>
 
       <div className="flex-1 max-w-lg hidden md:block">
-        <div className="w-full bg-white/70 backdrop-blur-sm rounded-full px-3 py-2 shadow-sm ring-1 ring-slate-100 flex items-center gap-3">
-          <Search className="w-4 h-4 text-slate-400" />
+        <div className="w-full bg-[var(--theme-card-bg)] backdrop-blur-sm rounded-full px-3 py-2 shadow-sm ring-1 ring-[var(--theme-card-ring)] flex items-center gap-3">
+          <Search className="w-4 h-4 text-[var(--theme-text-subtle)]" />
           <input
             aria-label="Search"
             placeholder="Search..."
-            className="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
+            className="w-full bg-transparent text-sm text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-subtle)] focus:outline-none"
           />
         </div>
       </div>

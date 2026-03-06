@@ -25,10 +25,10 @@ const Button: React.FC<ButtonProps> = ({
 
   const variants: Record<Variant, string> = {
     primary:
-      "bg-indigo-600/95 text-white hover:bg-indigo-500 focus:ring-indigo-200",
+      "bg-[var(--theme-accent)] text-white hover:bg-[var(--theme-accent-hover)] focus:ring-[var(--theme-accent-ring)]",
     secondary:
-      "bg-white/80 text-slate-900 ring-1 ring-slate-100 hover:bg-white/90 focus:ring-slate-200",
-    ghost: "bg-transparent text-slate-700 hover:bg-white/10 focus:ring-slate-100",
+      "bg-[var(--theme-card-bg)] text-[var(--theme-text-primary)] ring-1 ring-[var(--theme-card-ring)] hover:opacity-90 focus:ring-[var(--theme-accent-ring)]",
+    ghost: "bg-transparent text-[var(--theme-text-secondary)] hover:bg-[var(--theme-card-bg)] focus:ring-[var(--theme-card-ring)]",
   };
 
   const classes = `${base} ${variants[variant]} ${className}`.trim();

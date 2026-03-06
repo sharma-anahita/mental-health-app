@@ -37,14 +37,14 @@ export default function MoodTrendChart({ data, height = 160, className = "" }: M
 
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 12, fill: "#64748B" }}
+              tick={{ fontSize: 12, fill: "var(--theme-text-subtle)" }}
               axisLine={false}
               tickLine={false}
               interval={Math.max(0, Math.floor(chartData.length / 6))}
               tickFormatter={(d: string) => d.slice(5)}
             />
 
-            <YAxis domain={[0, 10]} tick={{ fontSize: 12, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+            <YAxis domain={[0, 10]} tick={{ fontSize: 12, fill: "var(--theme-text-subtle)" }} axisLine={false} tickLine={false} />
 
             <Tooltip
               cursor={{ stroke: "rgba(167,139,250,0.08)", strokeWidth: 20 }}

@@ -85,13 +85,13 @@
   --theme-bg-via:        #1e1b4b;
   --theme-bg-to:         #0f172a;
 
-  --theme-card-bg:       rgba(30, 27, 75, 0.65);
-  --theme-card-ring:     rgba(99, 102, 241, 0.3);
+  --theme-card-bg:       rgba(30, 41, 59, 0.85);
+  --theme-card-ring:     rgba(99, 102, 241, 0.4);
 
   --theme-accent:        #818cf8;
   --theme-accent-hover:  #a5b4fc;
   --theme-accent-ring:   rgba(129, 140, 248, 0.3);
-  --theme-accent-subtle: rgba(129, 140, 248, 0.15);
+  --theme-accent-subtle: rgba(129, 140, 248, 0.2);
   --theme-accent-text:   #c7d2fe;
 
   --theme-text-primary:  #f1f5f9;
