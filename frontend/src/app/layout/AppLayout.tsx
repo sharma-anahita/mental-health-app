@@ -8,23 +8,15 @@ type Props = {
   sidebar?: React.ReactNode;
 };
 
-/**
- * AppLayout
- * - Desktop: Fixed-width left sidebar
- * - Mobile: Hamburger menu with slide-out sidebar overlay
- * - Main content area (scrollable)
- * - Full screen height
- * - Soft pastel background and calm spacing
- * - No business logic — purely presentational
- */
 const AppLayout: React.FC<Props> = ({ children, sidebar = null }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-b from-pink-50 via-purple-50 to-blue-50 text-slate-900">
+    <div className="min-h-screen flex bg-gradient-to-b from-[var(--theme-bg-from)] via-[var(--theme-bg-via)] to-[var(--theme-bg-to)] text-[var(--theme-text-primary)]">
       {/* Desktop Sidebar (hidden on mobile) */}
       <aside
         className="hidden lg:flex w-64 flex-shrink-0 p-6 border-r border-slate-100 sticky top-0 h-screen flex-col"
+        style={{ background: "var(--theme-sidebar-bg)" }}
         aria-label="Sidebar"
       >
         {sidebar}
@@ -41,9 +33,10 @@ const AppLayout: React.FC<Props> = ({ children, sidebar = null }) => {
 
       {/* Mobile Sidebar (slide-out) */}
       <aside
-        className={`fixed lg:hidden left-0 top-0 z-50 w-64 h-screen bg-gradient-to-b from-pink-50 via-purple-50 to-blue-50 border-r border-slate-100 p-6 transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`fixed lg:hidden left-0 top-0 z-50 w-64 h-screen border-r border-slate-100 p-6 transform transition-transform duration-300 ease-in-out flex flex-col ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{ background: "var(--theme-sidebar-bg)" }}
         aria-label="Mobile Sidebar"
       >
         <button
