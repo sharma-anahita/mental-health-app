@@ -50,6 +50,7 @@ const LoginPage: React.FC = () => {
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
                 required
               />
+              <div className="mt-1 text-xs text-slate-500">Guest email: guest@123</div>
             </label>
 
             <label className="block">
@@ -61,6 +62,7 @@ const LoginPage: React.FC = () => {
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
                 required
               />
+              <div className="mt-1 text-xs text-slate-500">Guest password: gues</div>
             </label>
 
             {error && <div className="text-sm text-red-600">{error}</div>}
