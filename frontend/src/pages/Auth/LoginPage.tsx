@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Button from '../../components/ui/Button';
-import Card from '../../components/ui/Card';
-import { PageTitle, BodyText } from '../../components/ui/Typography';
 import authService from '../../services/authService';
 
 const LoginPage: React.FC = () => {
@@ -32,11 +29,11 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <Card className="max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+      <div className="max-w-md w-full rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-4">
-          <PageTitle>Sign in</PageTitle>
-          <BodyText className="text-slate-600">Enter your account credentials to continue.</BodyText>
+          <h1 className="text-2xl font-semibold text-slate-900">Sign in</h1>
+          <p className="mt-1 text-sm text-slate-600">Enter your account credentials to continue.</p>
         </div>
 
         <form onSubmit={submit}>
@@ -68,21 +65,25 @@ const LoginPage: React.FC = () => {
             {error && <div className="text-sm text-red-600">{error}</div>}
 
             <div className="pt-2">
-              <Button type="submit" className="w-full" disabled={loading}>
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={loading}
+              >
                 {loading ? 'Signing in…' : 'Sign in'}
-              </Button>
+              </button>
             </div>
           </div>
         </form>
         <div className="mt-4">
-          <BodyText className="text-center text-sm text-slate-600">
+          <p className="text-center text-sm text-slate-600">
             Don't have an account?{' '}
             <Link to="/register" className="text-indigo-600 font-medium hover:underline">
               Register
             </Link>
-          </BodyText>
+          </p>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
