@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: mental-health-ml-service
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r ml-service/requirements.txt
+    startCommand: uvicorn ml_service_asgi:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /docs
