@@ -139,6 +139,9 @@ const apiClient = {
   patch<T = any>(endpoint: string, body?: any) {
     return request<T>('PATCH', endpoint, body);
   },
+  delete<T = any>(endpoint: string) {
+    return request<T>('DELETE', endpoint);
+  },
 };
 
 export default apiClient;

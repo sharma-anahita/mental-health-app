@@ -52,3 +52,14 @@ export const updateGoal = async (req: AuthRequest, res: Response) => {
 
   res.json({ goal, xpGained, user: updatedUser });
 };
+
+export const deleteGoal = async (req: AuthRequest, res: Response) => {
+  const userId = req.userId;
+  const { id } = req.params;
+
+  const goal = await Goal.findOne({ _id: id, userId });
+  if (!goal) return res.status(404).json({ message: 'Goal not found' });
+
+  await Goal.deleteOne({ _id: id });
+  res.json({ message: 'Goal deleted' });
+};

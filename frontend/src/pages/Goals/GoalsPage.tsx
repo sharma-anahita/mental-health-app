@@ -3,7 +3,7 @@ import { PageTitle, SubtleText } from "../../components/ui/Typography";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import PageTransition from "../../components/ui/PageTransition";
-import { Flag } from "lucide-react";
+import { Flag, Minus } from "lucide-react";
 import { useEffect, useState } from "react";
 import * as goalService from "../../services/goalService";
 import useUserStore from "../../store/userStore";
@@ -52,6 +52,15 @@ const GoalsPage: React.FC = () => {
     }
   };
 
+  const handleDelete = async (g: goalService.GoalPayload) => {
+    try {
+      await goalService.deleteGoal(g._id as string);
+      setGoals((list) => list.filter((x) => x._id !== g._id));
+    } catch (err) {
+      // ignore
+    }
+  };
+
   return (
     <PageTransition className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 sm:py-10">
       <header className="mb-6">
@@ -92,8 +101,15 @@ const GoalsPage: React.FC = () => {
                         <SubtleText className="text-xs">{g.type} goal</SubtleText>
                       </div>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-2">
                       {g.completed && <SubtleText>Completed</SubtleText>}
+                      <button
+                        onClick={() => handleDelete(g)}
+                        className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                        title="Delete goal"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 ))}
