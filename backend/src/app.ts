@@ -19,7 +19,6 @@ const envFrontend = (process.env.FRONTEND_URL || '').trim();
 const allowedOrigins = [envFrontend, 'http://localhost:5173', 'http://localhost:3000'].filter(Boolean);
 console.log('[CORS] allowed origins:', allowedOrigins);
 
-app.use('/api/user/preferences', preferencesRoutes);
 app.use(
   cors({
       origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -41,6 +40,7 @@ app.use(
   })
 );
 
+app.use('/api/user/preferences', preferencesRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/moods', moodRoutes);
 app.use('/api/gamification', gamificationRoutes);
