@@ -7,6 +7,7 @@ import userRoutes from './routes/userRoutes';
 import goalRoutes from './routes/goalRoutes';
 import insightsRoutes from './routes/insightsRoutes';
 import preferencesRoutes from './routes/preferencesRoutes';
+import reflectionRoutes from './routes/reflectionRoutes';
 // ...
 const app = express();
 
@@ -43,6 +44,7 @@ app.use(
 app.use('/api/user/preferences', preferencesRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/moods', moodRoutes);
+app.use('/api/reflections', reflectionRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/goals', goalRoutes);

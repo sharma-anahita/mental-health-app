@@ -7,9 +7,10 @@ import useMoodStore from "../../store/moodStore";
 interface DailyPromptCardProps {
   className?: string;
   onReflect?: () => void;
+  hasReflection?: boolean;
 }
 
-export default function DailyPromptCard({ className = "", onReflect }: DailyPromptCardProps) {
+export default function DailyPromptCard({ className = "", onReflect, hasReflection = false }: DailyPromptCardProps) {
   const mood = useMoodStore((s) => s.selectedMood);
   const prompt = getDailyPrompt(mood);
 
@@ -25,9 +26,13 @@ export default function DailyPromptCard({ className = "", onReflect }: DailyProm
         </div>
 
         <div className="flex items-center justify-between">
-          <SubtleText className="text-slate-500">Prompt tailored to how you feel right now.</SubtleText>
+          <SubtleText className="text-slate-500">
+            {hasReflection ? "You've already reflected today." : 'Prompt tailored to how you feel right now.'}
+          </SubtleText>
           <div>
-            <Button variant="primary" onClick={onReflect}>Reflect</Button>
+            <Button variant="primary" onClick={onReflect} disabled={hasReflection}>
+              {hasReflection ? 'Reflected' : 'Reflect'}
+            </Button>
           </div>
         </div>
       </div>

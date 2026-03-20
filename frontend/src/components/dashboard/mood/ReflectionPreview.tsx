@@ -37,7 +37,9 @@ export default function ReflectionPreview({ text, updatedAt, onAdd, className = 
         <div className="mt-4 flex items-center justify-between">
           <SubtleText>{updatedAt ? `Updated ${formatDate(updatedAt)}` : "No entries"}</SubtleText>
           <div>
-            <Button variant="primary" onClick={onAdd}>Add Reflection</Button>
+            <Button variant="primary" onClick={onAdd}>
+              {text ? 'Edit Reflection' : 'Add Reflection'}
+            </Button>
           </div>
         </div>
       </div>

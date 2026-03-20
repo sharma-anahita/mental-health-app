@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // Page should render content only; AppLayout + Sidebar are provided by the router layout
 import SmartGreeting from "../../components/dashboard/SmartGreeting";
 import DailyPromptCard from "../../components/dashboard/DailyPromptCard";
@@ -19,7 +19,9 @@ import MoodHeroCard from "../../components/dashboard/mood/MoodHeroCard";
 import XPCard from "../../components/dashboard/gamification/XPCard";
 import WeeklyMoodChart from "../../components/charts/WeeklyMoodChart";
 import ReflectionPreview from "../../components/dashboard/mood/ReflectionPreview";
+import ReflectionModal from "../../components/dashboard/mood/ReflectionModal";
 import type { WeeklyMoodEntry } from "../../components/charts/WeeklyMoodChart";
+import * as reflectionService from "../../services/reflectionService";
 
 const DashboardPage: React.FC = () => {
   const moodLogs = useMoodStore((s) => s.moodLogs);
@@ -35,6 +37,12 @@ const DashboardPage: React.FC = () => {
   const userCoins = useUserStore((s) => s.coins ?? mockDashboard.xp.coins);
   const userXp = useUserStore((s) => s.xp ?? 0);
   const userStreak = useUserStore((s) => s.streak ?? mockDashboard.streak.days);
+
+  // Reflection state
+  const [reflection, setReflection] = useState<any>(null);
+  const [reflectionLoading, setReflectionLoading] = useState(false);
+  const [showReflectionModal, setShowReflectionModal] = useState(false);
+  const [isEditingReflection, setIsEditingReflection] = useState(false);
 
   const loading = userLoading || moodLoading;
   const errorMessage = userError ?? moodError ?? null;
@@ -118,7 +126,40 @@ const DashboardPage: React.FC = () => {
     // Fetch initial data for dashboard (mocked)
     fetchUserProgressAsync();
     fetchMoodLogsAsync();
+    fetchReflectionToday();
   }, [fetchUserProgressAsync, fetchMoodLogsAsync]);
+
+  const fetchReflectionToday = async () => {
+    setReflectionLoading(true);
+    try {
+      const reflectionData = await reflectionService.getReflectionToday();
+      setReflection(reflectionData);
+    } catch (err) {
+      console.error('Failed to fetch reflection:', err);
+      setReflection(null);
+    } finally {
+      setReflectionLoading(false);
+    }
+  };
+
+  const handleReflectionSubmitted = (newReflection: any, stats: any) => {
+    // Update reflection state with new data
+    setReflection(newReflection);
+    // Update user stats if XP was awarded
+    if (stats?.xp !== undefined) {
+      useUserStore.setState({
+        xp: stats.xp,
+        coins: stats.coins,
+        level: stats.level,
+        streak: stats.streak,
+      });
+    }
+  };
+
+  const handleOpenReflectionModal = () => {
+    setIsEditingReflection(!!reflection);
+    setShowReflectionModal(true);
+  };
 
   return (
     <PageTransition className="max-w-5xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
@@ -180,16 +221,36 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           <div className="flex flex-col gap-2">
-            <DailyPromptCard className="p-3" onReflect={() => {}} />
+            <DailyPromptCard className="p-3" onReflect={handleOpenReflectionModal} hasReflection={!!reflection} />
 
             {moodLogs.length === 0 ? (
               <ContextualEmptyState variant="noMoodLogs" className="p-3" onAction={() => {}} />
+            ) : reflection ? (
+              <ReflectionPreview
+                className="p-3"
+                text={reflection.text}
+                updatedAt={reflection.date || reflection.updatedAt || new Date().toISOString()}
+                onAdd={handleOpenReflectionModal}
+              />
             ) : (
-              <ReflectionPreview className="p-3" text={mockDashboard.reflection.text} updatedAt={mockDashboard.reflection.updatedAt} onAdd={() => {}} />
+              <ReflectionPreview
+                className="p-3"
+                text=""
+                updatedAt=""
+                onAdd={handleOpenReflectionModal}
+              />
             )}
           </div>
         </aside>
       </div>
+
+      <ReflectionModal
+        isOpen={showReflectionModal}
+        onClose={() => setShowReflectionModal(false)}
+        onSubmitted={handleReflectionSubmitted}
+        initialText={reflection?.text || ''}
+        isEditing={isEditingReflection}
+      />
     </PageTransition>
   );
 };
