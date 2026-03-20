@@ -11,14 +11,44 @@ const gamificationRoutes_1 = __importDefault(require("./routes/gamificationRoute
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const goalRoutes_1 = __importDefault(require("./routes/goalRoutes"));
 const insightsRoutes_1 = __importDefault(require("./routes/insightsRoutes"));
+const preferencesRoutes_1 = __importDefault(require("./routes/preferencesRoutes"));
+const reflectionRoutes_1 = __importDefault(require("./routes/reflectionRoutes"));
+// ...
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+// Configure CORS to allow the deployed frontend and local dev origins.
+// Read `FRONTEND_URL` from environment (set on Render) and include common
+// localhost dev origins. Use a whitelist function so the response header
+// mirrors the requesting origin when allowed.
+const envFrontend = (process.env.FRONTEND_URL || '').trim();
+const allowedOrigins = [envFrontend, 'http://localhost:5173', 'http://localhost:3000'].filter(Boolean);
+console.log('[CORS] allowed origins:', allowedOrigins);
 app.use((0, cors_1.default)({
-    origin: 'http://localhost:5173',
+    origin: (origin, callback) => {
+        // Allow non-browser requests (curl, server-side) that have no origin
+        if (!origin)
+            return callback(null, true);
+        // Exact match whitelist
+        if (allowedOrigins.includes(origin))
+            return callback(null, true);
+        // Allow any Vercel preview/domain under `*.vercel.app` to avoid
+        // breaking when Vercel assigns a new auto-generated subdomain.
+        try {
+            const lc = origin.toLowerCase();
+            if (lc.endsWith('.vercel.app'))
+                return callback(null, true);
+        }
+        catch (e) {
+            // ignore
+        }
+        return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
 }));
+app.use('/api/user/preferences', preferencesRoutes_1.default);
 app.use('/api/auth', authRoutes_1.default);
 app.use('/api/moods', moodRoutes_1.default);
+app.use('/api/reflections', reflectionRoutes_1.default);
 app.use('/api/gamification', gamificationRoutes_1.default);
 app.use('/api/user', userRoutes_1.default);
 app.use('/api/goals', goalRoutes_1.default);

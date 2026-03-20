@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateGoal = exports.createGoal = exports.listGoals = void 0;
+exports.deleteGoal = exports.updateGoal = exports.createGoal = exports.listGoals = void 0;
 const Goal_1 = __importDefault(require("../models/Goal"));
 const User_1 = __importDefault(require("../models/User"));
 const progressionService_1 = __importDefault(require("../services/progressionService"));
@@ -52,3 +52,13 @@ const updateGoal = async (req, res) => {
     res.json({ goal, xpGained, user: updatedUser });
 };
 exports.updateGoal = updateGoal;
+const deleteGoal = async (req, res) => {
+    const userId = req.userId;
+    const { id } = req.params;
+    const goal = await Goal_1.default.findOne({ _id: id, userId });
+    if (!goal)
+        return res.status(404).json({ message: 'Goal not found' });
+    await Goal_1.default.deleteOne({ _id: id });
+    res.json({ message: 'Goal deleted' });
+};
+exports.deleteGoal = deleteGoal;

@@ -11,4 +11,5 @@ router.use(authMiddleware_1.default);
 router.get('/', goalController_1.listGoals);
 router.post('/', goalController_1.createGoal);
 router.patch('/:id', goalController_1.updateGoal);
+router.delete('/:id', goalController_1.deleteGoal);
 exports.default = router;

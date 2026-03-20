@@ -15,6 +15,10 @@ export interface IUser {
   username?: string;
   bio?: string;
   avatarUrl?: string;
+  country?: string;
+  countryCode?: string;
+  phoneNumber?: string;
+  fullNumber?: string;
   phone?: string;
   location?: string;
   profileCompletedFields?: string[];
@@ -41,6 +45,10 @@ const userSchema = new mongoose.Schema<IUser>(
     username: { type: String, unique: true, sparse: true },
     bio: { type: String, default: '' },
     avatarUrl: { type: String, default: '' },
+    country: { type: String, default: '' },
+    countryCode: { type: String, default: '' },
+    phoneNumber: { type: String, default: '' },
+    fullNumber: { type: String, default: '' },
     phone: { type: String, default: '' },
     location: { type: String, default: '' },
     profileCompletedFields: { type: [String], default: [] },

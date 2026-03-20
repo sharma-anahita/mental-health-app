@@ -9,7 +9,7 @@ export const updateProfile = async (req: AuthRequest, res: Response, next: NextF
     const userId = req.userId;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    const allowedFields = ['username', 'bio', 'avatarUrl', 'phone', 'location'];
+    const allowedFields = ['username', 'bio', 'avatarUrl', 'country', 'countryCode', 'phoneNumber', 'fullNumber', 'phone', 'location'];
     const updates = req.body as Record<string, any>;
 
     const user = await User.findById(userId);
@@ -47,6 +47,10 @@ export const updateProfile = async (req: AuthRequest, res: Response, next: NextF
         username: user.username,
         bio: user.bio,
         avatarUrl: user.avatarUrl,
+        country: user.country,
+        countryCode: user.countryCode,
+        phoneNumber: user.phoneNumber,
+        fullNumber: user.fullNumber,
         phone: user.phone,
         location: user.location,
         xp: user.xp,
@@ -82,6 +86,10 @@ export const getProfile = async (req: AuthRequest, res: Response, next: NextFunc
         username: user.username,
         bio: user.bio,
         avatarUrl: user.avatarUrl,
+        country: user.country,
+        countryCode: user.countryCode,
+        phoneNumber: user.phoneNumber,
+        fullNumber: user.fullNumber,
         phone: user.phone,
         location: user.location,
         xp: user.xp,

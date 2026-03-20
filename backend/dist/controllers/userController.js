@@ -11,7 +11,7 @@ const updateProfile = async (req, res, next) => {
         const userId = req.userId;
         if (!userId)
             return res.status(401).json({ message: 'Unauthorized' });
-        const allowedFields = ['username', 'bio', 'avatarUrl', 'phone', 'location'];
+        const allowedFields = ['username', 'bio', 'avatarUrl', 'country', 'countryCode', 'phoneNumber', 'fullNumber', 'phone', 'location'];
         const updates = req.body;
         const user = await User_1.default.findById(userId);
         if (!user)
@@ -48,6 +48,10 @@ const updateProfile = async (req, res, next) => {
                 username: user.username,
                 bio: user.bio,
                 avatarUrl: user.avatarUrl,
+                country: user.country,
+                countryCode: user.countryCode,
+                phoneNumber: user.phoneNumber,
+                fullNumber: user.fullNumber,
                 phone: user.phone,
                 location: user.location,
                 xp: user.xp,
@@ -84,6 +88,10 @@ const getProfile = async (req, res, next) => {
                 username: user.username,
                 bio: user.bio,
                 avatarUrl: user.avatarUrl,
+                country: user.country,
+                countryCode: user.countryCode,
+                phoneNumber: user.phoneNumber,
+                fullNumber: user.fullNumber,
                 phone: user.phone,
                 location: user.location,
                 xp: user.xp,

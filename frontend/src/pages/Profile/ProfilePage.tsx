@@ -9,6 +9,8 @@ import { levelProgress, streak, achievements } from "../../data/mockGamification
 import PageTransition from "../../components/ui/PageTransition";
 import Card from "../../components/ui/Card";
 import Input from "../../components/ui/Input";
+import PhoneInput from "../../components/profile/PhoneInput";
+import LocationInput from "../../components/profile/LocationInput";
 import profileService from "../../services/profileService";
 import useUIStore from "../../store/uiStore";
 import useUserStore from "../../store/userStore";
@@ -20,23 +22,36 @@ const ProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [bio, setBio] = useState<string | undefined>(undefined);
-  const [phone, setPhone] = useState<string | undefined>(undefined);
+
+  // Phone section state (requested shape)
+  const [country, setCountry] = useState("IN");
+  const [countryCode, setCountryCode] = useState("+91");
+  const [phone, setPhone] = useState("");
+  const [error, setError] = useState("");
+  const [fullNumber, setFullNumber] = useState("");
+
   const [location, setLocation] = useState<string | undefined>(undefined);
 
   const loadProfile = async () => {
     setLoading(true);
     try {
       const u = await profileService.getProfile();
-      setName(u.name ?? '');
-      setEmail(u.email ?? '');
-      setUsername(u.username ?? '');
-      setBio(u.bio ?? '');
-      setPhone(u.phone ?? '');
-      setLocation(u.location ?? '');
+      setName(u.name ?? "");
+      setEmail(u.email ?? "");
+      setUsername(u.username ?? "");
+      setBio(u.bio ?? "");
+
+      setCountry(u.country ?? "IN");
+      setCountryCode(u.countryCode ?? "+91");
+      setPhone(u.phoneNumber ?? u.phone ?? "");
+      setFullNumber(u.fullNumber ?? "");
+      setError("");
+
+      setLocation(u.location ?? "");
     } catch (err) {
       // ignore for now
     } finally {
@@ -49,26 +64,36 @@ const ProfilePage: React.FC = () => {
   }, []);
 
   const save = async () => {
+    if (error) return;
+
     setSaving(true);
     try {
       const payload: Record<string, any> = {};
       if (username !== undefined) payload.username = username;
       if (bio !== undefined) payload.bio = bio;
-      if (phone !== undefined) payload.phone = phone;
+      payload.country = country;
+      payload.countryCode = countryCode;
+      payload.phoneNumber = phone;
+      payload.fullNumber = fullNumber || `${countryCode}${phone}`;
+      // Keep legacy field until backend consumers are fully migrated.
+      payload.phone = phone;
       if (location !== undefined) payload.location = location;
 
       const res = await profileService.updateProfile(payload);
       const u = res.user;
       const xpGained = res.xpGained ?? 0;
       if (xpGained > 0) {
-        useUIStore.getState().showToast(`+${xpGained} XP — Profile updated`, { type: 'success', duration: 3000 });
+        useUIStore.getState().showToast(`+${xpGained} XP — Profile updated`, { type: "success", duration: 3000 });
       }
       // Apply gamification updates to local store
       useUserStore.getState().applyProfileUpdate(u as any);
-      setUsername(u.username ?? '');
-      setBio(u.bio ?? '');
-      setPhone(u.phone ?? '');
-      setLocation(u.location ?? '');
+      setUsername(u.username ?? "");
+      setBio(u.bio ?? "");
+      setCountry(u.country ?? country);
+      setCountryCode(u.countryCode ?? countryCode);
+      setPhone(u.phoneNumber ?? u.phone ?? phone);
+      setFullNumber(u.fullNumber ?? fullNumber);
+      setLocation(u.location ?? "");
       setEditMode(false);
     } catch (err: any) {
       console.error(err);
@@ -133,12 +158,28 @@ const ProfilePage: React.FC = () => {
 
         <main className="col-span-12 lg:col-span-8">
           <Section title="Profile">
-            <Card>
+            <Card className="overflow-visible">
               <div className="space-y-4">
                 <Input label="Username" value={username} onChange={(e) => setUsername(e.target.value)} disabled={!editMode} />
                 <Input label="Bio" value={bio} onChange={(e) => setBio(e.target.value)} disabled={!editMode} />
-                <Input label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={!editMode} />
-                <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} disabled={!editMode} />
+                <PhoneInput
+                  label="Phone"
+                  value={phone}
+                  country={country}
+                  countryCode={countryCode}
+                  onChange={(params) => {
+                    setCountry(params.country);
+                    setCountryCode(params.countryCode);
+                    setPhone(params.phoneNumber);
+                    setFullNumber(params.fullNumber);
+                  }}
+                  onValidationChange={(isValid, message) => {
+                    setError(isValid ? "" : message || "Invalid phone number for selected country");
+                  }}
+                  disabled={!editMode}
+                  error={error}
+                />
+                <LocationInput value={location} onChange={(e) => setLocation(e.target.value)} disabled={!editMode} />
               </div>
             </Card>
           </Section>

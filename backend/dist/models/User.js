@@ -16,6 +16,10 @@ const userSchema = new mongoose_1.default.Schema({
     username: { type: String, unique: true, sparse: true },
     bio: { type: String, default: '' },
     avatarUrl: { type: String, default: '' },
+    country: { type: String, default: '' },
+    countryCode: { type: String, default: '' },
+    phoneNumber: { type: String, default: '' },
+    fullNumber: { type: String, default: '' },
     phone: { type: String, default: '' },
     location: { type: String, default: '' },
     profileCompletedFields: { type: [String], default: [] },
@@ -27,6 +31,17 @@ const userSchema = new mongoose_1.default.Schema({
             },
         ],
         default: [],
+    },
+    // ── Preferences sub-document ──
+    preferences: {
+        type: {
+            theme: {
+                type: String,
+                enum: ['calm', 'focus', 'sunset', 'midnight'],
+                default: 'calm',
+            },
+        },
+        default: () => ({ theme: 'calm' }),
     },
 }, { timestamps: true });
 const User = mongoose_1.default.model('User', userSchema);

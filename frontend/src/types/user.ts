@@ -7,6 +7,10 @@ export interface User {
   username?: string;
   bio?: string;
   avatarUrl?: string;
+  country?: string;
+  countryCode?: string;
+  phoneNumber?: string;
+  fullNumber?: string;
   phone?: string;
   location?: string;
 
