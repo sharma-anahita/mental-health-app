@@ -19,6 +19,7 @@ import MoodHeroCard from "../../components/dashboard/mood/MoodHeroCard";
 import XPCard from "../../components/dashboard/gamification/XPCard";
 import WeeklyMoodChart from "../../components/charts/WeeklyMoodChart";
 import ReflectionPreview from "../../components/dashboard/mood/ReflectionPreview";
+import type { WeeklyMoodEntry } from "../../components/charts/WeeklyMoodChart";
 
 const DashboardPage: React.FC = () => {
   const moodLogs = useMoodStore((s) => s.moodLogs);
@@ -37,6 +38,41 @@ const DashboardPage: React.FC = () => {
 
   const loading = userLoading || moodLoading;
   const errorMessage = userError ?? moodError ?? null;
+
+  const moodToScore = (moodValue: string): number => {
+    const numeric = parseFloat(moodValue);
+    if (!isNaN(numeric)) return numeric;
+
+    const moodMap: Record<string, number> = {
+      "Very low": 1,
+      Low: 3,
+      Okay: 5,
+      Good: 7,
+      Great: 9,
+    };
+
+    return moodMap[moodValue] ?? 5;
+  };
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const recentLogs = moodLogs.filter((log) => {
+    const logDate = new Date(log.date);
+    return logDate >= sevenDaysAgo;
+  });
+
+  const logsForWeeklyChart = (recentLogs.length > 0 ? recentLogs : moodLogs)
+    .slice()
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 7)
+    .reverse();
+
+  const weeklyMoodData: WeeklyMoodEntry[] = logsForWeeklyChart
+    .map((log) => ({
+      date: new Date(log.date).toISOString().slice(0, 10),
+      score: moodToScore(log.mood),
+    }));
 
   // Calculate average mood score from recent logs (last 7 days)
   const calculateAverageScore = () => {
@@ -139,7 +175,7 @@ const DashboardPage: React.FC = () => {
             {moodLoading ? (
               <div className="text-sm text-[var(--theme-text-secondary)]">Loading chart…</div>
             ) : (
-              <WeeklyMoodChart data={mockDashboard.weeklyMoodData} height={130} />
+              <WeeklyMoodChart data={weeklyMoodData} height={130} />
             )}
           </Card>
 
