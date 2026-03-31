@@ -1,6 +1,7 @@
 
 import { create } from "zustand";
 import * as moodService from "../services/moodService";
+import type { FetchMoodLogsPageParams, MoodLogsPageInfo } from "../services/moodService";
 
 // Simple typed mood store for UI state and future backend syncing
 
@@ -14,6 +15,7 @@ export interface MoodLog {
 interface MoodState {
   selectedMood: string | null;
   moodLogs: MoodLog[];
+  pageInfo: MoodLogsPageInfo | null;
   isLoading: boolean;
   error: string | null;
 
@@ -25,12 +27,14 @@ interface MoodState {
   reset: () => void;
   // Async helpers (use moodService internally)
   fetchMoodLogsAsync: () => Promise<void>;
+  fetchMoodLogsPageAsync: (params?: FetchMoodLogsPageParams) => Promise<void>;
   addMoodLogAsync: (payload: Omit<MoodLog, "id">) => Promise<void>;
 }
 
 export const useMoodStore = create<MoodState>((set) => ({
   selectedMood: null,
   moodLogs: [],
+  pageInfo: null,
   isLoading: false,
   error: null,
 
@@ -50,6 +54,7 @@ export const useMoodStore = create<MoodState>((set) => ({
   reset: () => set(() => ({
     selectedMood: null,
     moodLogs: [],
+    pageInfo: null,
     isLoading: false,
     error: null,
   })),
@@ -59,7 +64,19 @@ export const useMoodStore = create<MoodState>((set) => ({
     set(() => ({ isLoading: true, error: null }));
     try {
       const logs = await moodService.fetchMoodLogs();
-      set(() => ({ moodLogs: logs, isLoading: false }));
+      set(() => ({ moodLogs: logs, pageInfo: null, isLoading: false }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      set(() => ({ error: message, isLoading: false }));
+    }
+  },
+
+  // Async: fetch paginated mood logs
+  fetchMoodLogsPageAsync: async (params) => {
+    set(() => ({ isLoading: true, error: null }));
+    try {
+      const result = await moodService.fetchMoodLogsPage(params);
+      set(() => ({ moodLogs: result.moods, pageInfo: result.pageInfo, isLoading: false }));
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       set(() => ({ error: message, isLoading: false }));

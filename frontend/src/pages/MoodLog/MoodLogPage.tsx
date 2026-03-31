@@ -8,21 +8,24 @@ import MoodSelector from "../../components/mood/MoodSelector";
 import useMoodStore from "../../store/moodStore";
 import ReflectionInput from "../../components/mood/ReflectionInput";
 import MoodTimeline from "../../components/mood/MoodTimeline";
-import mockMoodLogs from "../../data/mockMoodLogs";
 import ContextualEmptyState from "../../components/ui/ContextualEmptyState";
-import { getMoodMessage } from "../../utils/moodHelpers";
+
+const PAGE_SIZE = 10;
 
 const MoodLogPage: React.FC = () => {
   const [reflection, setReflection] = useState("");
   const storeSelectedMood = useMoodStore((s) => s.selectedMood);
   const addMoodLogAsync = useMoodStore((s) => s.addMoodLogAsync);
   const clearSelectedMood = useMoodStore((s) => s.clearSelectedMood);
-  const fetchMoodLogsAsync = useMoodStore((s) => s.fetchMoodLogsAsync);
+  const fetchMoodLogsPageAsync = useMoodStore((s) => s.fetchMoodLogsPageAsync);
+  const moodLogs = useMoodStore((s) => s.moodLogs);
+  const isLoading = useMoodStore((s) => s.isLoading);
+  const pageInfo = useMoodStore((s) => s.pageInfo);
 
   // Fetch mood logs from backend on mount
   useEffect(() => {
-    fetchMoodLogsAsync();
-  }, [fetchMoodLogsAsync]);
+    fetchMoodLogsPageAsync({ limit: PAGE_SIZE });
+  }, [fetchMoodLogsPageAsync]);
 
   const handleSave = async () => {
     const moodLabel = storeSelectedMood ?? "Neutral";
@@ -34,6 +37,7 @@ const MoodLogPage: React.FC = () => {
 
     try {
       await addMoodLogAsync(payload);
+      await fetchMoodLogsPageAsync({ limit: PAGE_SIZE });
       clearSelectedMood();
       setReflection("");
       // show a gentle success message
@@ -57,8 +61,20 @@ const MoodLogPage: React.FC = () => {
     };
   }, []);
 
-  const moodLogs = useMoodStore((s) => s.moodLogs);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleNextPage = async () => {
+    if (!pageInfo?.nextCursor || !pageInfo.hasNextPage) return;
+    await fetchMoodLogsPageAsync({ limit: PAGE_SIZE, cursor: pageInfo.nextCursor, direction: "next" });
+  };
+
+  const handlePrevPage = async () => {
+    if (!pageInfo?.prevCursor || !pageInfo.hasPrevPage) return;
+    await fetchMoodLogsPageAsync({ limit: PAGE_SIZE, cursor: pageInfo.prevCursor, direction: "prev" });
+  };
+
+  const showPrevButton = Boolean(pageInfo?.hasPrevPage);
+  const showNextButton = Boolean(pageInfo?.hasNextPage);
 
   const moodToEmoji = (mood: string) => {
     const m = (mood ?? "").toString().toLowerCase();
@@ -121,9 +137,43 @@ const MoodLogPage: React.FC = () => {
               {moodLogs.length === 0 ? (
                 <ContextualEmptyState variant="noMoodLogs" onAction={() => {}} />
               ) : (
-                <MoodTimeline
-                  entries={moodLogs.map((m) => ({ emoji: moodToEmoji(m.mood), note: m.note, date: m.date, id: m.id }))}
-                />
+                <>
+                  <MoodTimeline
+                    entries={moodLogs.map((m) => ({ emoji: moodToEmoji(m.mood), note: m.note, date: m.date, id: m.id }))}
+                  />
+                  {(showPrevButton || showNextButton) && (
+                    <div
+                      className={`mt-4 flex items-center gap-3 ${
+                        showPrevButton && showNextButton
+                          ? "justify-between"
+                          : showPrevButton
+                            ? "justify-start"
+                            : "justify-end"
+                      }`}
+                    >
+                      {showPrevButton && (
+                        <Button
+                          variant="secondary"
+                          onClick={handlePrevPage}
+                          disabled={isLoading}
+                          aria-label="Load newer mood entries"
+                        >
+                          Previous 10
+                        </Button>
+                      )}
+                      {showNextButton && (
+                        <Button
+                          variant="secondary"
+                          onClick={handleNextPage}
+                          disabled={isLoading}
+                          aria-label="Load older mood entries"
+                        >
+                          Next 10
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

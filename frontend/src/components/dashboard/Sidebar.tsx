@@ -1,9 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, Heart, BarChart2, Flag, User, LogOut } from "lucide-react";
+import { Home, Heart, BarChart2, Flag, ShoppingBag, User, LogOut } from "lucide-react";
 import authService from "../../services/authService";
 
-type ItemId = "dashboard" | "mood" | "insights" | "goals" | "profile";
+type ItemId = "dashboard" | "mood" | "insights" | "goals" | "stores" | "profile";
 
 type SidebarProps = {
   active?: ItemId;
@@ -16,6 +16,7 @@ const items: { id: ItemId; label: string; Icon: React.ComponentType<any> }[] = [
   { id: "mood", label: "Mood Log", Icon: Heart },
   { id: "insights", label: "Insights", Icon: BarChart2 },
   { id: "goals", label: "Goals", Icon: Flag },
+  { id: "stores", label: "Stores", Icon: ShoppingBag },
   { id: "profile", label: "Profile", Icon: User },
 ];
 

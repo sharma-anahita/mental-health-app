@@ -25,6 +25,25 @@ interface BackendMoodLog {
   userId?: string;
 }
 
+export interface MoodLogsPageInfo {
+  limit: number;
+  nextCursor: string | null;
+  prevCursor: string | null;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export interface FetchMoodLogsPageParams {
+  limit?: number;
+  cursor?: string;
+  direction?: 'next' | 'prev';
+}
+
+export interface FetchMoodLogsPageResult {
+  moods: MoodLog[];
+  pageInfo: MoodLogsPageInfo;
+}
+
 /**
  * Transform backend MoodLog to frontend-friendly shape.
  * Maps _id → id, createdAt → date, strips userId and updatedAt.
@@ -44,7 +63,7 @@ function transformMoodLog(raw: BackendMoodLog): MoodLog {
  * Returns an array of `MoodLog`.
  */
 export async function fetchMoodLogs(): Promise<MoodLog[]> {
-  const data = await apiClient.get<{ moods: BackendMoodLog[] }>('moods');
+  const data = await apiClient.get<{ moods: BackendMoodLog[] }>('moods?limit=50');
   // Expecting { moods: [...] }
   if (data && Array.isArray((data as any).moods)) {
     return (data as any).moods.map(transformMoodLog);
@@ -54,6 +73,28 @@ export async function fetchMoodLogs(): Promise<MoodLog[]> {
     return (data as BackendMoodLog[]).map(transformMoodLog);
   }
   throw new Error('Unexpected response from /moods');
+}
+
+/**
+ * Fetch mood logs with cursor-based pagination.
+ */
+export async function fetchMoodLogsPage(params: FetchMoodLogsPageParams = {}): Promise<FetchMoodLogsPageResult> {
+  const search = new URLSearchParams();
+  if (params.limit !== undefined) search.set('limit', String(params.limit));
+  if (params.cursor) search.set('cursor', params.cursor);
+  if (params.direction) search.set('direction', params.direction);
+
+  const endpoint = `moods${search.toString() ? `?${search.toString()}` : ''}`;
+  const data = await apiClient.get<{ moods: BackendMoodLog[]; pageInfo: MoodLogsPageInfo }>(endpoint);
+
+  if (!data || !Array.isArray((data as any).moods) || !(data as any).pageInfo) {
+    throw new Error('Unexpected paginated response from /moods');
+  }
+
+  return {
+    moods: (data as any).moods.map(transformMoodLog),
+    pageInfo: (data as any).pageInfo,
+  };
 }
 
 /**
@@ -72,4 +113,4 @@ export async function createMoodLog(payload: Omit<MoodLog, 'id'>): Promise<MoodL
   throw new Error('Unexpected response from POST /moods');
 }
 
-export default { fetchMoodLogs, createMoodLog };
+export default { fetchMoodLogs, fetchMoodLogsPage, createMoodLog };
