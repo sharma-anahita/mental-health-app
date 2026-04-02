@@ -17,6 +17,7 @@ export interface IUser {
   name: string;
   email: string;
   passwordHash: string;
+  googleId?: string;
 
   xp: number;
   streak: number;
@@ -60,6 +61,7 @@ const userSchema = new mongoose.Schema<IUser>(
     },
 
     passwordHash: { type: String, required: true },
+    googleId: { type: String, unique: true, sparse: true },
 
     xp: { type: Number, default: 0 },
     streak: { type: Number, default: 0 },

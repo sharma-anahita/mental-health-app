@@ -30,6 +30,17 @@ export async function login(data: LoginData): Promise<string> {
 }
 
 /**
+ * Login with Google ID token and store the JWT.
+ */
+export async function googleLogin(idToken: string): Promise<string> {
+  const res = await apiClient.post<{ token: string }>('auth/google', { idToken });
+  if (res.token) {
+    setToken(res.token);
+  }
+  return res.token;
+}
+
+/**
  * Logout: remove token and reset all Zustand stores.
  */
 export function logout(): void {
@@ -42,4 +53,4 @@ export function logout(): void {
   useUIStore.getState().reset();
 }
 
-export default { register, login, logout };
+export default { register, login, googleLogin, logout };

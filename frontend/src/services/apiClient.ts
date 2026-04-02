@@ -10,9 +10,8 @@ import { getToken } from './tokenStorage';
  */
 
 // Read base API URL from Vite environment variable `VITE_API_BASE`.
-// Configure this in Vercel to point to your backend, e.g.
-// VITE_API_BASE=https://mental-health-app-backend-uh1q.onrender.com/api
-const BASE_URL = (import.meta.env.VITE_API_BASE as string) ?? 'http://localhost:5000/api';
+// Local dev and production both point to the Render backend unless overridden.
+const BASE_URL = (import.meta.env.VITE_API_BASE as string) ?? 'https://mental-health-app-backend-uh1q.onrender.com/api';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPED ERROR CLASSES

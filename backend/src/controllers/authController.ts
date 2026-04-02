@@ -1,11 +1,41 @@
 import { Request, Response, NextFunction } from 'express';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import User, { IUser } from '../models/User';
 
 const SALT_ROUNDS = 10;
 
 type AuthRequest = Request & { userId?: string };
+
+type AuthUserResponse = {
+  id: unknown;
+  name: string;
+  email: string;
+  xp: number;
+  streak: number;
+};
+
+function getJwtSecret(): string {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) throw new Error('JWT_SECRET not set');
+  return jwtSecret;
+}
+
+function buildUserResponse(user: Pick<IUser, 'name' | 'email' | 'xp' | 'streak'> & { _id: unknown }): AuthUserResponse {
+  return {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    xp: user.xp,
+    streak: user.streak,
+  };
+}
+
+function signToken(userId: string): string {
+  return jwt.sign({ userId }, getJwtSecret(), { expiresIn: '7d' });
+}
 
 export const register = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -18,14 +48,10 @@ export const register = async (req: AuthRequest, res: Response, next: NextFuncti
     if (existing) return res.status(409).json({ message: 'Email already in use' });
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = await User.create({ name, email, passwordHash } as Partial<IUser>);
+    const user = await User.create({ name, email, passwordHash, googleId: undefined } as Partial<IUser>);
+    const token = signToken(user._id.toString());
 
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) throw new Error('JWT_SECRET not set');
-
-    const token = jwt.sign({ userId: user._id.toString() }, jwtSecret, { expiresIn: '7d' });
-
-    res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, xp: user.xp, streak: user.streak } });
+    res.status(201).json({ token, user: buildUserResponse(user) });
   } catch (err) {
     next(err);
   }
@@ -42,15 +68,60 @@ export const login = async (req: AuthRequest, res: Response, next: NextFunction)
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) return res.status(401).json({ message: 'Invalid credentials' });
 
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) throw new Error('JWT_SECRET not set');
+    const token = signToken(user._id.toString());
 
-    const token = jwt.sign({ userId: user._id.toString() }, jwtSecret, { expiresIn: '7d' });
-
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, xp: user.xp, streak: user.streak } });
+    res.json({ token, user: buildUserResponse(user) });
   } catch (err) {
     next(err);
   }
 };
 
-export default { register, login };
+export const googleLogin = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { idToken } = req.body as { idToken?: string };
+    if (!idToken) return res.status(400).json({ message: 'idToken is required' });
+
+    const googleClientId = process.env.GOOGLE_CLIENT_ID;
+    if (!googleClientId) throw new Error('GOOGLE_CLIENT_ID not set');
+
+    const client = new OAuth2Client(googleClientId);
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: googleClientId,
+    });
+
+    const payload = ticket.getPayload();
+    const email = payload?.email;
+    const emailVerified = payload?.email_verified;
+    const googleId = payload?.sub;
+    const name = payload?.name || payload?.given_name || email?.split('@')[0] || 'Google User';
+
+    if (!payload || !email || !googleId || !emailVerified) {
+      return res.status(401).json({ message: 'Google account could not be verified' });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const passwordHash = await bcrypt.hash(randomBytes(32).toString('hex'), SALT_ROUNDS);
+      user = await User.create({
+        name,
+        email,
+        passwordHash,
+        googleId,
+      } as Partial<IUser>);
+    } else if (!user.googleId) {
+      user.googleId = googleId;
+      if (!user.name && name) user.name = name;
+      await user.save();
+    }
+
+    const token = signToken(user._id.toString());
+
+    return res.json({ token, user: buildUserResponse(user) });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export default { register, login, googleLogin };

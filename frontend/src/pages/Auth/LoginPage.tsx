@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import authService from '../../services/authService';
+import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,6 +25,29 @@ const LoginPage: React.FC = () => {
       }
     } catch (err: any) {
       setError(err?.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (response: CredentialResponse) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const credential = response.credential;
+      if (!credential) {
+        setError('Google sign-in did not return a credential.');
+        return;
+      }
+
+      const token = await authService.googleLogin(credential);
+      if (token) {
+        navigate('/dashboard');
+      } else {
+        setError('No token received');
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Google sign-in failed');
     } finally {
       setLoading(false);
     }
@@ -75,6 +100,23 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
         </form>
+
+        <div className="my-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-slate-200" />
+          <span className="text-xs uppercase tracking-[0.2em] text-slate-400">or</span>
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        {googleClientId ? (
+          <div className="flex justify-center">
+            <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError('Google sign-in was cancelled or failed.')} text="signin_with" />
+          </div>
+        ) : (
+          <p className="text-center text-xs text-slate-500">
+            Google sign-in is disabled until <span className="font-medium">VITE_GOOGLE_CLIENT_ID</span> is configured.
+          </p>
+        )}
+
         <div className="mt-4">
           <p className="text-center text-sm text-slate-600">
             Don't have an account?{' '}
