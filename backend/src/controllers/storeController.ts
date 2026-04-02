@@ -140,13 +140,13 @@ export const purchaseStoreItem = async (req: AuthRequest, res: Response, next: N
       return res.status(400).json({ message: 'Invalid store item price' });
     }
 
+    const inventoryIsString = usesStringInventorySchema();
+    const duplicateOwnershipOr: any[] = inventoryIsString
+      ? [{ inventory: normalizedItemKey }]
+      : [{ 'inventory.itemId': item._id }];
+
     const duplicateOwnershipQuery: any = {
-      $or: [
-        { inventory: normalizedItemKey },
-        { 'inventory.itemId': item._id },
-        { 'inventory.itemKey': normalizedItemKey },
-        { 'inventory.key': normalizedItemKey },
-      ],
+      $or: duplicateOwnershipOr,
     };
 
     const alreadyOwned = await User.exists({ _id: userId, ...duplicateOwnershipQuery } as any);
@@ -162,7 +162,7 @@ export const purchaseStoreItem = async (req: AuthRequest, res: Response, next: N
       {
         _id: userId,
         coins: { $gte: price },
-        $nor: duplicateOwnershipQuery.$or,
+        $nor: duplicateOwnershipOr,
       },
       {
         $inc: { coins: -price },
