@@ -13,6 +13,12 @@ export interface UserProgress {
   xpPercent?: number;
   streak: number;
   coins: number;
+  streakRestore: {
+    broken: boolean;
+    previousValue: number;
+    canRestore: boolean;
+    tickets: number;
+  };
 }
 
 interface UserState extends UserProgress {
@@ -34,6 +40,12 @@ export const useUserStore = create<UserState>((set, get) => ({
   xpPercent: 0,
   streak: 0,
   coins: 0,
+  streakRestore: {
+    broken: false,
+    previousValue: 0,
+    canRestore: false,
+    tickets: 0,
+  },
 
   isLoading: false,
   error: null,
@@ -45,6 +57,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       xpPercent: p.xpPercent ?? s.xpPercent,
       streak: p.streak ?? s.streak,
       coins: p.coins ?? s.coins,
+      streakRestore: p.streakRestore ?? s.streakRestore,
     })),
 
   incrementXP: (amount = 1) =>
@@ -60,6 +73,12 @@ export const useUserStore = create<UserState>((set, get) => ({
     xpPercent: 0,
     streak: 0,
     coins: 0,
+    streakRestore: {
+      broken: false,
+      previousValue: 0,
+      canRestore: false,
+      tickets: 0,
+    },
     isLoading: false,
     error: null,
   })),
@@ -74,6 +93,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         xpPercent: progress.levelProgress.xpPercent ?? 0,
         streak: progress.streak.currentDays,
         coins: progress.coins ?? 0,
+        streakRestore: progress.streakRestore,
         isLoading: false,
       }));
     } catch (err) {
@@ -103,6 +123,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         xpPercent: newXpPercent,
         streak: u.streak ?? s.streak,
         coins: u.coins ?? s.coins,
+        streakRestore: s.streakRestore,
       };
     }),
 }));

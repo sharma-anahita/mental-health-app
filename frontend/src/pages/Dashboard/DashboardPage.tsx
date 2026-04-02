@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 // Page should render content only; AppLayout + Sidebar are provided by the router layout
 import SmartGreeting from "../../components/dashboard/SmartGreeting";
 import DailyPromptCard from "../../components/dashboard/DailyPromptCard";
@@ -6,6 +7,7 @@ import ContextualEmptyState from "../../components/ui/ContextualEmptyState";
 import StreakMilestone from "../../components/gamification/StreakMilestone";
 import useMoodStore from "../../store/moodStore";
 import useUserStore from "../../store/userStore";
+import useUIStore from "../../store/uiStore";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
@@ -22,6 +24,7 @@ import ReflectionPreview from "../../components/dashboard/mood/ReflectionPreview
 import ReflectionModal from "../../components/dashboard/mood/ReflectionModal";
 import type { WeeklyMoodEntry } from "../../components/charts/WeeklyMoodChart";
 import * as reflectionService from "../../services/reflectionService";
+import * as userService from "../../services/userService";
 
 const DashboardPage: React.FC = () => {
   const moodLogs = useMoodStore((s) => s.moodLogs);
@@ -37,6 +40,10 @@ const DashboardPage: React.FC = () => {
   const userCoins = useUserStore((s) => s.coins ?? mockDashboard.xp.coins);
   const userXp = useUserStore((s) => s.xp ?? 0);
   const userStreak = useUserStore((s) => s.streak ?? mockDashboard.streak.days);
+  const streakRestore = useUserStore((s) => s.streakRestore);
+  const showToast = useUIStore((s) => s.showToast);
+  const [isRestoringStreak, setIsRestoringStreak] = useState(false);
+  const [showRestoreSuccess, setShowRestoreSuccess] = useState(false);
 
   // Reflection state
   const [reflection, setReflection] = useState<any>(null);
@@ -161,6 +168,26 @@ const DashboardPage: React.FC = () => {
     setShowReflectionModal(true);
   };
 
+  const handleRestoreStreak = async () => {
+    if (isRestoringStreak || !streakRestore.canRestore) {
+      return;
+    }
+
+    setIsRestoringStreak(true);
+    try {
+      await userService.restoreStreak();
+      await fetchUserProgressAsync();
+      setShowRestoreSuccess(true);
+      setTimeout(() => setShowRestoreSuccess(false), 3500);
+      showToast("We've got your back - streak restored", { type: "success", duration: 3200 });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unable to restore streak";
+      showToast(message, { type: "error", duration: 3500 });
+    } finally {
+      setIsRestoringStreak(false);
+    }
+  };
+
   return (
     <PageTransition className="max-w-5xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
 
@@ -200,6 +227,59 @@ const DashboardPage: React.FC = () => {
               <StreakMilestone currentDays={userStreak} nextMilestone={7} />
             )}
           </div>
+
+          {streakRestore.broken && (
+            <motion.div
+              animate={isRestoringStreak ? { scale: [1, 1.015, 1] } : { scale: 1 }}
+              transition={{ duration: 0.9, repeat: isRestoringStreak ? Infinity : 0 }}
+            >
+            <Card className="p-4 border border-amber-200 bg-amber-50/70">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <CardTitle>You lost your streak 😢</CardTitle>
+                    <SubtleText className="mt-1">
+                      {streakRestore.previousValue > 0
+                        ? `Restore your previous ${streakRestore.previousValue}-day streak with a Time Travel Ticket.`
+                        : "Use a Time Travel Ticket to recover your streak."}
+                    </SubtleText>
+                  </div>
+                  <Badge variant="default">Tickets: {streakRestore.tickets}</Badge>
+                </div>
+
+                {streakRestore.tickets > 0 ? (
+                  <div className="flex items-center justify-end">
+                    <Button
+                      variant="primary"
+                      onClick={handleRestoreStreak}
+                      disabled={!streakRestore.canRestore || isRestoringStreak}
+                    >
+                      {isRestoringStreak
+                        ? "Restoring..."
+                        : `Restore Streak (${streakRestore.tickets} available)`}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-sm font-medium text-amber-900">Buy Time Travel Ticket from store</div>
+                )}
+
+                <AnimatePresence>
+                  {showRestoreSuccess && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25 }}
+                      className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800"
+                    >
+                      🎉 We&apos;ve got your back - streak restored
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </Card>
+            </motion.div>
+          )}
         </div>
 
         {/* Right column: XP Hero, Weekly Chart, Prompt/Reflection */}

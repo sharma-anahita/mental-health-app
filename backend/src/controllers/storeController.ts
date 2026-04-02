@@ -141,6 +141,7 @@ export const purchaseStoreItem = async (req: AuthRequest, res: Response, next: N
     }
 
     const inventoryIsString = usesStringInventorySchema();
+    const isConsumable = (item as any).type === 'consumable';
     const duplicateOwnershipOr: any[] = inventoryIsString
       ? [{ inventory: normalizedItemKey }]
       : [{ 'inventory.itemId': item._id }];
@@ -149,26 +150,81 @@ export const purchaseStoreItem = async (req: AuthRequest, res: Response, next: N
       $or: duplicateOwnershipOr,
     };
 
-    const alreadyOwned = await User.exists({ _id: userId, ...duplicateOwnershipQuery } as any);
-    if (alreadyOwned) {
-      return res.status(409).json({ message: 'Item already owned' });
-    }
+    let purchaseResult = { modifiedCount: 0 } as { modifiedCount: number };
 
-    const inventoryPushValue = usesStringInventorySchema()
-      ? normalizedItemKey
-      : { itemId: item._id, acquiredAt: new Date() };
+    if (isConsumable) {
+      if (inventoryIsString) {
+        // String inventory fallback: each additional entry is treated as +1 quantity.
+        purchaseResult = await User.updateOne(
+          {
+            _id: userId,
+            coins: { $gte: price },
+          },
+          {
+            $inc: { coins: -price },
+            $push: { inventory: normalizedItemKey },
+          }
+        );
+      } else {
+        // First try to increment quantity if the consumable already exists in inventory.
+        purchaseResult = await User.updateOne(
+          {
+            _id: userId,
+            coins: { $gte: price },
+            'inventory.itemId': item._id,
+          },
+          {
+            $inc: {
+              coins: -price,
+              'inventory.$.quantity': 1,
+            },
+          }
+        );
 
-    const purchaseResult = await User.updateOne(
-      {
-        _id: userId,
-        coins: { $gte: price },
-        $nor: duplicateOwnershipOr,
-      },
-      {
-        $inc: { coins: -price },
-        $push: { inventory: inventoryPushValue },
+        if (purchaseResult.modifiedCount === 0) {
+          // Otherwise add it once with quantity 1.
+          purchaseResult = await User.updateOne(
+            {
+              _id: userId,
+              coins: { $gte: price },
+              'inventory.itemId': { $ne: item._id },
+            } as any,
+            {
+              $inc: { coins: -price },
+              $push: {
+                inventory: {
+                  itemId: item._id,
+                  quantity: 1,
+                  acquiredAt: new Date(),
+                },
+              },
+            }
+          );
+        }
       }
-    );
+    } else {
+      // Non-consumables remain one-time purchases.
+      const alreadyOwned = await User.exists({ _id: userId, ...duplicateOwnershipQuery } as any);
+      if (alreadyOwned) {
+        return res.status(409).json({ message: 'Item already owned' });
+      }
+
+      const inventoryPushValue = inventoryIsString
+        ? normalizedItemKey
+        : { itemId: item._id, quantity: 1, acquiredAt: new Date() };
+
+      purchaseResult = await User.updateOne(
+        {
+          _id: userId,
+          coins: { $gte: price },
+          $nor: duplicateOwnershipOr,
+        },
+        {
+          $inc: { coins: -price },
+          $push: { inventory: inventoryPushValue },
+        }
+      );
+    }
 
     if (purchaseResult.modifiedCount === 0) {
       const currentUser = await User.findById(userId).select('coins inventory');
@@ -178,7 +234,7 @@ export const purchaseStoreItem = async (req: AuthRequest, res: Response, next: N
       const ownsById = ownedItemIds.includes(String(item._id));
       const ownsByKey = ownedKeys.has(normalizedItemKey);
 
-      if (ownsById || ownsByKey) {
+      if (!isConsumable && (ownsById || ownsByKey)) {
         return res.status(409).json({ message: 'Item already owned' });
       }
 

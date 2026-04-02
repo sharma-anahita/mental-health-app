@@ -5,8 +5,6 @@ import gamificationController from '../controllers/gamificationController';
 const router = Router();
 
 router.use(authMiddleware);
-
-router.get('/', gamificationController.gamification);
-router.post('/streak/restore', gamificationController.restoreStreak);
+router.post('/restore', gamificationController.restoreStreak);
 
 export default router;

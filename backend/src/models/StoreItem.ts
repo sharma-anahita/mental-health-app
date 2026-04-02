@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export type StoreItemType = 'cosmetic' | 'utility' | 'theme' | 'fontColor' | 'fontStyle';
+export type StoreItemType = 'cosmetic' | 'utility' | 'theme' | 'fontColor' | 'fontStyle' | 'consumable';
 
 export interface IStoreItem {
   name: string;
@@ -21,7 +21,7 @@ const storeItemSchema = new mongoose.Schema<IStoreItem>(
     description: { type: String },
     cost: { type: Number, required: true },
 
-    type: { type: String, required: true, enum: ['cosmetic', 'utility', 'theme', 'fontColor', 'fontStyle'] },
+    type: { type: String, required: true, enum: ['cosmetic', 'utility', 'theme', 'fontColor', 'fontStyle', 'consumable'] },
 
     key: { type: String, required: true, unique: true }, // ⭐ IMPORTANT
 

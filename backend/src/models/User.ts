@@ -12,6 +12,7 @@ export interface IUserPreferences {
 
 export interface IUserInventoryItem {
   itemId: Types.ObjectId;
+  quantity?: number;
   acquiredAt?: Date;
 }
 
@@ -23,6 +24,11 @@ export interface IUser {
 
   xp: number;
   streak: number;
+  streakBeforeBreak?: number;
+  streakBroken?: boolean;
+  streakBreakMissedDays?: number;
+  streakRestoreUsedForGap?: boolean;
+  lastActiveDate?: Date;
   coins: number;
   level: number;
 
@@ -67,6 +73,11 @@ const userSchema = new mongoose.Schema<IUser>(
 
     xp: { type: Number, default: 0 },
     streak: { type: Number, default: 0 },
+    streakBeforeBreak: { type: Number, default: 0 },
+    streakBroken: { type: Boolean, default: false },
+    streakBreakMissedDays: { type: Number, default: 0, min: 0 },
+    streakRestoreUsedForGap: { type: Boolean, default: false },
+    lastActiveDate: { type: Date, default: Date.now },
     coins: { type: Number, default: 0 },
     level: { type: Number, default: 0 },
 
@@ -93,6 +104,11 @@ const userSchema = new mongoose.Schema<IUser>(
             ref: 'StoreItem',
             required: true,
             index: true, // performance boost
+          },
+          quantity: {
+            type: Number,
+            default: 1,
+            min: 1,
           },
           acquiredAt: {
             type: Date,

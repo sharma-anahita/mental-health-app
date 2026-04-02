@@ -2,7 +2,7 @@ import StoreItem from '../models/StoreItem';
 
 type SeedStoreItem = {
   name: string;
-  type: 'theme' | 'fontColor' | 'fontStyle';
+  type: 'theme' | 'fontColor' | 'fontStyle' | 'consumable';
   price: number;
   itemKey: string;
   purchasable: boolean;
@@ -53,6 +53,14 @@ const DEFAULT_ITEMS: SeedStoreItem[] = [
     itemKey: 'font-style',
     purchasable: true,
     description: 'Unlock custom font styles for the app',
+  },
+  {
+    name: 'Time Travel Ticket',
+    type: 'consumable',
+    price: 30,
+    itemKey: 'streak-restore',
+    purchasable: true,
+    description: 'Restore your streak if you miss a day',
   },
 ];
 

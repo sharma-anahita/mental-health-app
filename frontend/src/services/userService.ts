@@ -35,14 +35,24 @@ interface BackendGamificationResponse {
   streak: {
     currentDays: number;
     lastEntry?: string | null;
+    broken?: boolean;
+    previousValue?: number;
+    canRestore?: boolean;
   };
   coins?: number;
+  restoreTickets?: number;
 }
 
 export type UserProgress = {
   levelProgress: LevelProgress;
   streak: Streak;
   coins: number;
+  streakRestore: {
+    broken: boolean;
+    previousValue: number;
+    canRestore: boolean;
+    tickets: number;
+  };
 };
 
 /**
@@ -65,6 +75,12 @@ function transformGamificationResponse(raw: BackendGamificationResponse): UserPr
       // lastEntry is stripped (not needed in frontend Streak type)
     },
     coins: raw.coins ?? 0,
+    streakRestore: {
+      broken: raw.streak.broken ?? false,
+      previousValue: raw.streak.previousValue ?? 0,
+      canRestore: raw.streak.canRestore ?? false,
+      tickets: raw.restoreTickets ?? 0,
+    },
   };
 }
 
@@ -77,4 +93,9 @@ export async function fetchUserProgress(): Promise<UserProgress> {
   return transformGamificationResponse(payload);
 }
 
-export default { fetchUserProgress };
+export async function restoreStreak(): Promise<{ streak: number; restoreTickets: number }> {
+  const payload = await apiClient.post<{ streak: number; restoreTickets: number }>('gamification/streak/restore');
+  return payload;
+}
+
+export default { fetchUserProgress, restoreStreak };
