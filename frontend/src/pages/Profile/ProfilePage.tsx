@@ -14,8 +14,16 @@ import LocationInput from "../../components/profile/LocationInput";
 import profileService from "../../services/profileService";
 import useUIStore from "../../store/uiStore";
 import useUserStore from "../../store/userStore";
+import apiClient from "../../services/apiClient";
+import { getStoreItems } from "../../services/storeService";
+import type { User } from "../../types/user";
+import { canUseFeature } from "../../utils/featureAccess";
 // ── Theme ──────────────────────────────────────────────────────────────────
 import ThemeSwitcher from "../../components/ui/ThemeSwitcher";
+
+type FontStyle = "Inter" | "Poppins" | "Roboto";
+
+const FONT_STYLE_OPTIONS: FontStyle[] = ["Inter", "Poppins", "Roboto"];
 
 const ProfilePage: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
@@ -35,11 +43,39 @@ const ProfilePage: React.FC = () => {
   const [fullNumber, setFullNumber] = useState("");
 
   const [location, setLocation] = useState<string | undefined>(undefined);
+  const [customUser, setCustomUser] = useState<User | null>(null);
+  const [fontColor, setFontColor] = useState<string>("#0f172a");
+  const [fontStyle, setFontStyle] = useState<FontStyle>("Inter");
+  const [savingFontColor, setSavingFontColor] = useState(false);
+  const [savingFontStyle, setSavingFontStyle] = useState(false);
+
+  const canUseFontColors = canUseFeature("font-colors", customUser);
+  const canUseFontStyle = canUseFeature("font-style", customUser);
 
   const loadProfile = async () => {
     setLoading(true);
     try {
-      const u = await profileService.getProfile();
+      const [u, storeData, prefsData] = await Promise.all([
+        profileService.getProfile(),
+        getStoreItems(),
+        apiClient.get<{ preferences?: { fontColor?: string; fontStyle?: FontStyle } }>("/user/preferences"),
+      ]);
+
+      const inventory = storeData.ownedItemKeys ?? [];
+      const preferences = prefsData.preferences ?? {};
+
+      setCustomUser({
+        ...u,
+        inventory,
+        preferences: {
+          ...u.preferences,
+          ...preferences,
+        },
+      });
+
+      setFontColor(preferences.fontColor ?? "#0f172a");
+      setFontStyle(preferences.fontStyle ?? "Inter");
+
       setName(u.name ?? "");
       setEmail(u.email ?? "");
       setUsername(u.username ?? "");
@@ -56,6 +92,55 @@ const ProfilePage: React.FC = () => {
       // ignore for now
     } finally {
       setLoading(false);
+    }
+  };
+
+  const savePreference = async (payload: { fontColor?: string; fontStyle?: FontStyle }) => {
+    const res = await apiClient.patch<{ preferences?: { fontColor?: string; fontStyle?: FontStyle } }>(
+      "/user/preferences",
+      payload
+    );
+
+    const nextPrefs = res.preferences ?? {};
+    setCustomUser((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        preferences: {
+          ...prev.preferences,
+          ...nextPrefs,
+        },
+      };
+    });
+  };
+
+  const handleFontColorChange = async (value: string) => {
+    setFontColor(value);
+    if (!canUseFontColors) return;
+
+    setSavingFontColor(true);
+    try {
+      await savePreference({ fontColor: value });
+    } catch (err: any) {
+      const message = err?.message || "Failed to save font color";
+      useUIStore.getState().showToast(message, { type: "error", duration: 2500 });
+    } finally {
+      setSavingFontColor(false);
+    }
+  };
+
+  const handleFontStyleChange = async (value: FontStyle) => {
+    setFontStyle(value);
+    if (!canUseFontStyle) return;
+
+    setSavingFontStyle(true);
+    try {
+      await savePreference({ fontStyle: value });
+    } catch (err: any) {
+      const message = err?.message || "Failed to save font style";
+      useUIStore.getState().showToast(message, { type: "error", duration: 2500 });
+    } finally {
+      setSavingFontStyle(false);
     }
   };
 
@@ -153,6 +238,61 @@ const ProfilePage: React.FC = () => {
             <Card>
               <ThemeSwitcher />
             </Card>
+          </Section>
+
+          <Section title="Customization">
+            <div className="space-y-3">
+              <Card>
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-[var(--theme-text-primary)]">Font Color</div>
+                  {!canUseFontColors ? (
+                    <div className="rounded-2xl border border-dashed border-[var(--theme-card-ring)] px-3 py-3 text-sm text-[var(--theme-text-subtle)]">
+                      Unlock color customization in Store
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={fontColor}
+                        onChange={(e) => handleFontColorChange(e.target.value)}
+                        className="h-10 w-14 rounded-xl border border-[var(--theme-card-ring)] bg-transparent p-1"
+                      />
+                      <span className="text-sm text-[var(--theme-text-secondary)]">
+                        {savingFontColor ? "Saving..." : fontColor}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </Card>
+
+              <Card>
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-[var(--theme-text-primary)]">Font Style</div>
+                  {!canUseFontStyle ? (
+                    <div className="rounded-2xl border border-dashed border-[var(--theme-card-ring)] px-3 py-3 text-sm text-[var(--theme-text-subtle)]">
+                      Unlock font customization in Store
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <select
+                        value={fontStyle}
+                        onChange={(e) => handleFontStyleChange(e.target.value as FontStyle)}
+                        className="rounded-2xl border border-[var(--theme-card-ring)] bg-[var(--theme-card-bg)] px-3 py-2 text-sm text-[var(--theme-text-primary)]"
+                      >
+                        {FONT_STYLE_OPTIONS.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="text-sm text-[var(--theme-text-secondary)]">
+                        {savingFontStyle ? "Saving..." : "Saved"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </div>
           </Section>
         </aside>
 

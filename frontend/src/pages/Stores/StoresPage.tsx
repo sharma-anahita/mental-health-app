@@ -19,6 +19,19 @@ function isThemeItem(item: StoreItem): item is StoreItem & { itemKey: ThemeName 
   return item.type === "theme" && THEME_KEYS.includes(item.itemKey as ThemeName);
 }
 
+function getTypeBadgeLabel(type: StoreItem["type"]): string {
+  switch (type) {
+    case "theme":
+      return "Theme";
+    case "fontColor":
+      return "Color";
+    case "fontStyle":
+      return "Font";
+    default:
+      return type;
+  }
+}
+
 const StoresPage: React.FC = () => {
   const showToast = useUIStore((s) => s.showToast);
   const setTheme = useThemeStore((s) => s.setTheme);
@@ -150,7 +163,7 @@ const StoresPage: React.FC = () => {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-base font-semibold text-[var(--theme-text-primary)]">{item.name}</div>
-                      <div className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--theme-text-subtle)]">{item.type}</div>
+                      <div className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--theme-text-subtle)]">{getTypeBadgeLabel(item.type)}</div>
                     </div>
                     <div className="rounded-full bg-[var(--theme-accent-subtle)] px-3 py-1 text-xs font-medium text-[var(--theme-accent-text)]">
                       {item.price} coins

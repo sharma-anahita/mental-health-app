@@ -24,6 +24,8 @@ export interface User {
   inventory?: string[];
   preferences?: {
     theme?: string;
+    fontColor?: string;
+    fontStyle?: "Inter" | "Poppins" | "Roboto";
   };
 }
 

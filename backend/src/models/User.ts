@@ -6,6 +6,8 @@ import mongoose, { Types } from 'mongoose';
 
 export interface IUserPreferences {
   theme?: string; // dynamic (comes from StoreItem.key)
+  fontColor?: string;
+  fontStyle?: string;
 }
 
 export interface IUserInventoryItem {
@@ -108,8 +110,16 @@ const userSchema = new mongoose.Schema<IUser>(
           type: String,
           default: 'calm', // default theme
         },
+        fontColor: {
+          type: String,
+          default: '#0f172a',
+        },
+        fontStyle: {
+          type: String,
+          default: 'Inter',
+        },
       },
-      default: () => ({ theme: 'calm' }),
+      default: () => ({ theme: 'calm', fontColor: '#0f172a', fontStyle: 'Inter' }),
     },
   },
   { timestamps: true }

@@ -5,10 +5,13 @@ type AuthRequest = Request & { userId?: string };
 
 const ALLOWED_THEMES = ['calm', 'focus', 'sunset', 'midnight'] as const;
 type ThemeName = typeof ALLOWED_THEMES[number];
+const ALLOWED_FONT_STYLES = ['Inter', 'Poppins', 'Roboto'] as const;
+type FontStyleName = typeof ALLOWED_FONT_STYLES[number];
+const HEX_COLOR_REGEX = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
 /**
  * PATCH /api/user/preferences
- * Currently supports: { theme: ThemeName }
+ * Currently supports: { theme: ThemeName, fontColor?: string, fontStyle?: FontStyleName }
  * Extend this object as more user preferences are added.
  */
 export const updatePreferences = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -16,14 +19,28 @@ export const updatePreferences = async (req: AuthRequest, res: Response, next: N
     const userId = req.userId;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    const { theme } = req.body as { theme?: string };
+    const { theme, fontColor, fontStyle } = req.body as {
+      theme?: string;
+      fontColor?: string;
+      fontStyle?: string;
+    };
 
     if (theme !== undefined && !ALLOWED_THEMES.includes(theme as ThemeName)) {
       return res.status(400).json({ message: `Invalid theme. Must be one of: ${ALLOWED_THEMES.join(', ')}` });
     }
 
+    if (fontColor !== undefined && !HEX_COLOR_REGEX.test(fontColor)) {
+      return res.status(400).json({ message: 'Invalid fontColor. Use a hex color like #0f172a' });
+    }
+
+    if (fontStyle !== undefined && !ALLOWED_FONT_STYLES.includes(fontStyle as FontStyleName)) {
+      return res.status(400).json({ message: `Invalid fontStyle. Must be one of: ${ALLOWED_FONT_STYLES.join(', ')}` });
+    }
+
     const updates: Record<string, any> = {};
     if (theme !== undefined) updates['preferences.theme'] = theme;
+    if (fontColor !== undefined) updates['preferences.fontColor'] = fontColor;
+    if (fontStyle !== undefined) updates['preferences.fontStyle'] = fontStyle;
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: 'No valid preference fields provided' });
