@@ -14,7 +14,6 @@ import LocationInput from "../../components/profile/LocationInput";
 import profileService from "../../services/profileService";
 import useUIStore from "../../store/uiStore";
 import useUserStore from "../../store/userStore";
-import type { User } from "../../types/user";
 // ── Theme ──────────────────────────────────────────────────────────────────
 import ThemeSwitcher from "../../components/ui/ThemeSwitcher";
 
@@ -36,13 +35,11 @@ const ProfilePage: React.FC = () => {
   const [fullNumber, setFullNumber] = useState("");
 
   const [location, setLocation] = useState<string | undefined>(undefined);
-  const [profileUser, setProfileUser] = useState<User | null>(null);
 
   const loadProfile = async () => {
     setLoading(true);
     try {
       const u = await profileService.getProfile();
-      setProfileUser(u);
       setName(u.name ?? "");
       setEmail(u.email ?? "");
       setUsername(u.username ?? "");
@@ -84,7 +81,6 @@ const ProfilePage: React.FC = () => {
 
       const res = await profileService.updateProfile(payload);
       const u = res.user;
-      setProfileUser(u);
       const xpGained = res.xpGained ?? 0;
       if (xpGained > 0) {
         useUIStore.getState().showToast(`+${xpGained} XP — Profile updated`, { type: "success", duration: 3000 });
@@ -155,7 +151,7 @@ const ProfilePage: React.FC = () => {
           {/* ── Theme Switcher ────────────────────────────────────────────── */}
           <Section title="Appearance">
             <Card>
-              <ThemeSwitcher user={profileUser} />
+              <ThemeSwitcher />
             </Card>
           </Section>
         </aside>

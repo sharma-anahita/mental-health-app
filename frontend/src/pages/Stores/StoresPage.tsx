@@ -22,6 +22,8 @@ function isThemeItem(item: StoreItem): item is StoreItem & { itemKey: ThemeName 
 const StoresPage: React.FC = () => {
   const showToast = useUIStore((s) => s.showToast);
   const setTheme = useThemeStore((s) => s.setTheme);
+  const setOwnedThemes = useThemeStore((s) => s.setOwnedThemes);
+  const grantTheme = useThemeStore((s) => s.grantTheme);
   const activeTheme = useThemeStore((s) => s.theme);
   const setUserProgress = useUserStore((s) => s.setUserProgress);
 
@@ -45,7 +47,9 @@ const StoresPage: React.FC = () => {
       const payload: GetStoreItemsResponse = await getStoreItems();
       setItems(payload.items);
       setCoins(payload.user?.coins ?? 0);
-      setOwnedItemKeys(payload.ownedItemKeys ?? payload.items.filter((i) => i.owned).map((i) => i.itemKey));
+      const nextOwned = payload.ownedItemKeys ?? payload.items.filter((i) => i.owned).map((i) => i.itemKey);
+      setOwnedItemKeys(nextOwned);
+      setOwnedThemes(nextOwned);
       setUserProgress({ coins: payload.user?.coins ?? 0 });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to load store";
@@ -71,6 +75,7 @@ const StoresPage: React.FC = () => {
     // Optimistic UI update.
     setCoins(optimisticCoins);
     setOwnedItemKeys((prev) => (prev.includes(item.itemKey) ? prev : [...prev, item.itemKey]));
+    grantTheme(item.itemKey);
     setItems((prev) => prev.map((it) => (it.itemKey === item.itemKey ? { ...it, owned: true } : it)));
     setUserProgress({ coins: optimisticCoins });
     setPurchaseLoadingKey(item.itemKey);
@@ -85,6 +90,7 @@ const StoresPage: React.FC = () => {
       // Roll back optimistic update on failure.
       setCoins(fallbackCoins);
       setOwnedItemKeys(fallbackOwned);
+      setOwnedThemes(fallbackOwned);
       setItems(fallbackItems);
       setUserProgress({ coins: fallbackCoins });
 
@@ -103,7 +109,7 @@ const StoresPage: React.FC = () => {
       return;
     }
 
-    setTheme(item.itemKey, true, { name: "", email: "", inventory: Array.from(ownedSet) });
+    setTheme(item.itemKey, true);
     showToast(`${item.name} theme applied`, { type: "success", duration: 2000 });
   };
 

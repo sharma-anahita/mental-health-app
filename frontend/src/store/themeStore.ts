@@ -2,7 +2,6 @@ import { create } from "zustand";
 import apiClient from "../services/apiClient.ts";
 import { useUIStore } from "./uiStore";
 import { canUseTheme } from "../utils/themeAccess";
-import type { User } from "../types/user";
 
 export type ThemeName = "calm" | "focus" | "sunset" | "midnight";
 
@@ -38,17 +37,57 @@ function persistThemeLocally(theme: ThemeName): void {
   }
 }
 
+function normalizeOwnedThemes(keys: string[] = []): ThemeName[] {
+  const allowed: ThemeName[] = ["calm", "focus", "sunset", "midnight"];
+  const next = new Set<ThemeName>(["calm"]);
+
+  for (const key of keys) {
+    if (allowed.includes(key as ThemeName)) {
+      next.add(key as ThemeName);
+    }
+  }
+
+  return Array.from(next);
+}
+
 interface ThemeState {
   theme: ThemeName;
-  setTheme: (theme: ThemeName, syncToBackend?: boolean, user?: User | null) => void;
+  ownedThemes: ThemeName[];
+  setOwnedThemes: (keys: string[]) => void;
+  grantTheme: (key: string) => void;
+  isThemeOwned: (theme: ThemeName) => boolean;
+  setTheme: (theme: ThemeName, syncToBackend?: boolean) => void;
   initTheme: (serverTheme?: ThemeName) => void;
 }
 
-export const useThemeStore = create<ThemeState>((set) => ({
+export const useThemeStore = create<ThemeState>((set, get) => ({
   theme: readStoredTheme(),
+  ownedThemes: ["calm"],
 
-  setTheme: (theme, syncToBackend = true, user) => {
-    if (!canUseTheme(theme, user)) {
+  setOwnedThemes: (keys) => {
+    const normalized = normalizeOwnedThemes(keys);
+    const currentTheme = get().theme;
+
+    // Keep UI valid if ownership changed and current theme is no longer allowed.
+    if (!canUseTheme(currentTheme, normalized)) {
+      applyThemeToDOM("calm");
+      persistThemeLocally("calm");
+      set({ ownedThemes: normalized, theme: "calm" });
+      return;
+    }
+
+    set({ ownedThemes: normalized });
+  },
+
+  grantTheme: (key) => {
+    const normalized = normalizeOwnedThemes([...get().ownedThemes, key]);
+    set({ ownedThemes: normalized });
+  },
+
+  isThemeOwned: (theme) => canUseTheme(theme, get().ownedThemes),
+
+  setTheme: (theme, syncToBackend = true) => {
+    if (!canUseTheme(theme, get().ownedThemes)) {
       useUIStore.getState().showToast("Purchase this theme from the store", {
         type: "error",
         duration: 2500,
@@ -72,10 +111,12 @@ export const useThemeStore = create<ThemeState>((set) => ({
 
   initTheme: (serverTheme) => {
     // Server preference wins over localStorage; falls back to stored value
-    const resolved: ThemeName =
+    const preferredTheme: ThemeName =
       serverTheme && ["calm", "focus", "sunset", "midnight"].includes(serverTheme)
         ? serverTheme
         : readStoredTheme();
+
+    const resolved = canUseTheme(preferredTheme, get().ownedThemes) ? preferredTheme : "calm";
 
     applyThemeToDOM(resolved);
     persistThemeLocally(resolved);
