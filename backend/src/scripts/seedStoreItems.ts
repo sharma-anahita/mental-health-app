@@ -45,13 +45,13 @@ export async function seedStoreItems(): Promise<void> {
 
   for (const item of DEFAULT_ITEMS) {
     const result = await StoreItem.updateOne(
-      { itemKey: item.itemKey }, // ✅ FIXED
+      { key: item.itemKey },
       {
         $setOnInsert: {
           name: item.name,
           type: item.type,
-          price: item.price, // ✅ FIXED
-          itemKey: item.itemKey,
+          cost: item.price,
+          key: item.itemKey,
           active: item.purchasable,
           description: item.purchasable
             ? `${item.name} theme`
