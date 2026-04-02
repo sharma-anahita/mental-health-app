@@ -1,6 +1,3 @@
-import 'dotenv/config';
-import mongoose from 'mongoose';
-import connectDB from '../config/db';
 import StoreItem from '../models/StoreItem';
 
 type SeedStoreItem = {
@@ -42,45 +39,36 @@ const DEFAULT_ITEMS: SeedStoreItem[] = [
   },
 ];
 
-async function seedStoreItems(): Promise<void> {
-  await connectDB();
-
+export async function seedStoreItems(): Promise<void> {
   let inserted = 0;
   let existing = 0;
 
   for (const item of DEFAULT_ITEMS) {
     const result = await StoreItem.updateOne(
-      { key: item.itemKey },
+      { itemKey: item.itemKey }, // ✅ FIXED
       {
         $setOnInsert: {
           name: item.name,
           type: item.type,
-          cost: item.price,
-          key: item.itemKey,
+          price: item.price, // ✅ FIXED
+          itemKey: item.itemKey,
           active: item.purchasable,
-          description: item.purchasable ? `${item.name} theme` : 'Default starter theme',
+          description: item.purchasable
+            ? `${item.name} theme`
+            : 'Default starter theme',
         },
       },
       { upsert: true }
     );
 
     if (result.upsertedCount > 0) {
-      inserted += 1;
+      inserted++;
       console.log(`[seed] inserted: ${item.itemKey}`);
     } else {
-      existing += 1;
+      existing++;
       console.log(`[seed] exists: ${item.itemKey}`);
     }
   }
 
-  console.log(`\n[seed] completed: inserted=${inserted}, existing=${existing}`);
+  console.log(`[seed] completed → inserted=${inserted}, existing=${existing}`);
 }
-
-seedStoreItems()
-  .catch((err) => {
-    console.error('[seed] failed:', err);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await mongoose.connection.close();
-  });
