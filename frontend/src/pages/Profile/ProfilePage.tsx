@@ -25,6 +25,12 @@ type FontStyle = "Inter" | "Poppins" | "Roboto";
 
 const FONT_STYLE_OPTIONS: FontStyle[] = ["Inter", "Poppins", "Roboto"];
 
+function applyGlobalTypography(font: FontStyle, color: string): void {
+  const root = document.documentElement;
+  root.style.setProperty("--app-font", `'${font}', sans-serif`);
+  root.style.setProperty("--text-color", color);
+}
+
 const ProfilePage: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -73,8 +79,12 @@ const ProfilePage: React.FC = () => {
         },
       });
 
-      setFontColor(preferences.fontColor ?? "#0f172a");
-      setFontStyle(preferences.fontStyle ?? "Inter");
+      const nextFontColor = preferences.fontColor ?? "#ffffff";
+      const nextFontStyle = preferences.fontStyle ?? "Inter";
+
+      setFontColor(nextFontColor);
+      setFontStyle(nextFontStyle);
+      applyGlobalTypography(nextFontStyle, nextFontColor);
 
       setName(u.name ?? "");
       setEmail(u.email ?? "");
@@ -116,6 +126,7 @@ const ProfilePage: React.FC = () => {
 
   const handleFontColorChange = async (value: string) => {
     setFontColor(value);
+    applyGlobalTypography(fontStyle, value);
     if (!canUseFontColors) return;
 
     setSavingFontColor(true);
@@ -131,6 +142,7 @@ const ProfilePage: React.FC = () => {
 
   const handleFontStyleChange = async (value: FontStyle) => {
     setFontStyle(value);
+    applyGlobalTypography(value, fontColor);
     if (!canUseFontStyle) return;
 
     setSavingFontStyle(true);

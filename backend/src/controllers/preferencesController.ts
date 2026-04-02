@@ -11,6 +11,7 @@ const HEX_COLOR_REGEX = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
 /**
  * PATCH /api/user/preferences
+ * PATCH /api/preferences
  * Currently supports: { theme: ThemeName, fontColor?: string, fontStyle?: FontStyleName }
  * Extend this object as more user preferences are added.
  */
@@ -54,7 +55,19 @@ export const updatePreferences = async (req: AuthRequest, res: Response, next: N
 
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    res.json({ preferences: user.preferences ?? {} });
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        xp: user.xp,
+        level: user.level,
+        streak: user.streak,
+        coins: user.coins,
+        preferences: user.preferences ?? {},
+      },
+      preferences: user.preferences ?? {},
+    });
   } catch (err) {
     next(err);
   }

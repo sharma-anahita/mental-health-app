@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+	--app-font: 'Inter', sans-serif;
+	--text-color: #ffffff;
+}
+
+body {
+	font-family: var(--app-font);
+	color: var(--text-color);
+}

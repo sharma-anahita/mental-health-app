@@ -6,6 +6,12 @@
  */
 
 const TOKEN_KEY = 'token';
+export const TOKEN_CHANGED_EVENT = 'auth-token-changed';
+
+function notifyTokenChanged(): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new Event(TOKEN_CHANGED_EVENT));
+}
 
 /**
  * Get the current auth token from storage.
@@ -22,6 +28,7 @@ export function getToken(): string | null {
 export function setToken(token: string): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(TOKEN_KEY, token);
+  notifyTokenChanged();
 }
 
 /**
@@ -30,6 +37,7 @@ export function setToken(token: string): void {
 export function removeToken(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(TOKEN_KEY);
+  notifyTokenChanged();
 }
 
 /**

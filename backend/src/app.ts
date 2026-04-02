@@ -43,6 +43,7 @@ app.use(
 );
 
 app.use('/api/user/preferences', preferencesRoutes);
+app.use('/api/preferences', preferencesRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/moods', moodRoutes);
 app.use('/api/reflections', reflectionRoutes);
