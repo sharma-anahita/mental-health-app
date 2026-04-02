@@ -20,7 +20,7 @@ storeApi.interceptors.request.use((config) => {
   return config;
 });
 
-export type StoreItemType = 'theme' | 'cosmetic' | 'utility';
+export type StoreItemType = 'theme' | 'fontColor' | 'fontStyle' | 'cosmetic' | 'utility';
 
 export interface StoreItem {
   id: string;

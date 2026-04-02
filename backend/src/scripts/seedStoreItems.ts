@@ -2,10 +2,11 @@ import StoreItem from '../models/StoreItem';
 
 type SeedStoreItem = {
   name: string;
-  type: 'theme';
+  type: 'theme' | 'fontColor' | 'fontStyle';
   price: number;
   itemKey: string;
   purchasable: boolean;
+  description?: string;
 };
 
 const DEFAULT_ITEMS: SeedStoreItem[] = [
@@ -37,6 +38,22 @@ const DEFAULT_ITEMS: SeedStoreItem[] = [
     itemKey: 'midnight',
     purchasable: true,
   },
+  {
+    name: 'Font Colors',
+    type: 'fontColor',
+    price: 20,
+    itemKey: 'font-colors',
+    purchasable: true,
+    description: 'Unlock custom text color options',
+  },
+  {
+    name: 'Font Styles',
+    type: 'fontStyle',
+    price: 50,
+    itemKey: 'font-style',
+    purchasable: true,
+    description: 'Unlock custom font styles for the app',
+  },
 ];
 
 export async function seedStoreItems(): Promise<void> {
@@ -53,9 +70,9 @@ export async function seedStoreItems(): Promise<void> {
           cost: item.price,
           key: item.itemKey,
           active: item.purchasable,
-          description: item.purchasable
-            ? `${item.name} theme`
-            : 'Default starter theme',
+          description:
+            item.description ??
+            (item.purchasable ? `${item.name} theme` : 'Default starter theme'),
         },
       },
       { upsert: true }
