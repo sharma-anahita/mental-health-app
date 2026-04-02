@@ -1,5 +1,6 @@
 import React from "react";
 import useThemeStore, { type ThemeName } from "../../store/themeStore";
+import type { User } from "../../types/user";
 
 interface ThemeOption {
   id: ThemeName;
@@ -43,9 +44,10 @@ const THEMES: ThemeOption[] = [
 
 interface ThemeSwitcherProps {
   className?: string;
+  user?: User | null;
 }
 
-export default function ThemeSwitcher({ className = "" }: ThemeSwitcherProps) {
+export default function ThemeSwitcher({ className = "", user }: ThemeSwitcherProps) {
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
 
@@ -62,7 +64,7 @@ export default function ThemeSwitcher({ className = "" }: ThemeSwitcherProps) {
               type="button"
               role="radio"
               aria-checked={isActive}
-              onClick={() => setTheme(t.id)}
+              onClick={() => setTheme(t.id, true, user)}
               title={t.description}
               className={[
                 "flex items-center gap-2 rounded-xl px-3 py-2 text-left text-sm",

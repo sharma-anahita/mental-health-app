@@ -8,6 +8,7 @@ import goalRoutes from './routes/goalRoutes';
 import insightsRoutes from './routes/insightsRoutes';
 import preferencesRoutes from './routes/preferencesRoutes';
 import reflectionRoutes from './routes/reflectionRoutes';
+import storeRoutes from './routes/storeRoutes';
 // ...
 const app = express();
 
@@ -49,6 +50,7 @@ app.use('/api/gamification', gamificationRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/goals', goalRoutes);
 app.use('/api/insights', insightsRoutes);
+app.use('/api/store', storeRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok' });

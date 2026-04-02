@@ -1,5 +1,8 @@
 import { create } from "zustand";
 import apiClient from "../services/apiClient.ts";
+import { useUIStore } from "./uiStore";
+import { canUseTheme } from "../utils/themeAccess";
+import type { User } from "../types/user";
 
 export type ThemeName = "calm" | "focus" | "sunset" | "midnight";
 
@@ -37,14 +40,22 @@ function persistThemeLocally(theme: ThemeName): void {
 
 interface ThemeState {
   theme: ThemeName;
-  setTheme: (theme: ThemeName, syncToBackend?: boolean) => void;
+  setTheme: (theme: ThemeName, syncToBackend?: boolean, user?: User | null) => void;
   initTheme: (serverTheme?: ThemeName) => void;
 }
 
 export const useThemeStore = create<ThemeState>((set) => ({
   theme: readStoredTheme(),
 
-  setTheme: (theme, syncToBackend = true) => {
+  setTheme: (theme, syncToBackend = true, user) => {
+    if (!canUseTheme(theme, user)) {
+      useUIStore.getState().showToast("Purchase this theme from the store", {
+        type: "error",
+        duration: 2500,
+      });
+      return;
+    }
+
     applyThemeToDOM(theme);
     persistThemeLocally(theme);
     set({ theme });

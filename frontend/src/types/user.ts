@@ -19,6 +19,12 @@ export interface User {
   xp?: number;
   level?: number;
   streak?: number;
+
+  // Store / theme ownership
+  inventory?: string[];
+  preferences?: {
+    theme?: string;
+  };
 }
 
 // Use named export only; default-exporting a type triggers TS1284 when
