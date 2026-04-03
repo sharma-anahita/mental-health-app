@@ -11,7 +11,7 @@ const startServer = async () => {
     await connectDB();
 
     // ✅ seed AFTER DB connection
-    await seedStoreItems();
+    // await seedStoreItems();
 
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);

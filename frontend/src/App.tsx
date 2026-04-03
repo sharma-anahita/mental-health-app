@@ -8,7 +8,7 @@ import "./styles/themes.css";
 
 type FontStyle = "Inter" | "Poppins" | "Roboto";
 
-function applyGlobalTypography(fontStyle: FontStyle = "Inter", fontColor = "#ffffff"): void {
+function applyGlobalTypography(fontStyle: FontStyle = "Inter", fontColor = "#0f172a"): void {
   const root = document.documentElement;
   root.style.setProperty("--app-font", `'${fontStyle}', sans-serif`);
   root.style.setProperty("--text-color", fontColor);
@@ -22,7 +22,7 @@ const App: React.FC = () => {
 
     const syncPreferences = async () => {
       if (!getToken()) {
-        applyGlobalTypography("Inter", "#ffffff");
+        applyGlobalTypography("Inter", "#0f172a");
         return;
       }
 
@@ -33,11 +33,11 @@ const App: React.FC = () => {
         if (cancelled) return;
 
         const fontStyle = res.preferences?.fontStyle ?? "Inter";
-        const fontColor = res.preferences?.fontColor ?? "#ffffff";
+        const fontColor = res.preferences?.fontColor ?? "#0f172a";
         applyGlobalTypography(fontStyle, fontColor);
       } catch {
         if (!cancelled) {
-          applyGlobalTypography("Inter", "#ffffff");
+          applyGlobalTypography("Inter", "#0f172a");
         }
       }
     };
