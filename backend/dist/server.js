@@ -9,7 +9,10 @@ const db_1 = __importDefault(require("./config/db"));
 const PORT = process.env.PORT || 5000;
 const startServer = async () => {
     try {
+        // ✅ connect DB first
         await (0, db_1.default)();
+        // ✅ seed AFTER DB connection
+        // await seedStoreItems();
         app_1.default.listen(PORT, () => {
             console.log(`Server listening on port ${PORT}`);
         });

@@ -8,6 +8,5 @@ const authMiddleware_1 = __importDefault(require("../middleware/authMiddleware")
 const gamificationController_1 = __importDefault(require("../controllers/gamificationController"));
 const router = (0, express_1.Router)();
 router.use(authMiddleware_1.default);
-router.get('/', gamificationController_1.default.gamification);
-router.post('/streak/restore', gamificationController_1.default.restoreStreak);
+router.post('/restore', gamificationController_1.default.restoreStreak);
 exports.default = router;

@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const authMiddleware_1 = __importDefault(require("../middleware/authMiddleware"));
-const gamificationController_1 = __importDefault(require("../controllers/gamificationController"));
+const storeController_1 = __importDefault(require("../controllers/storeController"));
 const router = (0, express_1.Router)();
 router.use(authMiddleware_1.default);
-router.get('/', gamificationController_1.default.gamification);
-router.post('/streak/restore', gamificationController_1.default.restoreStreak);
+router.get('/', storeController_1.default.getStoreItems);
+router.post('/purchase', storeController_1.default.purchaseStoreItem);
 exports.default = router;

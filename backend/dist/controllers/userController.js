@@ -40,6 +40,16 @@ const updateProfile = async (req, res, next) => {
         else {
             await user.save();
         }
+        // One-time completion bonus: award +5 coins when all profile fields are filled.
+        const isFieldFilled = (value) => value !== undefined && value !== null && !(typeof value === 'string' && value.trim() === '');
+        const allFieldsFilled = allowedFields.every((field) => isFieldFilled(user[field]));
+        let coinBonus = 0;
+        if (allFieldsFilled && !user.profileCompletionRewardClaimed) {
+            user.coins = (user.coins || 0) + 5;
+            user.profileCompletionRewardClaimed = true;
+            coinBonus = 5;
+            await user.save();
+        }
         res.json({
             user: {
                 id: user._id,
@@ -61,6 +71,7 @@ const updateProfile = async (req, res, next) => {
                 level: user.level,
             },
             xpGained,
+            coinBonus,
         });
     }
     catch (err) {

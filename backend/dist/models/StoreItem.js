@@ -8,7 +8,7 @@ const storeItemSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true, index: true },
     description: { type: String },
     cost: { type: Number, required: true },
-    type: { type: String, required: true, enum: ['cosmetic', 'utility'] },
+    type: { type: String, required: true, enum: ['cosmetic', 'utility', 'theme', 'fontColor', 'fontStyle', 'consumable'] },
     key: { type: String, required: true, unique: true }, // ⭐ IMPORTANT
     effect: { type: String }, // optional, can keep
     active: { type: Boolean, default: true },

@@ -16,8 +16,14 @@ const userSchema = new mongoose_1.default.Schema({
         index: true,
     },
     passwordHash: { type: String, required: true },
+    googleId: { type: String, unique: true, sparse: true },
     xp: { type: Number, default: 0 },
     streak: { type: Number, default: 0 },
+    streakBeforeBreak: { type: Number, default: 0 },
+    streakBroken: { type: Boolean, default: false },
+    streakBreakMissedDays: { type: Number, default: 0, min: 0 },
+    streakRestoreUsedForGap: { type: Boolean, default: false },
+    lastActiveDate: { type: Date, default: Date.now },
     coins: { type: Number, default: 0 },
     level: { type: Number, default: 0 },
     // ── Profile ──
@@ -31,6 +37,7 @@ const userSchema = new mongoose_1.default.Schema({
     phone: { type: String, default: '' },
     location: { type: String, default: '' },
     profileCompletedFields: { type: [String], default: [] },
+    profileCompletionRewardClaimed: { type: Boolean, default: false },
     // ── Inventory (store purchases) ──
     inventory: {
         type: [
@@ -40,6 +47,11 @@ const userSchema = new mongoose_1.default.Schema({
                     ref: 'StoreItem',
                     required: true,
                     index: true, // performance boost
+                },
+                quantity: {
+                    type: Number,
+                    default: 1,
+                    min: 1,
                 },
                 acquiredAt: {
                     type: Date,
@@ -56,8 +68,16 @@ const userSchema = new mongoose_1.default.Schema({
                 type: String,
                 default: 'calm', // default theme
             },
+            fontColor: {
+                type: String,
+                default: '#0f172a',
+            },
+            fontStyle: {
+                type: String,
+                default: 'Inter',
+            },
         },
-        default: () => ({ theme: 'calm' }),
+        default: () => ({ theme: 'calm', fontColor: '#0f172a', fontStyle: 'Inter' }),
     },
 }, { timestamps: true });
 /* ─────────────────────────────────────────────

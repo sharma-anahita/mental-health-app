@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, Menu } from "lucide-react";
 import Toasts from "../../components/ui/Toast";
+import AIChatWidget from "../../components/ui/AIChatWidget";
 
 type Props = {
   children: React.ReactNode;
@@ -70,6 +71,7 @@ const AppLayout: React.FC<Props> = ({ children, sidebar = null }) => {
         <div className="flex-1 overflow-auto">
           <div className="w-full">{children}</div>
           <Toasts />
+          <AIChatWidget />
         </div>
       </main>
     </div>

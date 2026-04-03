@@ -13,6 +13,9 @@ const goalRoutes_1 = __importDefault(require("./routes/goalRoutes"));
 const insightsRoutes_1 = __importDefault(require("./routes/insightsRoutes"));
 const preferencesRoutes_1 = __importDefault(require("./routes/preferencesRoutes"));
 const reflectionRoutes_1 = __importDefault(require("./routes/reflectionRoutes"));
+const storeRoutes_1 = __importDefault(require("./routes/storeRoutes"));
+const streakRoutes_1 = __importDefault(require("./routes/streakRoutes"));
+const chatRoutes_1 = __importDefault(require("./routes/chatRoutes"));
 // ...
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -46,6 +49,7 @@ app.use((0, cors_1.default)({
     credentials: true,
 }));
 app.use('/api/user/preferences', preferencesRoutes_1.default);
+app.use('/api/preferences', preferencesRoutes_1.default);
 app.use('/api/auth', authRoutes_1.default);
 app.use('/api/moods', moodRoutes_1.default);
 app.use('/api/reflections', reflectionRoutes_1.default);
@@ -53,6 +57,10 @@ app.use('/api/gamification', gamificationRoutes_1.default);
 app.use('/api/user', userRoutes_1.default);
 app.use('/api/goals', goalRoutes_1.default);
 app.use('/api/insights', insightsRoutes_1.default);
+app.use('/api/store', storeRoutes_1.default);
+app.use('/api/streak', streakRoutes_1.default);
+app.use('/api/chat', chatRoutes_1.default);
+app.use('/chat', chatRoutes_1.default);
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });

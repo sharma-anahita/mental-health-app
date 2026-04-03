@@ -10,6 +10,7 @@ import preferencesRoutes from './routes/preferencesRoutes';
 import reflectionRoutes from './routes/reflectionRoutes';
 import storeRoutes from './routes/storeRoutes';
 import streakRoutes from './routes/streakRoutes';
+import chatRoutes from './routes/chatRoutes';
 // ...
 const app = express();
 
@@ -54,6 +55,8 @@ app.use('/api/goals', goalRoutes);
 app.use('/api/insights', insightsRoutes);
 app.use('/api/store', storeRoutes);
 app.use('/api/streak', streakRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/chat', chatRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok' });

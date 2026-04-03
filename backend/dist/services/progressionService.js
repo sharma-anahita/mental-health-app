@@ -20,6 +20,13 @@ exports.calculateTotalXP = calculateTotalXP;
 const calculateLevelFromXP = (xp) => Math.floor(0.1 * Math.sqrt(xp));
 exports.calculateLevelFromXP = calculateLevelFromXP;
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const startOfUtcWeekMonday = (d) => {
+    const dayStart = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+    const day = dayStart.getUTCDay(); // 0=Sun ... 6=Sat
+    const offsetToMonday = (day + 6) % 7;
+    dayStart.setUTCDate(dayStart.getUTCDate() - offsetToMonday);
+    return dayStart;
+};
 const updateUserProgress = async (user, moodDate, hasNote = false) => {
     // Find the previous mood entry strictly before this moodDate
     const prev = await MoodLog_1.default.findOne({ userId: user._id, createdAt: { $lt: moodDate } }).sort({ createdAt: -1 });
@@ -66,6 +73,21 @@ const updateUserProgress = async (user, moodDate, hasNote = false) => {
         coinGain += 5;
     if (newStreak % 30 === 0)
         coinGain += 10;
+    // Weekly consistency bonus: evaluate only on last UTC day of week (Sunday).
+    // If weekly mood-log count is >= 5, grant +5 coins.
+    const isLastUtcDayOfWeek = new Date(moodDate).getUTCDay() === 0;
+    if (isLastUtcDayOfWeek) {
+        const weekStart = startOfUtcWeekMonday(moodDate);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
+        const weeklyMoodLogCount = await MoodLog_1.default.countDocuments({
+            userId: user._id,
+            createdAt: { $gte: weekStart, $lt: weekEnd },
+        });
+        if (weeklyMoodLogCount >= 5) {
+            coinGain += 5;
+        }
+    }
     user.coins = (user.coins || 0) + coinGain;
     // Level recalculation from XP
     user.level = (0, exports.calculateLevelFromXP)(user.xp);
