@@ -39,6 +39,19 @@ export const updateProfile = async (req: AuthRequest, res: Response, next: NextF
       await user.save();
     }
 
+    // One-time completion bonus: award +5 coins when all profile fields are filled.
+    const isFieldFilled = (value: any): boolean =>
+      value !== undefined && value !== null && !(typeof value === 'string' && value.trim() === '');
+    const allFieldsFilled = allowedFields.every((field) => isFieldFilled((user as any)[field]));
+
+    let coinBonus = 0;
+    if (allFieldsFilled && !user.profileCompletionRewardClaimed) {
+      user.coins = (user.coins || 0) + 5;
+      user.profileCompletionRewardClaimed = true;
+      coinBonus = 5;
+      await user.save();
+    }
+
     res.json({
       user: {
         id: user._id,
@@ -60,6 +73,7 @@ export const updateProfile = async (req: AuthRequest, res: Response, next: NextF
         level: user.level,
       },
       xpGained,
+      coinBonus,
     });
   } catch (err: any) {
     // handle duplicate username index error gracefully

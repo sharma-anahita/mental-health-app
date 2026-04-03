@@ -44,6 +44,7 @@ export interface IUser {
   location?: string;
 
   profileCompletedFields?: string[];
+  profileCompletionRewardClaimed?: boolean;
 
   inventory: IUserInventoryItem[];
 
@@ -94,6 +95,7 @@ const userSchema = new mongoose.Schema<IUser>(
     location: { type: String, default: '' },
 
     profileCompletedFields: { type: [String], default: [] },
+    profileCompletionRewardClaimed: { type: Boolean, default: false },
 
     // ── Inventory (store purchases) ──
     inventory: {

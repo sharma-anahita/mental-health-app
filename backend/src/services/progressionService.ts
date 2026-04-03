@@ -18,6 +18,14 @@ export const calculateLevelFromXP = (xp: number): number => Math.floor(0.1 * Mat
 
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
+const startOfUtcWeekMonday = (d: Date): Date => {
+  const dayStart = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const day = dayStart.getUTCDay(); // 0=Sun ... 6=Sat
+  const offsetToMonday = (day + 6) % 7;
+  dayStart.setUTCDate(dayStart.getUTCDate() - offsetToMonday);
+  return dayStart;
+};
+
 export const updateUserProgress = async (
   user: mongoose.Document & IUser,
   moodDate: Date,
@@ -72,6 +80,23 @@ export const updateUserProgress = async (
   let coinGain = 5;
   if (newStreak >= 7) coinGain += 5;
   if (newStreak % 30 === 0) coinGain += 10;
+
+  // Weekly consistency bonus: evaluate only on last UTC day of week (Sunday).
+  // If weekly mood-log count is >= 5, grant +5 coins.
+  const isLastUtcDayOfWeek = new Date(moodDate).getUTCDay() === 0;
+  if (isLastUtcDayOfWeek) {
+    const weekStart = startOfUtcWeekMonday(moodDate);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
+    const weeklyMoodLogCount = await MoodLog.countDocuments({
+      userId: user._id,
+      createdAt: { $gte: weekStart, $lt: weekEnd },
+    });
+    if (weeklyMoodLogCount >= 5) {
+      coinGain += 5;
+    }
+  }
+
   user.coins = (user.coins || 0) + coinGain;
 
   // Level recalculation from XP
