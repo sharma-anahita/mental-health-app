@@ -50,6 +50,10 @@ export interface IUser {
 
   preferences: IUserPreferences;
 
+  // ── Password Reset ──
+  passwordResetToken?: string;
+  passwordResetExpiry?: Date;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -139,6 +143,10 @@ const userSchema = new mongoose.Schema<IUser>(
       },
       default: () => ({ theme: 'calm', fontColor: '#0f172a', fontStyle: 'Inter' }),
     },
+
+    // ── Password Reset ──
+    passwordResetToken: { type: String, default: null },
+    passwordResetExpiry: { type: Date, default: null },
   },
   { timestamps: true }
 );
