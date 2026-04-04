@@ -6,6 +6,8 @@ import { useUIStore } from '../store/uiStore';
 
 export type RegisterData = { name: string; email: string; password: string };
 export type LoginData = { email: string; password: string };
+export type ResetPasswordData = { token: string; newPassword: string };
+export type ForgotPasswordData = { email: string };
 
 /**
  * Register a new user and store the token.
@@ -41,6 +43,22 @@ export async function googleLogin(idToken: string): Promise<string> {
 }
 
 /**
+ * Reset password using a reset token from URL params.
+ */
+export async function resetPassword(data: ResetPasswordData): Promise<{ message: string }> {
+  return apiClient.post<{ message: string }>(`auth/reset-password/${encodeURIComponent(data.token)}`, {
+    newPassword: data.newPassword,
+  });
+}
+
+/**
+ * Request a password reset email.
+ */
+export async function forgotPassword(data: ForgotPasswordData): Promise<{ message: string }> {
+  return apiClient.post<{ message: string }>('auth/forgot-password', data);
+}
+
+/**
  * Logout: remove token and reset all Zustand stores.
  */
 export function logout(): void {
@@ -53,4 +71,4 @@ export function logout(): void {
   useUIStore.getState().reset();
 }
 
-export default { register, login, googleLogin, logout };
+export default { register, login, googleLogin, forgotPassword, resetPassword, logout };

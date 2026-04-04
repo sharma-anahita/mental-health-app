@@ -62,7 +62,7 @@ async function sendResetEmail(email: string, resetToken: string): Promise<void> 
   const mailOptions = {
     from: emailFrom,
     to: email,
-    subject: 'Password Reset Request - Mental Health App',
+    subject: 'Password Reset',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #333;">Password Reset Request</h2>
@@ -278,8 +278,8 @@ export const forgotPassword = async (req: AuthRequest, res: Response, next: Next
     const hashedToken = hashToken(resetToken);
 
     // Set token and expiry (10 minutes from now)
-    user.passwordResetToken = hashedToken;
-    user.passwordResetExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
     // Send email with raw token (not hashed)
@@ -293,7 +293,8 @@ export const forgotPassword = async (req: AuthRequest, res: Response, next: Next
 
 export const resetPassword = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { token, newPassword } = req.body as { token: string; newPassword: string };
+    const { token } = req.params as { token: string };
+    const { newPassword } = req.body as { newPassword: string };
     
     if (!token || !newPassword) {
       return res.status(400).json({ message: 'Token and new password are required' });
@@ -307,8 +308,8 @@ export const resetPassword = async (req: AuthRequest, res: Response, next: NextF
     const hashedToken = hashToken(token);
 
     const user = await User.findOne({
-      passwordResetToken: hashedToken,
-      passwordResetExpiry: { $gt: new Date() }, // Token must not be expired
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() }, // Token must not be expired
     });
 
     if (!user) {
@@ -317,8 +318,8 @@ export const resetPassword = async (req: AuthRequest, res: Response, next: NextF
 
     // Update password and clear reset token
     user.passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
-    user.passwordResetToken = undefined;
-    user.passwordResetExpiry = undefined;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
     await user.save();
 
     res.status(200).json({ message: 'Password has been reset successfully' });

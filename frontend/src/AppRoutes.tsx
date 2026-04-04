@@ -18,6 +18,8 @@ import GoalsPage from "./pages/Goals/GoalsPage";
 import StoresPage from "./pages/Stores/StoresPage";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
+import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import ProtectedRoute from "./app/routes/ProtectedRoute";
 
 // Placeholder removed — it was declared but never used by routes.
@@ -69,6 +71,8 @@ const AppRoutes: FC = () => {
         {/* Public auth routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
         {/* Protected application routes */}
         <Route
