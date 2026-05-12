@@ -20,9 +20,9 @@ const DEFAULT_ITEMS: SeedStoreItem[] = [
   {
     name: 'Focus',
     type: 'theme',
-    price: 50,
+    price: 0,
     itemKey: 'focus',
-    purchasable: true,
+    purchasable: false,
   },
   {
     name: 'Sunset',
@@ -72,12 +72,14 @@ export async function seedStoreItems(): Promise<void> {
     const result = await StoreItem.updateOne(
       { key: item.itemKey },
       {
+        $set: {
+          active: item.purchasable,
+          cost: item.price,
+        },
         $setOnInsert: {
           name: item.name,
           type: item.type,
-          cost: item.price,
           key: item.itemKey,
-          active: item.purchasable,
           description:
             item.description ??
             (item.purchasable ? `${item.name} theme` : 'Default starter theme'),

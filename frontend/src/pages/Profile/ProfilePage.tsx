@@ -55,9 +55,13 @@ const ProfilePage: React.FC = () => {
   const [fontStyle, setFontStyle] = useState<FontStyle>("Inter");
   const [savingFontColor, setSavingFontColor] = useState(false);
   const [savingFontStyle, setSavingFontStyle] = useState(false);
+  const [resettingPreferences, setResettingPreferences] = useState(false);
 
   const canUseFontColors = canUseFeature("font-colors", customUser);
   const canUseFontStyle = canUseFeature("font-style", customUser);
+
+  const DEFAULT_FONT_COLOR = "#0f172a";
+  const DEFAULT_FONT_STYLE: FontStyle = "Inter";
 
   const loadProfile = async () => {
     setLoading(true);
@@ -154,6 +158,25 @@ const ProfilePage: React.FC = () => {
       useUIStore.getState().showToast(message, { type: "error", duration: 2500 });
     } finally {
       setSavingFontStyle(false);
+    }
+  };
+
+  const handleResetPreferences = async () => {
+    setResettingPreferences(true);
+    try {
+      setFontColor(DEFAULT_FONT_COLOR);
+      setFontStyle(DEFAULT_FONT_STYLE);
+      applyGlobalTypography(DEFAULT_FONT_STYLE, DEFAULT_FONT_COLOR);
+      
+      await savePreference({ fontColor: DEFAULT_FONT_COLOR, fontStyle: DEFAULT_FONT_STYLE });
+      useUIStore.getState().showToast("Preferences reset to default", { type: "success", duration: 2500 });
+    } catch (err: any) {
+      const message = err?.message || "Failed to reset preferences";
+      useUIStore.getState().showToast(message, { type: "error", duration: 2500 });
+      // Restore UI to previous state on error
+      await loadProfile();
+    } finally {
+      setResettingPreferences(false);
     }
   };
 
@@ -303,6 +326,22 @@ const ProfilePage: React.FC = () => {
                       </span>
                     </div>
                   )}
+                </div>
+              </Card>
+
+              <Card>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium text-[var(--theme-text-primary)]">Reset to Default</div>
+                    <div className="text-xs text-[var(--theme-text-secondary)]">Restore all customization settings</div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleResetPreferences}
+                    disabled={resettingPreferences || (!canUseFontColors && !canUseFontStyle)}
+                  >
+                    {resettingPreferences ? "Resetting..." : "Reset"}
+                  </Button>
                 </div>
               </Card>
             </div>

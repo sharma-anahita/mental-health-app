@@ -2,8 +2,8 @@ import type { ThemeName } from "../store/themeStore";
 import type { User } from "../types/user";
 
 export function canUseTheme(theme: ThemeName, userOrInventory?: User | string[] | null): boolean {
-  // Default theme is always available.
-  if (theme === "calm") return true;
+  // Default themes are always available.
+  if (theme === "calm" || theme === "focus") return true;
 
   const inventory = Array.isArray(userOrInventory)
     ? userOrInventory
