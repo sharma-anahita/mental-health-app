@@ -16,9 +16,9 @@ const DEFAULT_ITEMS = [
     {
         name: 'Focus',
         type: 'theme',
-        price: 50,
+        price: 0,
         itemKey: 'focus',
-        purchasable: true,
+        purchasable: false,
     },
     {
         name: 'Sunset',
@@ -64,12 +64,14 @@ async function seedStoreItems() {
     let existing = 0;
     for (const item of DEFAULT_ITEMS) {
         const result = await StoreItem_1.default.updateOne({ key: item.itemKey }, {
+            $set: {
+                active: item.purchasable,
+                cost: item.price,
+            },
             $setOnInsert: {
                 name: item.name,
                 type: item.type,
-                cost: item.price,
                 key: item.itemKey,
-                active: item.purchasable,
                 description: item.description ??
                     (item.purchasable ? `${item.name} theme` : 'Default starter theme'),
             },

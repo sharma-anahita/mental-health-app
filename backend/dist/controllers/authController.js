@@ -36,12 +36,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.googleLogin = exports.login = exports.register = void 0;
+exports.resetPassword = exports.forgotPassword = exports.googleLogin = exports.login = exports.register = void 0;
 const bcrypt = __importStar(require("bcrypt"));
 const crypto_1 = require("crypto");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const google_auth_library_1 = require("google-auth-library");
 const User_1 = __importDefault(require("../models/User"));
+const mailer_1 = __importDefault(require("../config/mailer"));
 const SALT_ROUNDS = 10;
 function getJwtSecret() {
     const jwtSecret = process.env.JWT_SECRET;
@@ -60,6 +61,58 @@ function buildUserResponse(user) {
 }
 function signToken(userId) {
     return jsonwebtoken_1.default.sign({ userId }, getJwtSecret(), { expiresIn: '7d' });
+}
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+function isValidPassword(password) {
+    return password.length >= 8;
+}
+function generateResetToken() {
+    return (0, crypto_1.randomBytes)(32).toString('hex');
+}
+function hashToken(token) {
+    return (0, crypto_1.createHash)('sha256').update(token).digest('hex');
+}
+async function sendResetEmail(email, resetToken) {
+    const resetLink = `https://mental-health-app-ebon.vercel.app/reset-password/${resetToken}`;
+    const emailFrom = process.env.EMAIL_FROM || 'noreply@mental-health-app.com';
+    const mailOptions = {
+        from: emailFrom,
+        to: email,
+        subject: 'Password Reset',
+        html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Password Reset Request</h2>
+        <p>Hello,</p>
+        <p>We received a request to reset the password for your Mental Health App account.</p>
+        <p>Click the button below to reset your password. This link will expire in 10 minutes.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetLink}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            Reset Password
+          </a>
+        </div>
+        <p>Or copy and paste this link in your browser:</p>
+        <p style="word-break: break-all; color: #666;">${resetLink}</p>
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+        <p style="color: #666; font-size: 12px;">
+          If you didn't request a password reset, you can ignore this email. Your account is secure.
+        </p>
+        <p style="color: #666; font-size: 12px;">
+          This is an automated email, please do not reply.
+        </p>
+      </div>
+    `,
+    };
+    try {
+        await mailer_1.default.sendMail(mailOptions);
+        console.log(`Password reset email sent to ${email}`);
+    }
+    catch (error) {
+        console.error(`Failed to send reset email to ${email}:`, error);
+        throw new Error('Failed to send password reset email');
+    }
 }
 function startOfUtcDay(d) {
     return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
@@ -112,6 +165,12 @@ const register = async (req, res, next) => {
         if (!name || !email || !password) {
             return res.status(400).json({ message: 'name, email and password are required' });
         }
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
+        if (!isValidPassword(password)) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+        }
         const existing = await User_1.default.findOne({ email });
         if (existing)
             return res.status(409).json({ message: 'Email already in use' });
@@ -130,6 +189,9 @@ const login = async (req, res, next) => {
         const { email, password } = req.body;
         if (!email || !password)
             return res.status(400).json({ message: 'email and password required' });
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
         const user = await User_1.default.findOne({ email });
         if (!user)
             return res.status(401).json({ message: 'Invalid credentials' });
@@ -191,4 +253,66 @@ const googleLogin = async (req, res, next) => {
     }
 };
 exports.googleLogin = googleLogin;
-exports.default = { register: exports.register, login: exports.login, googleLogin: exports.googleLogin };
+const forgotPassword = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
+        const user = await User_1.default.findOne({ email });
+        // Security: Always return the same response regardless of whether user exists
+        // to prevent email enumeration attacks
+        if (!user) {
+            return res.status(200).json({ message: 'If an account exists with this email, a password reset link has been sent' });
+        }
+        // Generate reset token and hash it
+        const resetToken = generateResetToken();
+        const hashedToken = hashToken(resetToken);
+        // Set token and expiry (10 minutes from now)
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000);
+        await user.save();
+        // Send email with raw token (not hashed)
+        await sendResetEmail(email, resetToken);
+        res.status(200).json({ message: 'If an account exists with this email, a password reset link has been sent' });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+exports.forgotPassword = forgotPassword;
+const resetPassword = async (req, res, next) => {
+    try {
+        const { token } = req.params;
+        const { newPassword } = req.body;
+        if (!token || !newPassword) {
+            return res.status(400).json({ message: 'Token and new password are required' });
+        }
+        if (!isValidPassword(newPassword)) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+        }
+        // Hash the provided token to compare with stored hash
+        const hashedToken = hashToken(token);
+        const user = await User_1.default.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: new Date() }, // Token must not be expired
+        });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid or expired reset token' });
+        }
+        // Update password and clear reset token
+        user.passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+        res.status(200).json({ message: 'Password has been reset successfully' });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+exports.resetPassword = resetPassword;
+exports.default = { register: exports.register, login: exports.login, googleLogin: exports.googleLogin, forgotPassword: exports.forgotPassword, resetPassword: exports.resetPassword };

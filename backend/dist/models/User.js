@@ -79,6 +79,9 @@ const userSchema = new mongoose_1.default.Schema({
         },
         default: () => ({ theme: 'calm', fontColor: '#0f172a', fontStyle: 'Inter' }),
     },
+    // ── Password Reset ──
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
 }, { timestamps: true });
 /* ─────────────────────────────────────────────
    Indexes (optional but good)
