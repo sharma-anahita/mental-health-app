@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
 import { MessageCircle, Send, X } from 'lucide-react';
 import { sendChatMessage } from '../../services/chatService';
+import { getToken, removeToken } from '../../services/tokenStorage';
+import { AuthError } from '../../services/apiClient';
 
 type MoodType = 'neutral' | 'sad' | 'happy';
 
@@ -54,7 +56,8 @@ const AIChatWidget = () => {
     },
   ]);
 
-  const canSend = input.trim().length > 0 && !isLoading;
+  const isAuthenticated = getToken() !== null;
+  const canSend = input.trim().length > 0 && !isLoading && isAuthenticated;
 
   const visibleMessages = useMemo(() => messages.slice(-MAX_VISIBLE_MESSAGES), [messages]);
 
@@ -119,6 +122,18 @@ const AIChatWidget = () => {
   const onSend = async () => {
     if (!canSend) return;
 
+    if (!isAuthenticated) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `e-${Date.now()}`,
+          role: 'assistant',
+          content: 'Please sign in to use the AI chat.',
+        },
+      ]);
+      return;
+    }
+
     const content = input.trim();
     const userMessage: UIMessage = {
       id: `u-${Date.now()}`,
@@ -145,9 +160,15 @@ const AIChatWidget = () => {
         },
       ]);
     } catch (error: any) {
-      const message =
-        error?.message ||
-        'Something went wrong while contacting AI. Please try again.';
+      let message = 'Something went wrong while contacting AI. Please try again.';
+      
+      if (error instanceof AuthError) {
+        message = 'Your session has expired. Please sign in again to continue.';
+        removeToken();
+      } else if (error?.message) {
+        message = error.message;
+      }
+      
       setMessages((prev) => [
         ...prev,
         {

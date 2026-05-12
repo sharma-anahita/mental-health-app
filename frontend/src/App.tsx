@@ -12,6 +12,7 @@ function applyGlobalTypography(fontStyle: FontStyle = "Inter", fontColor = "#0f1
   const root = document.documentElement;
   root.style.setProperty("--app-font", `'${fontStyle}', sans-serif`);
   root.style.setProperty("--text-color", fontColor);
+  root.style.setProperty("--theme-text-primary", fontColor);
 }
 
 const App: React.FC = () => {

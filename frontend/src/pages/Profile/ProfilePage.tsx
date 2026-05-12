@@ -29,6 +29,7 @@ function applyGlobalTypography(font: FontStyle, color: string): void {
   const root = document.documentElement;
   root.style.setProperty("--app-font", `'${font}', sans-serif`);
   root.style.setProperty("--text-color", color);
+  root.style.setProperty("--theme-text-primary", color);
 }
 
 const ProfilePage: React.FC = () => {
@@ -38,8 +39,8 @@ const ProfilePage: React.FC = () => {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState<string | undefined>(undefined);
-  const [bio, setBio] = useState<string | undefined>(undefined);
+  const [username, setUsername] = useState<string>("");
+  const [bio, setBio] = useState<string>("");
 
   // Phone section state (requested shape)
   const [country, setCountry] = useState("IN");
@@ -48,7 +49,7 @@ const ProfilePage: React.FC = () => {
   const [error, setError] = useState("");
   const [fullNumber, setFullNumber] = useState("");
 
-  const [location, setLocation] = useState<string | undefined>(undefined);
+  const [location, setLocation] = useState<string>("");
   const [customUser, setCustomUser] = useState<User | null>(null);
   const [fontColor, setFontColor] = useState<string>("#0f172a");
   const [fontStyle, setFontStyle] = useState<FontStyle>("Inter");
@@ -79,7 +80,7 @@ const ProfilePage: React.FC = () => {
         },
       });
 
-      const nextFontColor = preferences.fontColor ?? "#ffffff";
+      const nextFontColor = preferences.fontColor ?? "#0f172a";
       const nextFontStyle = preferences.fontStyle ?? "Inter";
 
       setFontColor(nextFontColor);

@@ -22,7 +22,7 @@ interface MoodDistributionChartProps {
   showLegend?: boolean;
 }
 
-const DEFAULT_COLORS = ["#EDE9FE", "#FCE7F3", "#E0F2FE", "#FEF3C7", "#ECFDF5"];
+const DEFAULT_COLORS = ["#A78BFA", "#F472B6", "#38BDF8", "#F59E0B", "#34D399"];
 
 export default function MoodDistributionChart({
   data,

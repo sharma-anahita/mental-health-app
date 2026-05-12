@@ -19,19 +19,12 @@ const InsightsPage: React.FC = () => {
       .then((d) => {
         if (mounted) {
           setInsights(d);
-          // TEMP LOG: remove after verification
-          // Logs trendData and insightCards so reviewer can confirm live ML data
-          // eslint-disable-next-line no-console
-          console.log('[TEMP] Insights fetched', { trendData: d.trendData, insightCards: d.insightCards });
         }
       })
       .catch((err) => {
         console.warn('fetchInsightsData failed, falling back to mockInsights', err);
         if (mounted) {
           setInsights(mockInsights);
-          // TEMP LOG: remove after verification
-          // eslint-disable-next-line no-console
-          console.log('[TEMP] Using mockInsights as fallback', { trendData: mockInsights.trendData, insightCards: mockInsights.insightCards });
         }
       })
       .finally(() => {
