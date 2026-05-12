@@ -11,6 +11,7 @@ import reflectionRoutes from './routes/reflectionRoutes';
 import storeRoutes from './routes/storeRoutes';
 import streakRoutes from './routes/streakRoutes';
 import chatRoutes from './routes/chatRoutes';
+import adminRoutes from './routes/adminRoutes';
 // ...
 const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api/store', storeRoutes);
 app.use('/api/streak', streakRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/chat', chatRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok' });
