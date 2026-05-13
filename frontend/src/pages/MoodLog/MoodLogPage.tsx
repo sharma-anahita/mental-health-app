@@ -28,9 +28,10 @@ const MoodLogPage: React.FC = () => {
   }, [fetchMoodLogsPageAsync]);
 
   const handleSave = async () => {
-    const moodLabel = storeSelectedMood ?? "Neutral";
+    if (!storeSelectedMood) return;
+
     const payload = {
-      mood: moodLabel,
+      mood: storeSelectedMood,
       note: reflection || undefined,
       date: new Date().toISOString(),
     };
@@ -115,7 +116,7 @@ const MoodLogPage: React.FC = () => {
           <div>
             <CardTitle>Reflection</CardTitle>
             <div className="mt-3">
-              <ReflectionInput value={reflection} onChange={setReflection} onSave={handleSave} />
+              <ReflectionInput value={reflection} onChange={setReflection} onSave={storeSelectedMood ? handleSave : undefined} />
             </div>
           </div>
         </aside>
