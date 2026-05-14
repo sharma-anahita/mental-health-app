@@ -1,4 +1,4 @@
-# MindTrack — Mental Health & Mood Tracking App
+# MindTrack : Mental Health & Mood Tracking App
 
 A full-stack monorepo for a mental wellness application with mood logging, AI chat, gamification, and ML-powered insights.
 
