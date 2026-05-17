@@ -6,10 +6,18 @@ import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+  const guestEmail = 'guest@gmail.com';
+  const guestPassword = 'guestlogsin';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const fillGuestCredentials = () => {
+    setEmail(guestEmail);
+    setPassword(guestPassword);
+    setError(null);
+  };
 
   const submit = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -59,6 +67,23 @@ const LoginPage: React.FC = () => {
         <div className="mb-4">
           <h1 className="text-2xl font-semibold text-slate-900">Sign in</h1>
           <p className="mt-1 text-sm text-slate-600">Enter your account credentials to continue.</p>
+        </div>
+
+        <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">Guest Access</p>
+              <p className="mt-1 text-sm text-emerald-900">Email: <span className="font-semibold">{guestEmail}</span></p>
+              <p className="text-sm text-emerald-900">Password: <span className="font-semibold">{guestPassword}</span></p>
+            </div>
+            <button
+              type="button"
+              onClick={fillGuestCredentials}
+              className="shrink-0 rounded-md border border-emerald-300 bg-white px-3 py-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-100"
+            >
+              Use guest
+            </button>
+          </div>
         </div>
 
         <form onSubmit={submit}>
