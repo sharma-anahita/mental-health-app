@@ -154,12 +154,13 @@ const DashboardPage: React.FC = () => {
     setReflection(newReflection);
     // Update user stats if XP was awarded
     if (stats?.xp !== undefined) {
-      useUserStore.setState({
-        xp: stats.xp,
-        coins: stats.coins,
-        level: stats.level,
-        streak: stats.streak,
-      });
+      const nextProgress: Record<string, number> = { xp: stats.xp };
+
+      if (stats.coins !== undefined) nextProgress.coins = stats.coins;
+      if (stats.level !== undefined) nextProgress.level = stats.level;
+      if (stats.streak !== undefined) nextProgress.streak = stats.streak;
+
+      useUserStore.setState(nextProgress);
     }
   };
 

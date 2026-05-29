@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import Reflection, { IReflection } from '../models/Reflection';
 import User, { IUser } from '../models/User';
+import progressionService from '../services/progressionService';
 import * as mlService from '../services/mlService';
 
 type AuthRequest = Request & { userId?: string };
@@ -13,6 +14,9 @@ const getStartOfDay = (d: Date = new Date()) => {
 const getEndOfDay = (d: Date = new Date()) => {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59, 999));
 };
+
+const REFLECTION_XP_REWARD = 20;
+const REFLECTION_COIN_REWARD = 5;
 
 /**
  * Create a reflection for the current user
@@ -66,16 +70,19 @@ export const createReflection = async (req: AuthRequest, res: Response, next: Ne
       console.warn('Sentiment analysis failed:', analyzeErr);
     }
 
-    // Award XP to user for submitting a reflection
+    // Award XP and coins to user for submitting a reflection
     const user = await User.findByIdAndUpdate(
       userId,
-      { $inc: { xp: 20 } },
+      { $inc: { xp: REFLECTION_XP_REWARD, coins: REFLECTION_COIN_REWARD } },
       { new: true }
     );
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+    user.level = progressionService.calculateLevelFromXP(user.xp || 0);
+    await user.save();
 
     res.status(201).json({
       reflection,
