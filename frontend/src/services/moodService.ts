@@ -20,6 +20,8 @@ interface BackendMoodLog {
   _id: string;
   mood: string;
   note?: string;
+  energy?: number;
+  stress?: number;
   createdAt: string;
   updatedAt?: string;
   userId?: string;
@@ -53,6 +55,8 @@ function transformMoodLog(raw: BackendMoodLog): MoodLog {
     id: raw._id,        // _id → id
     mood: raw.mood,
     note: raw.note,
+    energy: raw.energy,
+    stress: raw.stress,
     date: raw.createdAt, // createdAt → date
     // userId and updatedAt are stripped (not included)
   };

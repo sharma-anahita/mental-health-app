@@ -12,8 +12,54 @@ import ContextualEmptyState from "../../components/ui/ContextualEmptyState";
 
 const PAGE_SIZE = 10;
 
+const clampLevel = (value: number) => Math.min(100, Math.max(1, Math.trunc(value)));
+
+function LevelSlider({
+  label,
+  value,
+  onChange,
+  tone,
+}: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  tone: "energy" | "stress";
+}) {
+  const accentClass = tone === "energy" ? "accent-emerald-500" : "accent-rose-500";
+
+  return (
+    <div className="rounded-xl border border-[var(--theme-card-ring)] bg-[var(--theme-card-bg)] p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm font-medium text-[var(--theme-text-primary)]">{label}</div>
+        <div className="text-sm font-semibold text-[var(--theme-text-primary)]">{value}</div>
+      </div>
+
+      <div className="mt-3 flex items-center gap-3">
+        <span className="text-xs text-[var(--theme-text-subtle)] w-14">1</span>
+        <input
+          type="range"
+          min={1}
+          max={100}
+          step={1}
+          value={value}
+          onChange={(e) => onChange(clampLevel(Number(e.target.value)))}
+          className={`w-full ${accentClass}`}
+          aria-label={label}
+          aria-valuemin={1}
+          aria-valuemax={100}
+          aria-valuenow={value}
+          aria-valuetext={String(value)}
+        />
+        <span className="text-xs text-[var(--theme-text-subtle)] w-14 text-right">100</span>
+      </div>
+    </div>
+  );
+}
+
 const MoodLogPage: React.FC = () => {
   const [reflection, setReflection] = useState("");
+  const [energy, setEnergy] = useState(50);
+  const [stress, setStress] = useState(50);
   const storeSelectedMood = useMoodStore((s) => s.selectedMood);
   const addMoodLogAsync = useMoodStore((s) => s.addMoodLogAsync);
   const clearSelectedMood = useMoodStore((s) => s.clearSelectedMood);
@@ -33,6 +79,8 @@ const MoodLogPage: React.FC = () => {
     const payload = {
       mood: storeSelectedMood,
       note: reflection || undefined,
+      energy,
+      stress,
       date: new Date().toISOString(),
     };
 
@@ -41,6 +89,8 @@ const MoodLogPage: React.FC = () => {
       await fetchMoodLogsPageAsync({ limit: PAGE_SIZE });
       clearSelectedMood();
       setReflection("");
+      setEnergy(50);
+      setStress(50);
       // show a gentle success message
       setShowSuccess(true);
       // auto-dismiss after a short delay
@@ -114,6 +164,14 @@ const MoodLogPage: React.FC = () => {
           </div>
 
           <div>
+            <CardTitle>Energy & Stress</CardTitle>
+            <div className="mt-3 flex flex-col gap-4">
+              <LevelSlider label="Energy Level" value={energy} onChange={setEnergy} tone="energy" />
+              <LevelSlider label="Stress Level" value={stress} onChange={setStress} tone="stress" />
+            </div>
+          </div>
+
+          <div>
             <CardTitle>Reflection</CardTitle>
             <div className="mt-3">
               <ReflectionInput value={reflection} onChange={setReflection} onSave={storeSelectedMood ? handleSave : undefined} />
@@ -140,7 +198,14 @@ const MoodLogPage: React.FC = () => {
               ) : (
                 <>
                   <MoodTimeline
-                    entries={moodLogs.map((m) => ({ emoji: moodToEmoji(m.mood), note: m.note, date: m.date, id: m.id }))}
+                    entries={moodLogs.map((m) => ({
+                      emoji: moodToEmoji(m.mood),
+                      note: m.note,
+                      energy: m.energy,
+                      stress: m.stress,
+                      date: m.date,
+                      id: m.id,
+                    }))}
                   />
                   {(showPrevButton || showNextButton) && (
                     <div

@@ -40,6 +40,7 @@ exports.getReflections = exports.getReflectionToday = exports.createReflection =
 const mongoose_1 = __importDefault(require("mongoose"));
 const Reflection_1 = __importDefault(require("../models/Reflection"));
 const User_1 = __importDefault(require("../models/User"));
+const progressionService_1 = __importDefault(require("../services/progressionService"));
 const mlService = __importStar(require("../services/mlService"));
 const getStartOfDay = (d = new Date()) => {
     return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0));
@@ -47,6 +48,8 @@ const getStartOfDay = (d = new Date()) => {
 const getEndOfDay = (d = new Date()) => {
     return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59, 999));
 };
+const REFLECTION_XP_REWARD = 20;
+const REFLECTION_COIN_REWARD = 5;
 /**
  * Create a reflection for the current user
  * POST /api/reflections
@@ -94,11 +97,13 @@ const createReflection = async (req, res, next) => {
             // Log but don't throw; reflection is created even if sentiment analysis fails
             console.warn('Sentiment analysis failed:', analyzeErr);
         }
-        // Award XP to user for submitting a reflection
-        const user = await User_1.default.findByIdAndUpdate(userId, { $inc: { xp: 20 } }, { new: true });
+        // Award XP and coins to user for submitting a reflection
+        const user = await User_1.default.findByIdAndUpdate(userId, { $inc: { xp: REFLECTION_XP_REWARD, coins: REFLECTION_COIN_REWARD } }, { new: true });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        user.level = progressionService_1.default.calculateLevelFromXP(user.xp || 0);
+        await user.save();
         res.status(201).json({
             reflection,
             stats: {

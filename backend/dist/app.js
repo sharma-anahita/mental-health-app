@@ -16,6 +16,7 @@ const reflectionRoutes_1 = __importDefault(require("./routes/reflectionRoutes"))
 const storeRoutes_1 = __importDefault(require("./routes/storeRoutes"));
 const streakRoutes_1 = __importDefault(require("./routes/streakRoutes"));
 const chatRoutes_1 = __importDefault(require("./routes/chatRoutes"));
+const adminRoutes_1 = __importDefault(require("./routes/adminRoutes"));
 // ...
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -61,6 +62,7 @@ app.use('/api/store', storeRoutes_1.default);
 app.use('/api/streak', streakRoutes_1.default);
 app.use('/api/chat', chatRoutes_1.default);
 app.use('/chat', chatRoutes_1.default);
+app.use('/api/admin', adminRoutes_1.default);
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });

@@ -36,9 +36,28 @@ const createMood = async (req, res, next) => {
         const userId = req.userId;
         if (!userId)
             return res.status(401).json({ message: 'Unauthorized' });
-        const { mood, note } = req.body;
+        const { mood, note, energy, stress } = req.body;
         if (!mood)
             return res.status(400).json({ message: 'mood is required' });
+        const parseOptionalLevel = (value, fieldName) => {
+            if (value === undefined || value === null || value === '')
+                return undefined;
+            const parsed = typeof value === 'number' ? value : Number(value);
+            if (!Number.isFinite(parsed) || parsed < 1 || parsed > 100) {
+                throw new Error(`${fieldName} must be a number between 1 and 100`);
+            }
+            return parsed;
+        };
+        let parsedEnergy;
+        let parsedStress;
+        try {
+            parsedEnergy = parseOptionalLevel(energy, 'energy');
+            parsedStress = parseOptionalLevel(stress, 'stress');
+        }
+        catch (validationErr) {
+            const message = validationErr instanceof Error ? validationErr.message : 'Invalid mood payload';
+            return res.status(400).json({ message });
+        }
         // Prevent duplicate for the same UTC day: check existing mood within that day
         const now = new Date();
         const startOfDayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
@@ -48,7 +67,13 @@ const createMood = async (req, res, next) => {
             return res.status(409).json({ message: 'Duplicate mood for today', mood: existing });
         }
         // create mood log
-        const moodLog = await MoodLog_1.default.create({ userId: new mongoose_1.default.Types.ObjectId(userId), mood, note });
+        const moodLog = await MoodLog_1.default.create({
+            userId: new mongoose_1.default.Types.ObjectId(userId),
+            mood,
+            note,
+            energy: parsedEnergy,
+            stress: parsedStress,
+        });
         // update user streak and xp using progressionService
         const user = await User_1.default.findById(userId);
         if (!user)

@@ -4,6 +4,8 @@ export interface MoodLogEntry {
   id: string;
   mood: number; // 0 (very low) .. 4 (great)
   note: string;
+  energy?: number;
+  stress?: number;
   date: string; // ISO date string
 }
 

@@ -7,6 +7,8 @@ export interface MoodTimelineEntry {
   id?: string | number;
   emoji: string;
   note?: string;
+  energy?: number;
+  stress?: number;
   date: string; // ISO date or human-friendly
 }
 
@@ -36,6 +38,13 @@ export default function MoodTimeline({ entries, className = "", maxPreviewChars 
                 <BodyText>{preview(e.note)}</BodyText>
                 <SubtleText className="whitespace-nowrap">{new Date(e.date).toLocaleDateString()}</SubtleText>
               </div>
+
+              {(e.energy !== undefined || e.stress !== undefined) && (
+                <div className="mt-2 flex flex-wrap gap-2 text-xs text-[var(--theme-text-secondary)]">
+                  {e.energy !== undefined && <Badge variant="calm">Energy: {e.energy}</Badge>}
+                  {e.stress !== undefined && <Badge variant="warning">Stress: {e.stress}</Badge>}
+                </div>
+              )}
             </div>
           </div>
         </Card>

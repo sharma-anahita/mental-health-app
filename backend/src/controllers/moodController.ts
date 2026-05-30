@@ -42,8 +42,35 @@ export const createMood = async (req: AuthRequest, res: Response, next: NextFunc
     const userId = req.userId;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    const { mood, note } = req.body as { mood: string; note?: string };
+    const { mood, note, energy, stress } = req.body as {
+      mood: string;
+      note?: string;
+      energy?: unknown;
+      stress?: unknown;
+    };
     if (!mood) return res.status(400).json({ message: 'mood is required' });
+
+    const parseOptionalLevel = (value: unknown, fieldName: 'energy' | 'stress') => {
+      if (value === undefined || value === null || value === '') return undefined;
+
+      const parsed = typeof value === 'number' ? value : Number(value);
+      if (!Number.isFinite(parsed) || parsed < 1 || parsed > 100) {
+        throw new Error(`${fieldName} must be a number between 1 and 100`);
+      }
+
+      return parsed;
+    };
+
+    let parsedEnergy: number | undefined;
+    let parsedStress: number | undefined;
+
+    try {
+      parsedEnergy = parseOptionalLevel(energy, 'energy');
+      parsedStress = parseOptionalLevel(stress, 'stress');
+    } catch (validationErr) {
+      const message = validationErr instanceof Error ? validationErr.message : 'Invalid mood payload';
+      return res.status(400).json({ message });
+    }
 
     // Prevent duplicate for the same UTC day: check existing mood within that day
     const now = new Date();
@@ -55,7 +82,13 @@ export const createMood = async (req: AuthRequest, res: Response, next: NextFunc
     }
 
     // create mood log
-    const moodLog = await MoodLog.create({ userId: new mongoose.Types.ObjectId(userId), mood, note } as Partial<IMoodLog>);
+    const moodLog = await MoodLog.create({
+      userId: new mongoose.Types.ObjectId(userId),
+      mood,
+      note,
+      energy: parsedEnergy,
+      stress: parsedStress,
+    } as Partial<IMoodLog>);
 
     // update user streak and xp using progressionService
     const user = await User.findById(userId);

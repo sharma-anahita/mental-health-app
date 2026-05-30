@@ -9,6 +9,8 @@ export interface MoodLog {
   id: string;
   mood: string; // e.g. "Great", "Good", or emoji string; kept generic for backend mapping
   note?: string;
+  energy?: number;
+  stress?: number;
   date: string; // ISO string
 }
 
