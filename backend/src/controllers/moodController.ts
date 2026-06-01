@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import MoodLog, { IMoodLog } from '../models/MoodLog';
 import User, { IUser } from '../models/User';
 import progressionService from '../services/progressionService';
+import { invalidateInsightsCache } from '../services/insightsCacheService';
 
 type AuthRequest = Request & { userId?: string };
 
@@ -99,10 +100,12 @@ export const createMood = async (req: AuthRequest, res: Response, next: NextFunc
     if (result.duplicate) {
       // remove the mood we just created to avoid duplicate entries
       await MoodLog.findByIdAndDelete(moodLog._id);
+      await invalidateInsightsCache(userId);
       return res.status(409).json({ message: 'Duplicate mood for today' });
     }
 
     const updatedUser = result.user;
+    await invalidateInsightsCache(userId);
     res.status(201).json({ mood: moodLog, stats: { xp: updatedUser.xp, streak: updatedUser.streak, coins: updatedUser.coins, level: updatedUser.level } });
   } catch (err) {
     next(err);

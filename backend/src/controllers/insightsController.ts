@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import MoodLog from '../models/MoodLog';
 import * as mlService from '../services/mlService';
+import {
+  getCachedInsights,
+  setCachedInsights,
+  type InsightsCachePayload,
+} from '../services/insightsCacheService';
 
 type AuthRequest = Request & { userId?: string };
 
@@ -8,6 +13,11 @@ export const getInsights = async (req: AuthRequest, res: Response, next: NextFun
   try {
     const userId = req.userId;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const cachedInsights = await getCachedInsights(userId);
+    if (cachedInsights) {
+      return res.json(cachedInsights);
+    }
 
     // fetch last 7 mood logs (most recent first)
     const logs = await MoodLog.find({ userId }).sort({ createdAt: -1 }).limit(7).lean();
@@ -161,13 +171,17 @@ export const getInsights = async (req: AuthRequest, res: Response, next: NextFun
     }
 
     // Preserve original shape (`moods`, `ml`) for backwards compatibility
-    return res.json({
+    const response: InsightsCachePayload = {
       trendData,
       distributionData,
       insightCards,
       moods: logs,
       ml: { trend: trendResult, sentiment: sentimentResult },
-    });
+    };
+
+    void setCachedInsights(userId, response);
+
+    return res.json(response);
   } catch (err) {
     next(err);
   }

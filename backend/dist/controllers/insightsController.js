@@ -39,11 +39,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getInsights = void 0;
 const MoodLog_1 = __importDefault(require("../models/MoodLog"));
 const mlService = __importStar(require("../services/mlService"));
+const insightsCacheService_1 = require("../services/insightsCacheService");
 const getInsights = async (req, res, next) => {
     try {
         const userId = req.userId;
         if (!userId)
             return res.status(401).json({ message: 'Unauthorized' });
+        const cachedInsights = await (0, insightsCacheService_1.getCachedInsights)(userId);
+        if (cachedInsights) {
+            return res.json(cachedInsights);
+        }
         // fetch last 7 mood logs (most recent first)
         const logs = await MoodLog_1.default.find({ userId }).sort({ createdAt: -1 }).limit(7).lean();
         // prepare mood numeric array (oldest -> newest)
@@ -191,13 +196,15 @@ const getInsights = async (req, res, next) => {
             insightCards.push({ _id: 'ins-default-01', id: 'ins-default-01', title: 'Keep going', description: 'You are tracking your mood — small consistent steps support wellbeing.', type: 'neutral' });
         }
         // Preserve original shape (`moods`, `ml`) for backwards compatibility
-        return res.json({
+        const response = {
             trendData,
             distributionData,
             insightCards,
             moods: logs,
             ml: { trend: trendResult, sentiment: sentimentResult },
-        });
+        };
+        void (0, insightsCacheService_1.setCachedInsights)(userId, response);
+        return res.json(response);
     }
     catch (err) {
         next(err);

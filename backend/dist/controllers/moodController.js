@@ -8,6 +8,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const MoodLog_1 = __importDefault(require("../models/MoodLog"));
 const User_1 = __importDefault(require("../models/User"));
 const progressionService_1 = __importDefault(require("../services/progressionService"));
+const insightsCacheService_1 = require("../services/insightsCacheService");
 const DEFAULT_MOOD_PAGE_SIZE = 10;
 const MAX_MOOD_PAGE_SIZE = 50;
 const encodeCursor = (payload) => Buffer.from(JSON.stringify(payload)).toString('base64url');
@@ -82,9 +83,11 @@ const createMood = async (req, res, next) => {
         if (result.duplicate) {
             // remove the mood we just created to avoid duplicate entries
             await MoodLog_1.default.findByIdAndDelete(moodLog._id);
+            await (0, insightsCacheService_1.invalidateInsightsCache)(userId);
             return res.status(409).json({ message: 'Duplicate mood for today' });
         }
         const updatedUser = result.user;
+        await (0, insightsCacheService_1.invalidateInsightsCache)(userId);
         res.status(201).json({ mood: moodLog, stats: { xp: updatedUser.xp, streak: updatedUser.streak, coins: updatedUser.coins, level: updatedUser.level } });
     }
     catch (err) {
