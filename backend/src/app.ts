@@ -13,6 +13,7 @@ import storeRoutes from './routes/storeRoutes';
 import streakRoutes from './routes/streakRoutes';
 import chatRoutes from './routes/chatRoutes';
 import adminRoutes from './routes/adminRoutes';
+import dashboardRoutes from './routes/dashboardRoutes';
 // ...
 const app = express();
 

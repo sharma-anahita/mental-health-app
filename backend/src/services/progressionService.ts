@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import MoodLog from '../models/MoodLog';
 import XPHistory from '../models/XPHistory';
+import DailyXP from '../models/DailyXP';
 import { IUser } from '../models/User';
 
 export const calculateBaseXP = (currentStreak: number, hasNote: boolean): number => {
@@ -24,6 +25,29 @@ const startOfUtcWeekMonday = (d: Date): Date => {
   const offsetToMonday = (day + 6) % 7;
   dayStart.setUTCDate(dayStart.getUTCDate() - offsetToMonday);
   return dayStart;
+};
+
+// Helper: Update daily XP for a user on a given date
+export const updateDailyXP = async (userId: mongoose.Types.ObjectId, xpAmount: number, date: Date): Promise<void> => {
+  // Calculate start of day in UTC
+  const dayStart = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+
+  try {
+    // Try to find existing daily XP record
+    const existing = await DailyXP.findOne({ userId, date: dayStart });
+
+    if (existing) {
+      // Increment existing record
+      existing.xpGained += xpAmount;
+      await existing.save();
+    } else {
+      // Create new record
+      await DailyXP.create({ userId, date: dayStart, xpGained: xpAmount });
+    }
+  } catch (err) {
+    // Don't block XP reward if daily tracking fails
+    console.error('Failed to update daily XP:', err);
+  }
 };
 
 export const updateUserProgress = async (
@@ -72,6 +96,9 @@ export const updateUserProgress = async (
     // (avoid using console in libraries; controller / server logs will capture uncaught rejections)
     console.error('Failed to record XPHistory:', err);
   }
+
+  // Record daily XP
+  await updateDailyXP(user._id as mongoose.Types.ObjectId, xpGain, moodDate);
 
   // Streak
   user.streak = newStreak;
@@ -140,6 +167,9 @@ export const rewardProfileCompletion = async (
     console.error('Failed to record profile completion XP history:', err);
   }
 
+  // Record daily XP
+  await updateDailyXP(user._id as mongoose.Types.ObjectId, xpGain, new Date());
+
   // add to profileCompletedFields
   user.profileCompletedFields = Array.from(new Set([...user.profileCompletedFields, ...newlyCompleted]));
 
@@ -158,6 +188,7 @@ export default {
   calculateLevelFromXP,
   updateUserProgress,
   rewardProfileCompletion,
+  updateDailyXP,
   // Award XP for goal completion or other small events
   rewardGoalCompletion: async (user: mongoose.Document & IUser, xpAmount: number, reason = 'goal_completion') => {
     const xpGain = Number(xpAmount) || 0;
@@ -169,6 +200,8 @@ export default {
     } catch (err) {
       console.error('Failed to record goal completion XP history:', err);
     }
+    // Record daily XP
+    await updateDailyXP(user._id as mongoose.Types.ObjectId, xpGain, new Date());
     user.level = calculateLevelFromXP(user.xp);
     await user.save();
     return { user, xpGained: xpGain };
