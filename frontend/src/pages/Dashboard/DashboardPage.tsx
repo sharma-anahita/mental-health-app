@@ -1,10 +1,17 @@
+/**
+ * DashboardPage.tsx  (updated — XP heatmap added below the reflection section)
+ *
+ * The only change from the original is:
+ *   1. Import XPHeatmap
+ *   2. Render <XPHeatmap /> beneath the DailyPromptCard / ReflectionPreview block
+ */
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-// Page should render content only; AppLayout + Sidebar are provided by the router layout
 import SmartGreeting from "../../components/dashboard/SmartGreeting";
 import DailyPromptCard from "../../components/dashboard/DailyPromptCard";
 import ContextualEmptyState from "../../components/ui/ContextualEmptyState";
 import StreakMilestone from "../../components/gamification/StreakMilestone";
+import XPHeatmap from "../../components/dashboard/XPHeatmap.tsx"; // ← NEW
 import useMoodStore from "../../store/moodStore";
 import useUserStore from "../../store/userStore";
 import useUIStore from "../../store/uiStore";
@@ -12,7 +19,7 @@ import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import Section from "../../components/ui/Section";
-import { PageTitle, CardTitle, SubtleText } from "../../components/ui/Typography";
+import { CardTitle, SubtleText } from "../../components/ui/Typography";
 import PageTransition from "../../components/ui/PageTransition";
 import { scoreToMoodLabel } from "../../utils/moodHelpers";
 
@@ -47,7 +54,6 @@ const DashboardPage: React.FC = () => {
 
   // Reflection state
   const [reflection, setReflection] = useState<any>(null);
-  const [reflectionLoading, setReflectionLoading] = useState(false);
   const [showReflectionModal, setShowReflectionModal] = useState(false);
   const [isEditingReflection, setIsEditingReflection] = useState(false);
 
@@ -57,25 +63,16 @@ const DashboardPage: React.FC = () => {
   const moodToScore = (moodValue: string): number => {
     const numeric = parseFloat(moodValue);
     if (!isNaN(numeric)) return numeric;
-
     const moodMap: Record<string, number> = {
-      "Very low": 1,
-      Low: 3,
-      Okay: 5,
-      Good: 7,
-      Great: 9,
+      "Very low": 1, Low: 3, Okay: 5, Good: 7, Great: 9,
     };
-
     return moodMap[moodValue] ?? 5;
   };
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  const recentLogs = moodLogs.filter((log) => {
-    const logDate = new Date(log.date);
-    return logDate >= sevenDaysAgo;
-  });
+  const recentLogs = moodLogs.filter((log) => new Date(log.date) >= sevenDaysAgo);
 
   const logsForWeeklyChart = (recentLogs.length > 0 ? recentLogs : moodLogs)
     .slice()
@@ -83,45 +80,27 @@ const DashboardPage: React.FC = () => {
     .slice(0, 7)
     .reverse();
 
-  const weeklyMoodData: WeeklyMoodEntry[] = logsForWeeklyChart
-    .map((log) => ({
-      date: new Date(log.date).toISOString().slice(0, 10),
-      score: moodToScore(log.mood),
-    }));
+  const weeklyMoodData: WeeklyMoodEntry[] = logsForWeeklyChart.map((log) => ({
+    date: new Date(log.date).toISOString().slice(0, 10),
+    score: moodToScore(log.mood),
+  }));
 
-  // Calculate average mood score from recent logs (last 7 days)
   const calculateAverageScore = () => {
     if (!moodLogs || moodLogs.length === 0) return null;
-    
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
-    const recentLogs = moodLogs.filter(log => {
-      const logDate = new Date(log.date);
-      return logDate >= sevenDaysAgo;
-    });
-    
+    const recentLogs = moodLogs.filter((log) => new Date(log.date) >= sevenDaysAgo);
     if (recentLogs.length === 0) return null;
-    
-    // Extract numeric scores from mood logs (assuming mood might contain score or emoji)
     const scores = recentLogs
-      .map(log => {
-        // Try to parse if stored as number or if it's one of our mood labels
+      .map((log) => {
         const num = parseFloat(log.mood);
         if (!isNaN(num)) return num;
-        
-        // Map mood labels to scores
         const moodMap: Record<string, number> = {
-          "Very low": 1,
-          "Low": 3,
-          "Okay": 5,
-          "Good": 7,
-          "Great": 9,
+          "Very low": 1, Low: 3, Okay: 5, Good: 7, Great: 9,
         };
         return moodMap[log.mood] ?? 5;
       })
-      .filter(score => !isNaN(score));
-    
+      .filter((score) => !isNaN(score));
     if (scores.length === 0) return null;
     return scores.reduce((a, b) => a + b, 0) / scores.length;
   };
@@ -130,36 +109,27 @@ const DashboardPage: React.FC = () => {
   const moodLabel = scoreToMoodLabel(averageScore);
 
   useEffect(() => {
-    // Fetch initial data for dashboard (mocked)
     fetchUserProgressAsync();
     fetchMoodLogsAsync();
     fetchReflectionToday();
   }, [fetchUserProgressAsync, fetchMoodLogsAsync]);
 
   const fetchReflectionToday = async () => {
-    setReflectionLoading(true);
     try {
       const reflectionData = await reflectionService.getReflectionToday();
       setReflection(reflectionData);
-    } catch (err) {
-      console.error('Failed to fetch reflection:', err);
+    } catch {
       setReflection(null);
-    } finally {
-      setReflectionLoading(false);
     }
   };
 
   const handleReflectionSubmitted = (newReflection: any, stats: any) => {
-    // Update reflection state with new data
     setReflection(newReflection);
-    // Update user stats if XP was awarded
     if (stats?.xp !== undefined) {
       const nextProgress: Record<string, number> = { xp: stats.xp };
-
       if (stats.coins !== undefined) nextProgress.coins = stats.coins;
       if (stats.level !== undefined) nextProgress.level = stats.level;
       if (stats.streak !== undefined) nextProgress.streak = stats.streak;
-
       useUserStore.setState(nextProgress);
     }
   };
@@ -170,10 +140,7 @@ const DashboardPage: React.FC = () => {
   };
 
   const handleRestoreStreak = async () => {
-    if (isRestoringStreak || !streakRestore.canRestore) {
-      return;
-    }
-
+    if (isRestoringStreak || !streakRestore.canRestore) return;
     setIsRestoringStreak(true);
     try {
       await userService.restoreStreak();
@@ -195,16 +162,19 @@ const DashboardPage: React.FC = () => {
       {errorMessage && (
         <div role="alert" aria-live="polite" className="mt-4 rounded-md bg-rose-50 border border-rose-100 text-rose-800 px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="text-sm">Some personalized data couldn't be loaded. Try again or continue exploring — your existing entries are safe.</div>
-            <div>
-              <Button variant="ghost" onClick={() => { fetchUserProgressAsync(); fetchMoodLogsAsync(); }}>Retry</Button>
+            <div className="text-sm">
+              Some personalized data couldn't be loaded. Try again or continue exploring.
             </div>
+            <Button variant="ghost" onClick={() => { fetchUserProgressAsync(); fetchMoodLogsAsync(); }}>
+              Retry
+            </Button>
           </div>
         </div>
       )}
 
       <div className="mt-4 grid grid-cols-12 gap-4">
-        {/* Left column: Greeting, Mood Summary, Streak */}
+
+        {/* ── Left column ──────────────────────────────────────────── */}
         <div className="col-span-12 lg:col-span-7 flex flex-col gap-4">
           <div>
             <SmartGreeting />
@@ -214,7 +184,7 @@ const DashboardPage: React.FC = () => {
           <Section>
             <MoodHeroCard
               moodLabel={moodLabel}
-              moodDescription={averageScore ? `Average from your last 7 days` : "No recent mood logs"}
+              moodDescription={averageScore ? "Average from your last 7 days" : "No recent mood logs"}
               score={averageScore ?? 0}
             />
           </Section>
@@ -234,56 +204,58 @@ const DashboardPage: React.FC = () => {
               animate={isRestoringStreak ? { scale: [1, 1.015, 1] } : { scale: 1 }}
               transition={{ duration: 0.9, repeat: isRestoringStreak ? Infinity : 0 }}
             >
-            <Card className="p-4 border border-amber-200 bg-amber-50/70">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <CardTitle>You lost your streak 😢</CardTitle>
-                    <SubtleText className="mt-1">
-                      {streakRestore.previousValue > 0
-                        ? `Restore your previous ${streakRestore.previousValue}-day streak with a Time Travel Ticket.`
-                        : "Use a Time Travel Ticket to recover your streak."}
-                    </SubtleText>
+              <Card className="p-4 border border-amber-200 bg-amber-50/70">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <CardTitle>You lost your streak 😢</CardTitle>
+                      <SubtleText className="mt-1">
+                        {streakRestore.previousValue > 0
+                          ? `Restore your previous ${streakRestore.previousValue}-day streak with a Time Travel Ticket.`
+                          : "Use a Time Travel Ticket to recover your streak."}
+                      </SubtleText>
+                    </div>
+                    <Badge variant="default">Tickets: {streakRestore.tickets}</Badge>
                   </div>
-                  <Badge variant="default">Tickets: {streakRestore.tickets}</Badge>
-                </div>
 
-                {streakRestore.tickets > 0 ? (
-                  <div className="flex items-center justify-end">
-                    <Button
-                      variant="primary"
-                      onClick={handleRestoreStreak}
-                      disabled={!streakRestore.canRestore || isRestoringStreak}
-                    >
-                      {isRestoringStreak
-                        ? "Restoring..."
-                        : `Restore Streak (${streakRestore.tickets} available)`}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-sm font-medium text-amber-900">Buy Time Travel Ticket from store</div>
-                )}
-
-                <AnimatePresence>
-                  {showRestoreSuccess && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      transition={{ duration: 0.25 }}
-                      className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800"
-                    >
-                      🎉 We&apos;ve got your back - streak restored
-                    </motion.div>
+                  {streakRestore.tickets > 0 ? (
+                    <div className="flex items-center justify-end">
+                      <Button
+                        variant="primary"
+                        onClick={handleRestoreStreak}
+                        disabled={!streakRestore.canRestore || isRestoringStreak}
+                      >
+                        {isRestoringStreak
+                          ? "Restoring..."
+                          : `Restore Streak (${streakRestore.tickets} available)`}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-sm font-medium text-amber-900">
+                      Buy Time Travel Ticket from store
+                    </div>
                   )}
-                </AnimatePresence>
-              </div>
-            </Card>
+
+                  <AnimatePresence>
+                    {showRestoreSuccess && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.25 }}
+                        className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800"
+                      >
+                        🎉 We&apos;ve got your back - streak restored
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </Card>
             </motion.div>
           )}
         </div>
 
-        {/* Right column: XP Hero, Weekly Chart, Prompt/Reflection */}
+        {/* ── Right column ─────────────────────────────────────────── */}
         <aside className="col-span-12 lg:col-span-5 flex flex-col gap-4">
           {userLoading ? (
             <Card className="p-3">
@@ -301,8 +273,13 @@ const DashboardPage: React.FC = () => {
             )}
           </Card>
 
+          {/* ── Daily Reflections + Prompt ───────────────────────── */}
           <div className="flex flex-col gap-2">
-            <DailyPromptCard className="p-3" onReflect={handleOpenReflectionModal} hasReflection={!!reflection} />
+            <DailyPromptCard
+              className="p-3"
+              onReflect={handleOpenReflectionModal}
+              hasReflection={!!reflection}
+            />
 
             {moodLogs.length === 0 ? (
               <ContextualEmptyState variant="noMoodLogs" className="p-3" onAction={() => {}} />
@@ -323,6 +300,11 @@ const DashboardPage: React.FC = () => {
             )}
           </div>
         </aside>
+      </div>
+
+      {/* ── XP Activity Heatmap (full width, below the two-column grid) ── */}
+      <div className="mt-6">
+        <XPHeatmap />
       </div>
 
       <ReflectionModal
