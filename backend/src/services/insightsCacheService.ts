@@ -39,6 +39,16 @@ export async function getCachedInsights(userId: string): Promise<InsightsCachePa
   }
 }
 
+export async function getCachedInsightsWithRaw(userId: string): Promise<string | null> {
+  try {
+    const raw = await redis.get<string>(buildInsightsCacheKey(userId));
+    return typeof raw === 'string' ? raw : raw ? JSON.stringify(raw) : null;
+  } catch (err) {
+    console.warn('Insights cache read failed, serving uncached response:', err);
+    return null;
+  }
+}
+
 export async function setCachedInsights(userId: string, payload: InsightsCachePayload): Promise<void> {
   try {
     await redis.set(buildInsightsCacheKey(userId), JSON.stringify(payload), {

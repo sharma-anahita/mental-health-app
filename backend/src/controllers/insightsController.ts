@@ -2,27 +2,56 @@ import { Request, Response, NextFunction } from 'express';
 import MoodLog from '../models/MoodLog';
 import * as mlService from '../services/mlService';
 import {
-  getCachedInsights,
+  getCachedInsightsWithRaw,
   setCachedInsights,
   type InsightsCachePayload,
 } from '../services/insightsCacheService';
+import {
+  recordInsightsCacheHit,
+  recordInsightsCacheMiss,
+  recordInsightsRequest,
+  recordInsightsResponse,
+  recordMlGeneration,
+  recordRedisLookup,
+} from '../services/insightsCacheMetrics';
 
 type AuthRequest = Request & { userId?: string };
 
 export const getInsights = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
+    const startedAt = Date.now();
     const userId = req.userId;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    const cachedInsights = await getCachedInsights(userId);
-    if (cachedInsights) {
-      return res.json(cachedInsights);
+    recordInsightsRequest();
+
+    // Step 1: Cache lookup
+    const redisLookupStartedAt = Date.now();
+    const cachedRaw = await getCachedInsightsWithRaw(userId);
+    const redisLookupMs = Date.now() - redisLookupStartedAt;
+    recordRedisLookup(redisLookupMs);
+    console.log(`[PERF] redis=${redisLookupMs}ms userId=${userId}`);
+
+    if (cachedRaw) {
+      recordInsightsCacheHit();
+      console.log(`[INSIGHTS_CACHE] HIT userId=${userId}`);
+      const totalMs = Date.now() - startedAt;
+      recordInsightsResponse(totalMs);
+      console.log(`[PERF] total=${totalMs}ms (CACHE_HIT) userId=${userId}`);
+      return res.json(JSON.parse(cachedRaw) as InsightsCachePayload);
     }
 
-    // fetch last 7 mood logs (most recent first)
+    recordInsightsCacheMiss();
+    console.log(`[INSIGHTS_CACHE] MISS userId=${userId}`);
+
+    // Step 2: Fetch mood logs
+    const moodLogsStartedAt = Date.now();
     const logs = await MoodLog.find({ userId }).sort({ createdAt: -1 }).limit(7).lean();
+    const moodLogsMs = Date.now() - moodLogsStartedAt;
+    console.log(`[PERF] moodLogs=${moodLogsMs}ms userId=${userId} count=${logs.length}`);
 
     // prepare mood numeric array (oldest -> newest)
+    const transformStartedAt = Date.now();
     const moodsDesc = logs.map((l: any) => {
       const v = l.mood;
       const n = typeof v === 'number' ? v : parseFloat(String(v)) || 0;
@@ -39,14 +68,22 @@ export const getInsights = async (req: AuthRequest, res: Response, next: NextFun
       .reverse();
 
     const combinedText = notes.join('. ');
+    const transformMs = Date.now() - transformStartedAt;
+    console.log(`[PERF] dataTransform=${transformMs}ms userId=${userId}`);
 
     // call ML service (if we have enough data)
     let trendResult = null;
     let sentimentResult = null;
+    const mlStartedAt = Date.now();
+    let mlTrendMs = 0;
+    let mlSentimentMs = 0;
 
     if (moods.length >= 2) {
       try {
+        const trendStart = Date.now();
         trendResult = await mlService.analyzeTrend(moods);
+        mlTrendMs = Date.now() - trendStart;
+        console.log(`[PERF] mlTrend=${mlTrendMs}ms userId=${userId}`);
       } catch (err) {
         console.warn('ML trend call failed', err);
         trendResult = null;
@@ -55,12 +92,18 @@ export const getInsights = async (req: AuthRequest, res: Response, next: NextFun
 
     if (combinedText && combinedText.length > 3) {
       try {
+        const sentimentStart = Date.now();
         sentimentResult = await mlService.analyzeReflection(combinedText);
+        mlSentimentMs = Date.now() - sentimentStart;
+        console.log(`[PERF] mlSentiment=${mlSentimentMs}ms userId=${userId}`);
       } catch (err) {
         console.warn('ML sentiment call failed', err);
         sentimentResult = null;
       }
     }
+    const mlMs = Date.now() - mlStartedAt;
+    recordMlGeneration(mlMs);
+    console.log(`[PERF] ml=${mlMs}ms userId=${userId}`);
 
     // Transform backend shape ({ moods, ml }) into frontend shape expected by mockInsights
     // Frontend expects:
@@ -69,6 +112,8 @@ export const getInsights = async (req: AuthRequest, res: Response, next: NextFun
     //   distributionData: [{ moodLabel: string, count: number }],
     //   insightCards: [{ id: string, title: string, description: string, type: 'positive'|'neutral'|'warning' }]
     // }
+
+    const aggregationStartedAt = Date.now();
 
     // Helper: map various mood representations to a numeric score (0-10-ish scale used by frontend)
     function mapMoodToScore(mood: any): number {
@@ -170,7 +215,11 @@ export const getInsights = async (req: AuthRequest, res: Response, next: NextFun
       insightCards.push({ _id: 'ins-default-01', id: 'ins-default-01', title: 'Keep going', description: 'You are tracking your mood — small consistent steps support wellbeing.', type: 'neutral' });
     }
 
+    const aggregationMs = Date.now() - aggregationStartedAt;
+    console.log(`[PERF] aggregation=${aggregationMs}ms userId=${userId}`);
+
     // Preserve original shape (`moods`, `ml`) for backwards compatibility
+    const cacheWriteStartedAt = Date.now();
     const response: InsightsCachePayload = {
       trendData,
       distributionData,
@@ -180,6 +229,12 @@ export const getInsights = async (req: AuthRequest, res: Response, next: NextFun
     };
 
     void setCachedInsights(userId, response);
+    const cacheWriteMs = Date.now() - cacheWriteStartedAt;
+    console.log(`[PERF] cacheWrite=${cacheWriteMs}ms userId=${userId}`);
+
+    const totalMs = Date.now() - startedAt;
+    recordInsightsResponse(totalMs);
+    console.log(`[PERF] total=${totalMs}ms moodLogs=${moodLogsMs} ml=${mlMs} aggregation=${aggregationMs} cacheWrite=${cacheWriteMs} userId=${userId}`);
 
     return res.json(response);
   } catch (err) {

@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getInsightsCacheKey = exports.INSIGHTS_CACHE_TTL_SECONDS = void 0;
 exports.getCachedInsights = getCachedInsights;
+exports.getCachedInsightsWithRaw = getCachedInsightsWithRaw;
 exports.setCachedInsights = setCachedInsights;
 exports.invalidateInsightsCache = invalidateInsightsCache;
 const redis_1 = __importDefault(require("../config/redis"));
@@ -21,6 +22,16 @@ async function getCachedInsights(userId) {
             return JSON.parse(raw);
         }
         return raw;
+    }
+    catch (err) {
+        console.warn('Insights cache read failed, serving uncached response:', err);
+        return null;
+    }
+}
+async function getCachedInsightsWithRaw(userId) {
+    try {
+        const raw = await redis_1.default.get(buildInsightsCacheKey(userId));
+        return typeof raw === 'string' ? raw : raw ? JSON.stringify(raw) : null;
     }
     catch (err) {
         console.warn('Insights cache read failed, serving uncached response:', err);

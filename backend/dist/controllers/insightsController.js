@@ -40,18 +40,37 @@ exports.getInsights = void 0;
 const MoodLog_1 = __importDefault(require("../models/MoodLog"));
 const mlService = __importStar(require("../services/mlService"));
 const insightsCacheService_1 = require("../services/insightsCacheService");
+const insightsCacheMetrics_1 = require("../services/insightsCacheMetrics");
 const getInsights = async (req, res, next) => {
     try {
+        const startedAt = Date.now();
         const userId = req.userId;
         if (!userId)
             return res.status(401).json({ message: 'Unauthorized' });
-        const cachedInsights = await (0, insightsCacheService_1.getCachedInsights)(userId);
-        if (cachedInsights) {
-            return res.json(cachedInsights);
+        (0, insightsCacheMetrics_1.recordInsightsRequest)();
+        // Step 1: Cache lookup
+        const redisLookupStartedAt = Date.now();
+        const cachedRaw = await (0, insightsCacheService_1.getCachedInsightsWithRaw)(userId);
+        const redisLookupMs = Date.now() - redisLookupStartedAt;
+        (0, insightsCacheMetrics_1.recordRedisLookup)(redisLookupMs);
+        console.log(`[PERF] redis=${redisLookupMs}ms userId=${userId}`);
+        if (cachedRaw) {
+            (0, insightsCacheMetrics_1.recordInsightsCacheHit)();
+            console.log(`[INSIGHTS_CACHE] HIT userId=${userId}`);
+            const totalMs = Date.now() - startedAt;
+            (0, insightsCacheMetrics_1.recordInsightsResponse)(totalMs);
+            console.log(`[PERF] total=${totalMs}ms (CACHE_HIT) userId=${userId}`);
+            return res.json(JSON.parse(cachedRaw));
         }
-        // fetch last 7 mood logs (most recent first)
+        (0, insightsCacheMetrics_1.recordInsightsCacheMiss)();
+        console.log(`[INSIGHTS_CACHE] MISS userId=${userId}`);
+        // Step 2: Fetch mood logs
+        const moodLogsStartedAt = Date.now();
         const logs = await MoodLog_1.default.find({ userId }).sort({ createdAt: -1 }).limit(7).lean();
+        const moodLogsMs = Date.now() - moodLogsStartedAt;
+        console.log(`[PERF] moodLogs=${moodLogsMs}ms userId=${userId} count=${logs.length}`);
         // prepare mood numeric array (oldest -> newest)
+        const transformStartedAt = Date.now();
         const moodsDesc = logs.map((l) => {
             const v = l.mood;
             const n = typeof v === 'number' ? v : parseFloat(String(v)) || 0;
@@ -65,12 +84,20 @@ const getInsights = async (req, res, next) => {
             .slice(0, 5)
             .reverse();
         const combinedText = notes.join('. ');
+        const transformMs = Date.now() - transformStartedAt;
+        console.log(`[PERF] dataTransform=${transformMs}ms userId=${userId}`);
         // call ML service (if we have enough data)
         let trendResult = null;
         let sentimentResult = null;
+        const mlStartedAt = Date.now();
+        let mlTrendMs = 0;
+        let mlSentimentMs = 0;
         if (moods.length >= 2) {
             try {
+                const trendStart = Date.now();
                 trendResult = await mlService.analyzeTrend(moods);
+                mlTrendMs = Date.now() - trendStart;
+                console.log(`[PERF] mlTrend=${mlTrendMs}ms userId=${userId}`);
             }
             catch (err) {
                 console.warn('ML trend call failed', err);
@@ -79,13 +106,19 @@ const getInsights = async (req, res, next) => {
         }
         if (combinedText && combinedText.length > 3) {
             try {
+                const sentimentStart = Date.now();
                 sentimentResult = await mlService.analyzeReflection(combinedText);
+                mlSentimentMs = Date.now() - sentimentStart;
+                console.log(`[PERF] mlSentiment=${mlSentimentMs}ms userId=${userId}`);
             }
             catch (err) {
                 console.warn('ML sentiment call failed', err);
                 sentimentResult = null;
             }
         }
+        const mlMs = Date.now() - mlStartedAt;
+        (0, insightsCacheMetrics_1.recordMlGeneration)(mlMs);
+        console.log(`[PERF] ml=${mlMs}ms userId=${userId}`);
         // Transform backend shape ({ moods, ml }) into frontend shape expected by mockInsights
         // Frontend expects:
         // {
@@ -93,6 +126,7 @@ const getInsights = async (req, res, next) => {
         //   distributionData: [{ moodLabel: string, count: number }],
         //   insightCards: [{ id: string, title: string, description: string, type: 'positive'|'neutral'|'warning' }]
         // }
+        const aggregationStartedAt = Date.now();
         // Helper: map various mood representations to a numeric score (0-10-ish scale used by frontend)
         function mapMoodToScore(mood) {
             if (typeof mood === 'number')
@@ -195,7 +229,10 @@ const getInsights = async (req, res, next) => {
         if (insightCards.length === 0) {
             insightCards.push({ _id: 'ins-default-01', id: 'ins-default-01', title: 'Keep going', description: 'You are tracking your mood — small consistent steps support wellbeing.', type: 'neutral' });
         }
+        const aggregationMs = Date.now() - aggregationStartedAt;
+        console.log(`[PERF] aggregation=${aggregationMs}ms userId=${userId}`);
         // Preserve original shape (`moods`, `ml`) for backwards compatibility
+        const cacheWriteStartedAt = Date.now();
         const response = {
             trendData,
             distributionData,
@@ -204,6 +241,11 @@ const getInsights = async (req, res, next) => {
             ml: { trend: trendResult, sentiment: sentimentResult },
         };
         void (0, insightsCacheService_1.setCachedInsights)(userId, response);
+        const cacheWriteMs = Date.now() - cacheWriteStartedAt;
+        console.log(`[PERF] cacheWrite=${cacheWriteMs}ms userId=${userId}`);
+        const totalMs = Date.now() - startedAt;
+        (0, insightsCacheMetrics_1.recordInsightsResponse)(totalMs);
+        console.log(`[PERF] total=${totalMs}ms moodLogs=${moodLogsMs} ml=${mlMs} aggregation=${aggregationMs} cacheWrite=${cacheWriteMs} userId=${userId}`);
         return res.json(response);
     }
     catch (err) {

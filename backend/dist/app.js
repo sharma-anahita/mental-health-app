@@ -11,6 +11,7 @@ const gamificationRoutes_1 = __importDefault(require("./routes/gamificationRoute
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const goalRoutes_1 = __importDefault(require("./routes/goalRoutes"));
 const insightsRoutes_1 = __importDefault(require("./routes/insightsRoutes"));
+const debugRoutes_1 = __importDefault(require("./routes/debugRoutes"));
 const preferencesRoutes_1 = __importDefault(require("./routes/preferencesRoutes"));
 const reflectionRoutes_1 = __importDefault(require("./routes/reflectionRoutes"));
 const storeRoutes_1 = __importDefault(require("./routes/storeRoutes"));
@@ -58,6 +59,7 @@ app.use('/api/gamification', gamificationRoutes_1.default);
 app.use('/api/user', userRoutes_1.default);
 app.use('/api/goals', goalRoutes_1.default);
 app.use('/api/insights', insightsRoutes_1.default);
+app.use('/api/debug', debugRoutes_1.default);
 app.use('/api/store', storeRoutes_1.default);
 app.use('/api/streak', streakRoutes_1.default);
 app.use('/api/chat', chatRoutes_1.default);
