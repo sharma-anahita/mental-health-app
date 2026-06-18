@@ -19,7 +19,7 @@ import { fetchHeatmapData, type HeatmapDay } from '../../services/dashboardservi
 
 // ── Tooltip via React title attribute ──────────────────────────────────────
 // react-calendar-heatmap surfaces `tooltipDataAttrs` for custom tooltip libs,
-// but a simple title= is sufficient and requires no extra dep.
+// but a simple title= is sufficient and requires no extra dep.d
 
 interface XPHeatmapProps {
   className?: string;
