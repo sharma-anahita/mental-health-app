@@ -16,6 +16,7 @@ import InsightsPage from "./pages/Insights/InsightsPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import GoalsPage from "./pages/Goals/GoalsPage";
 import StoresPage from "./pages/Stores/StoresPage";
+import RecommendationsPage from "./pages/Recommendations/RecommendationsPage";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
 import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
@@ -27,6 +28,7 @@ import ProtectedRoute from "./app/routes/ProtectedRoute";
 function mapPathToItem(pathname: string) {
   if (pathname.startsWith("/mood-log")) return "mood" as const;
   if (pathname.startsWith("/insights")) return "insights" as const;
+  if (pathname.startsWith("/recommendations")) return "recommendations" as const;
   if (pathname.startsWith("/goals")) return "goals" as const;
   if (pathname.startsWith("/stores")) return "stores" as const;
   if (pathname.startsWith("/profile")) return "profile" as const;
@@ -46,6 +48,8 @@ const LayoutWithSidebar: FC = () => {
         return navigate("/mood-log");
       case "insights":
         return navigate("/insights");
+      case "recommendations":
+        return navigate("/recommendations");
       case "goals":
         return navigate("/goals");
       case "stores":
@@ -86,6 +90,7 @@ const AppRoutes: FC = () => {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="mood-log" element={<MoodLogPage />} />
           <Route path="insights" element={<InsightsPage />} />
+          <Route path="recommendations" element={<RecommendationsPage />} />
           <Route path="stores" element={<StoresPage />} />
           <Route path="goals" element={<GoalsPage />} />
           <Route path="profile" element={<ProfilePage />} />

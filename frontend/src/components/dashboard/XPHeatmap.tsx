@@ -80,7 +80,7 @@ function getDateRange(months: number): { startDate: Date; endDate: Date } {
 }
 
 const XPHeatmap: React.FC<XPHeatmapProps> = ({ className = '' }) => {
-  const [months, setMonths] = useState<number>(4);
+  const [months, setMonths] = useState<number>(6);
   const [data, setData] = useState<HeatmapDay[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
