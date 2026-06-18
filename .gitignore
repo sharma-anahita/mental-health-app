@@ -66,3 +66,6 @@ coverage/
 .vercel/
 
 .github/
+backend/dist/
+frontend/dist/
+dist/

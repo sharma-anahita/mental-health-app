@@ -12,6 +12,7 @@ import DailyPromptCard from "../../components/dashboard/DailyPromptCard";
 import ContextualEmptyState from "../../components/ui/ContextualEmptyState";
 import StreakMilestone from "../../components/gamification/StreakMilestone";
 import XPHeatmap from "../../components/dashboard/XPHeatmap.tsx"; // ← NEW
+import RecommendationWidget from "../../components/recommendations/RecommendationWidget.tsx";
 import useMoodStore from "../../store/moodStore";
 import useUserStore from "../../store/userStore";
 import useUIStore from "../../store/uiStore";
@@ -136,6 +137,12 @@ const DashboardPage: React.FC = () => {
 
   const handleOpenReflectionModal = () => {
     setIsEditingReflection(!!reflection);
+    setShowReflectionModal(true);
+  };
+
+  const handleUseQuestionFromWidget = (text: string) => {
+    setReflection({ text: `Prompt: ${text}\n\n` });
+    setIsEditingReflection(false);
     setShowReflectionModal(true);
   };
 
@@ -305,6 +312,11 @@ const DashboardPage: React.FC = () => {
       {/* ── XP Activity Heatmap (full width, below the two-column grid) ── */}
       <div className="mt-6">
         <XPHeatmap />
+      </div>
+
+      {/* ── Recommendation Widget ── */}
+      <div className="mt-6">
+        <RecommendationWidget onUseQuestion={handleUseQuestionFromWidget} />
       </div>
 
       <ReflectionModal

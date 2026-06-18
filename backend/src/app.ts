@@ -14,6 +14,7 @@ import streakRoutes from './routes/streakRoutes';
 import chatRoutes from './routes/chatRoutes';
 import adminRoutes from './routes/adminRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
+import recommendationRoutes from './routes/recommendationRoutes';
 // ...
 const app = express();
 
@@ -55,6 +56,8 @@ app.use('/api/reflections', reflectionRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/goals', goalRoutes);
+app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/insights', insightsRoutes);
 app.use('/api/debug', debugRoutes);
 app.use('/api/store', storeRoutes);
