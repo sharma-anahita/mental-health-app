@@ -10,6 +10,7 @@ const router = express_1.default.Router();
 router.use(authMiddleware_1.default);
 router.get('/', goalController_1.listGoals);
 router.post('/', goalController_1.createGoal);
+router.post('/from-recommendation', goalController_1.createFromRecommendation);
 router.patch('/:id', goalController_1.updateGoal);
 router.delete('/:id', goalController_1.deleteGoal);
 exports.default = router;

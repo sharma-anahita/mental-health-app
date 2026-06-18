@@ -3,9 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteGoal = exports.updateGoal = exports.createGoal = exports.listGoals = void 0;
+exports.deleteGoal = exports.updateGoal = exports.createFromRecommendation = exports.createGoal = exports.listGoals = void 0;
 const Goal_1 = __importDefault(require("../models/Goal"));
 const User_1 = __importDefault(require("../models/User"));
+const Recommendation_1 = __importDefault(require("../models/Recommendation"));
 const progressionService_1 = __importDefault(require("../services/progressionService"));
 const listGoals = async (req, res) => {
     const userId = req.userId;
@@ -22,6 +23,39 @@ const createGoal = async (req, res) => {
     res.status(201).json({ goal });
 };
 exports.createGoal = createGoal;
+const createFromRecommendation = async (req, res) => {
+    const userId = req.userId;
+    if (!userId)
+        return res.status(401).json({ message: 'Unauthorized' });
+    const { recommendationId, activityId, title } = req.body;
+    if (!recommendationId || !activityId || !title) {
+        return res.status(400).json({ message: 'Missing recommendationId, activityId, or title' });
+    }
+    if (title.length > 200) {
+        return res.status(400).json({ message: 'Title must be 200 characters or less' });
+    }
+    // Validate recommendation exists and belongs to the requesting user
+    const rec = await Recommendation_1.default.findOne({ _id: recommendationId, userId }).lean();
+    if (!rec) {
+        return res.status(404).json({ message: 'Recommendation snapshot not found' });
+    }
+    // Validate activityId is part of the recommendation's activities list
+    const hasActivity = rec.activities.some((a) => String(a.activityId) === activityId);
+    if (!hasActivity) {
+        return res.status(400).json({ message: 'Activity is not part of this recommendation snapshot' });
+    }
+    // Create the goal under type 'recommended'
+    const goal = await Goal_1.default.create({
+        userId,
+        type: 'recommended',
+        text: title,
+        sourceRecommendationId: recommendationId,
+        sourceActivityId: activityId,
+        completed: false
+    });
+    res.status(201).json({ goal, xpGained: 0 });
+};
+exports.createFromRecommendation = createFromRecommendation;
 const updateGoal = async (req, res) => {
     const userId = req.userId;
     const { id } = req.params;

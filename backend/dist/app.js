@@ -18,6 +18,7 @@ const storeRoutes_1 = __importDefault(require("./routes/storeRoutes"));
 const streakRoutes_1 = __importDefault(require("./routes/streakRoutes"));
 const chatRoutes_1 = __importDefault(require("./routes/chatRoutes"));
 const adminRoutes_1 = __importDefault(require("./routes/adminRoutes"));
+const recommendationRoutes_1 = __importDefault(require("./routes/recommendationRoutes"));
 // ...
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -58,6 +59,7 @@ app.use('/api/reflections', reflectionRoutes_1.default);
 app.use('/api/gamification', gamificationRoutes_1.default);
 app.use('/api/user', userRoutes_1.default);
 app.use('/api/goals', goalRoutes_1.default);
+app.use('/api/recommendations', recommendationRoutes_1.default);
 app.use('/api/insights', insightsRoutes_1.default);
 app.use('/api/debug', debugRoutes_1.default);
 app.use('/api/store', storeRoutes_1.default);
