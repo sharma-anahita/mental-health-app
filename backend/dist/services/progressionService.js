@@ -3,9 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rewardProfileCompletion = exports.updateUserProgress = exports.calculateLevelFromXP = exports.calculateTotalXP = exports.calculateStreakBonus = exports.calculateBaseXP = void 0;
+exports.rewardProfileCompletion = exports.updateUserProgress = exports.updateDailyXP = exports.calculateLevelFromXP = exports.calculateTotalXP = exports.calculateStreakBonus = exports.calculateBaseXP = void 0;
 const MoodLog_1 = __importDefault(require("../models/MoodLog"));
 const XPHistory_1 = __importDefault(require("../models/XPHistory"));
+const DailyXP_1 = __importDefault(require("../models/DailyXP"));
 const calculateBaseXP = (currentStreak, hasNote) => {
     const base = 10;
     const streakBonus = Math.min(2 * currentStreak, 20); // cap streak bonus at 20
@@ -27,6 +28,29 @@ const startOfUtcWeekMonday = (d) => {
     dayStart.setUTCDate(dayStart.getUTCDate() - offsetToMonday);
     return dayStart;
 };
+// Helper: Update daily XP for a user on a given date
+const updateDailyXP = async (userId, xpAmount, date) => {
+    // Calculate start of day in UTC
+    const dayStart = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    try {
+        // Try to find existing daily XP record
+        const existing = await DailyXP_1.default.findOne({ userId, date: dayStart });
+        if (existing) {
+            // Increment existing record
+            existing.xpGained += xpAmount;
+            await existing.save();
+        }
+        else {
+            // Create new record
+            await DailyXP_1.default.create({ userId, date: dayStart, xpGained: xpAmount });
+        }
+    }
+    catch (err) {
+        // Don't block XP reward if daily tracking fails
+        console.error('Failed to update daily XP:', err);
+    }
+};
+exports.updateDailyXP = updateDailyXP;
 const updateUserProgress = async (user, moodDate, hasNote = false) => {
     // Find the previous mood entry strictly before this moodDate
     const prev = await MoodLog_1.default.findOne({ userId: user._id, createdAt: { $lt: moodDate } }).sort({ createdAt: -1 });
@@ -65,6 +89,8 @@ const updateUserProgress = async (user, moodDate, hasNote = false) => {
         // (avoid using console in libraries; controller / server logs will capture uncaught rejections)
         console.error('Failed to record XPHistory:', err);
     }
+    // Record daily XP
+    await (0, exports.updateDailyXP)(user._id, xpGain, moodDate);
     // Streak
     user.streak = newStreak;
     // Coins: base 5 per mood, +5 if streak >= 7, +10 if streak % 30 === 0
@@ -121,6 +147,8 @@ const rewardProfileCompletion = async (user, updatedFields) => {
     catch (err) {
         console.error('Failed to record profile completion XP history:', err);
     }
+    // Record daily XP
+    await (0, exports.updateDailyXP)(user._id, xpGain, new Date());
     // add to profileCompletedFields
     user.profileCompletedFields = Array.from(new Set([...user.profileCompletedFields, ...newlyCompleted]));
     // update level
@@ -136,6 +164,7 @@ exports.default = {
     calculateLevelFromXP: exports.calculateLevelFromXP,
     updateUserProgress: exports.updateUserProgress,
     rewardProfileCompletion: exports.rewardProfileCompletion,
+    updateDailyXP: exports.updateDailyXP,
     // Award XP for goal completion or other small events
     rewardGoalCompletion: async (user, xpAmount, reason = 'goal_completion') => {
         const xpGain = Number(xpAmount) || 0;
@@ -148,6 +177,8 @@ exports.default = {
         catch (err) {
             console.error('Failed to record goal completion XP history:', err);
         }
+        // Record daily XP
+        await (0, exports.updateDailyXP)(user._id, xpGain, new Date());
         user.level = (0, exports.calculateLevelFromXP)(user.xp);
         await user.save();
         return { user, xpGained: xpGain };

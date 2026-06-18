@@ -152,13 +152,6 @@ const userSchema = new mongoose.Schema<IUser>(
 );
 
 /* ─────────────────────────────────────────────
-   Indexes (optional but good)
-───────────────────────────────────────────── */
-
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
-
-/* ─────────────────────────────────────────────
    Model
 ───────────────────────────────────────────── */
 

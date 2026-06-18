@@ -84,11 +84,6 @@ const userSchema = new mongoose_1.default.Schema({
     resetPasswordExpires: { type: Date, default: null },
 }, { timestamps: true });
 /* ─────────────────────────────────────────────
-   Indexes (optional but good)
-───────────────────────────────────────────── */
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
-/* ─────────────────────────────────────────────
    Model
 ───────────────────────────────────────────── */
 const User = mongoose_1.default.model('User', userSchema);
