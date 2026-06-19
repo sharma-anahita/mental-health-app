@@ -3,6 +3,7 @@ import MoodLog from '../models/MoodLog';
 import XPHistory from '../models/XPHistory';
 import DailyXP from '../models/DailyXP';
 import { IUser } from '../models/User';
+import { invalidateHeatmapCache } from './heatmapCacheService';
 
 export const calculateBaseXP = (currentStreak: number, hasNote: boolean): number => {
   const base = 10;
@@ -33,17 +34,15 @@ export const updateDailyXP = async (userId: mongoose.Types.ObjectId, xpAmount: n
   const dayStart = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 
   try {
-    // Try to find existing daily XP record
-    const existing = await DailyXP.findOne({ userId, date: dayStart });
+    // Atomic update or insert using findOneAndUpdate with $inc
+    await DailyXP.findOneAndUpdate(
+      { userId, date: dayStart },
+      { $inc: { xpGained: xpAmount } },
+      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
+    );
 
-    if (existing) {
-      // Increment existing record
-      existing.xpGained += xpAmount;
-      await existing.save();
-    } else {
-      // Create new record
-      await DailyXP.create({ userId, date: dayStart, xpGained: xpAmount });
-    }
+    // Invalidate the cached heatmap for this user so frontend sees the updates
+    await invalidateHeatmapCache(userId.toString());
   } catch (err) {
     // Don't block XP reward if daily tracking fails
     console.error('Failed to update daily XP:', err);
