@@ -125,10 +125,4 @@ npm run dev
 - **Vector Embeddings:** Integrate vector-based similarity scoring (MongoDB Atlas Vector Search) for advanced recommendation maps.
 
 ---
-
-## 👨‍💻 Author
-
-- **Name:** *[Your Name]*
-- **GitHub:** [@yourusername](https://github.com/yourusername)
-- **LinkedIn:** [your-linkedin-profile](https://linkedin.com/in/your-linkedin-profile)
-- **Portfolio:** [your-portfolio-website](https://your-portfolio-website.com)
+ 
