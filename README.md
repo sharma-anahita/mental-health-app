@@ -15,15 +15,15 @@ The project is structured as a decoupled monorepo containing a React frontend, a
 ---
 
 ## ⚡ Quick Links to Detailed Technical Docs
-To keep this README readable in under 2 minutes, deep-dive specifications have been moved to the `/docs` directory:
-- [System Architecture](file:///d:/mental-health-app/docs/architecture.md) — Structural diagrams, tier configurations, and data flows.
-- [API Reference](file:///d:/mental-health-app/docs/api-reference.md) — Endpoint documentation, payload parameters, and response logs.
-- [Database Design](file:///d:/mental-health-app/docs/database-design.md) — Schemas, relationships, compound indices, and ER diagrams.
-- [Recommendation Engine](file:///d:/mental-health-app/docs/recommendation-engine.md) — Scoring formulas, context analysis, and weights.
-- [Security & CORS](file:///d:/mental-health-app/docs/security.md) — JWT auth, password hashing, Google SSO, and whitelisting.
-- [Performance & Caching](file:///d:/mental-health-app/docs/performance.md) — Redis configurations, Mongoose optimizations, and lean queries.
-- [Engineering Decisions](file:///d:/mental-health-app/docs/engineering-decisions.md) — Architecture decisions, trade-offs, and ASGI proxy wrappers.
-- [Production Deployment](file:///d:/mental-health-app/docs/deployment.md) — Render Blueprints, Vercel SPA routing, and environment setup.
+To keep this README readable , deep-dive specifications have been moved to the `/docs` directory:
+- [System Architecture](file:///d:/mental-health-app/docs/architecture.md) : Structural diagrams, tier configurations, and data flows.
+- [API Reference](file:///d:/mental-health-app/docs/api-reference.md) : Endpoint documentation, payload parameters, and response logs.
+- [Database Design](file:///d:/mental-health-app/docs/database-design.md) : Schemas, relationships, compound indices, and ER diagrams.
+- [Recommendation Engine](file:///d:/mental-health-app/docs/recommendation-engine.md) : Scoring formulas, context analysis, and weights.
+- [Security & CORS](file:///d:/mental-health-app/docs/security.md) : JWT auth, password hashing, Google SSO, and whitelisting.
+- [Performance & Caching](file:///d:/mental-health-app/docs/performance.md) : Redis configurations, Mongoose optimizations, and lean queries.
+- [Engineering Decisions](file:///d:/mental-health-app/docs/engineering-decisions.md) : Architecture decisions, trade-offs, and ASGI proxy wrappers.
+- [Production Deployment](file:///d:/mental-health-app/docs/deployment.md) : Render Blueprints, Vercel SPA routing, and environment setup.
 
 ---
 
@@ -121,7 +121,7 @@ npm run dev
 
 ## 🔮 Future Improvements
 - **Database-Backed Chat Logs:** Migrate AI chat logs from server-side memory to a structured MongoDB collection.
-- **Worker Queues:** Implement worker services (e.g. BullMQ) to offload email tasks and push notifications.
+- **ML model integration:** Train an ML model and use it to generate recommendations, currenlty we are generating data for it.
 - **Vector Embeddings:** Integrate vector-based similarity scoring (MongoDB Atlas Vector Search) for advanced recommendation maps.
 
 ---
