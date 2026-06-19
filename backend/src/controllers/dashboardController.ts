@@ -3,7 +3,6 @@ import DailyXP from '../models/DailyXP';
 import {
   getCachedHeatmap,
   setCachedHeatmap,
-  invalidateHeatmapCache,
   type HeatmapCachePayload,
   type HeatmapData,
 } from '../services/heatmapCacheService';
