@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "seed:store": "npm run build && node dist/scripts/seedStoreItems.js",
+    "migration:backfill-xp": "ts-node src/scripts/backfillDailyXP.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
