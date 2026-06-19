@@ -53,7 +53,7 @@ All endpoints are prefixed with `/api`. Protected routes require a Bearer token 
   }
   ```
 - **Response (200 OK):** Same as Register.
-
+<!-- 
 ### Forgot Password
 - **Endpoint:** `POST /api/auth/forgot-password`
 - **Authentication:** None
@@ -85,7 +85,7 @@ All endpoints are prefixed with `/api`. Protected routes require a Bearer token 
   {
     "message": "Password has been reset successfully"
   }
-  ```
+  ``` -->
 
 ---
 
