@@ -6,7 +6,15 @@ import apiClient from "./services/apiClient";
 import { getToken, TOKEN_CHANGED_EVENT } from "./services/tokenStorage";
 import "./styles/themes.css";
 
-type FontStyle = "Inter" | "Poppins" | "Roboto";
+type FontStyle =
+  | "Inter"
+  | "Manrope"
+  | "Nunito"
+  | "Poppins"
+  | "Merriweather"
+  | "Plus Jakarta Sans"
+  | "Outfit"
+  | "Open Sans";
 
 function applyGlobalTypography(fontStyle: FontStyle = "Inter", fontColor = "#0f172a"): void {
   const root = document.documentElement;

@@ -99,3 +99,25 @@ export async function seedStoreItems(): Promise<void> {
 
   console.log(`[seed] completed → inserted=${inserted}, existing=${existing}`);
 }
+
+import 'dotenv/config';
+import mongoose from 'mongoose';
+
+if (require.main === module) {
+  (async () => {
+    const uri = process.env.MONGO_URI;
+    if (!uri) {
+      console.error('❌ MONGO_URI not set in environment');
+      process.exit(1);
+    }
+    console.log('Connecting to MongoDB for seeding...');
+    await mongoose.connect(uri);
+    console.log('✅ Connected. Seeding store items...');
+    await seedStoreItems();
+    await mongoose.disconnect();
+    console.log('Disconnected. Seeding complete.');
+  })().catch((err) => {
+    console.error('❌ Seeding failed:', err);
+    process.exit(1);
+  });
+}

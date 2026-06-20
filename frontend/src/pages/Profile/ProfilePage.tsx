@@ -21,9 +21,26 @@ import { canUseFeature } from "../../utils/featureAccess";
 // ── Theme ──────────────────────────────────────────────────────────────────
 import ThemeSwitcher from "../../components/ui/ThemeSwitcher";
 
-type FontStyle = "Inter" | "Poppins" | "Roboto";
+type FontStyle =
+  | "Inter"
+  | "Manrope"
+  | "Nunito"
+  | "Poppins"
+  | "Merriweather"
+  | "Plus Jakarta Sans"
+  | "Outfit"
+  | "Open Sans";
 
-const FONT_STYLE_OPTIONS: FontStyle[] = ["Inter", "Poppins", "Roboto"];
+const FONT_STYLE_OPTIONS: FontStyle[] = [
+  "Inter",
+  "Manrope",
+  "Nunito",
+  "Poppins",
+  "Merriweather",
+  "Plus Jakarta Sans",
+  "Outfit",
+  "Open Sans",
+];
 
 function applyGlobalTypography(font: FontStyle, color: string): void {
   const root = document.documentElement;

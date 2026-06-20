@@ -25,7 +25,15 @@ export interface User {
   preferences?: {
     theme?: string;
     fontColor?: string;
-    fontStyle?: "Inter" | "Poppins" | "Roboto";
+    fontStyle?:
+      | "Inter"
+      | "Manrope"
+      | "Nunito"
+      | "Poppins"
+      | "Merriweather"
+      | "Plus Jakarta Sans"
+      | "Outfit"
+      | "Open Sans";
   };
 }
 
